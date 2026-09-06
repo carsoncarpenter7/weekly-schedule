@@ -5,7 +5,7 @@
 // updated the cache silently "for next time" — which never actually
 // arrived, since next time did the same thing. The cache now exists purely
 // as an offline fallback, not a stale-serving mechanism.
-const CACHE = 'recomp-shell-v15'; // bumped — collapsed hub toggle in day toolbar
+const CACHE = 'recomp-shell-v34'; // bumped — unified page icons for pills + nav
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

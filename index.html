@@ -276,7 +276,7 @@ button:focus{outline:none}
 .inp:focus{outline:none;border-color:var(--text3);font-size:16px}
 .ta{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 10px;margin-bottom:10px;resize:vertical;min-height:60px}
 .ta:focus{outline:none;border-color:var(--text3);font-size:16px}
-.lbl{font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:5px;display:block}
+.lbl{font-size:11px;color:var(--text2);letter-spacing:0.3px;font-weight:600;margin-bottom:5px;display:block}
 .type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .type-opt{padding:5px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.1s;background:var(--card2);width:100%;text-align:left;font-family:'IBM Plex Mono',monospace;min-width:0}
 .type-opt:disabled{opacity:0.35;cursor:default}
@@ -540,10 +540,13 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim{animation:no
 .trd-day-notes{font-size:9px;color:var(--text3);line-height:1.45;margin-top:8px;padding-top:8px;border-top:1px solid var(--card2)}
 .trd-empty{text-align:center;padding:36px 20px;color:var(--muted);font-size:11px;line-height:1.6}
 .settings-hub{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.settings-hub-group{margin-bottom:4px}
+.settings-hub-group-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.5px;font-weight:700;padding:0 4px 8px}
 .settings-hub-row{display:flex;align-items:center;gap:12px;width:100%;padding:15px 16px;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;text-align:left;font-family:inherit;transition:background 0.12s}
 .settings-hub-row:last-child{border-bottom:none}
 .settings-hub-row:active{background:var(--card2)}
-.settings-hub-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.settings-hub-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.settings-section-title-row{display:flex;align-items:center;gap:8px}
 .settings-hub-body{flex:1;min-width:0}
 .settings-hub-label{font-size:12px;color:var(--text);font-weight:600;display:block;letter-spacing:0.2px}
 .settings-hub-sub{font-size:9px;color:var(--muted);margin-top:3px;display:block;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -555,17 +558,23 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim{animation:no
 .settings-section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;line-height:1}
 .settings-section-sub{font-size:9px;color:var(--muted);margin-top:5px;line-height:1.4;letter-spacing:0.1px}
 .settings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
-.settings-card-title{font-size:7px;color:var(--muted);letter-spacing:2px;font-weight:700;margin-bottom:12px}
+.settings-card-title{font-size:9px;color:var(--text3);letter-spacing:1.5px;font-weight:700;margin-bottom:12px}
+.daily-cascade-note{font-size:12px;color:var(--accent);line-height:1.45;margin:0 0 12px}
+.settings-card .daily-cascade-note{margin:8px 0 0}
 .settings-hint{font-size:8px;color:var(--muted2);line-height:1.5;margin-bottom:12px}
+.settings-hint:last-child{margin-bottom:0}
 .settings-collapse-hdr{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;cursor:pointer;padding:0;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.5px;font-weight:700;text-align:left}
 .settings-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--card2)}
 .settings-toggle-row:last-child{border-bottom:none;padding-bottom:0}
-.settings-save-btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1.5px;margin-top:2px}
+.settings-save-btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1.5px;margin-top:4px}
 .settings-section-intro{font-size:9px;color:var(--muted);line-height:1.45;margin-bottom:14px}
 .settings-field-row{padding:10px 0;border-bottom:1px solid var(--card2)}
 .settings-field-row:last-child{border-bottom:none;padding-bottom:0}
-.settings-field-row label{font-size:9px;color:var(--text3);letter-spacing:0.5px;display:block;margin-bottom:5px}
+.settings-field-row label{font-size:11px;color:var(--text2);letter-spacing:0.3px;font-weight:600;display:block;margin-bottom:5px}
 .settings-field-row .inp{margin-bottom:0}
+.settings-field-controls{display:flex;align-items:center;gap:8px;min-width:0}
+.settings-field-row .settings-field-controls .time-pick-btn{width:auto;flex:1;min-width:0}
+.page-body .toggle-pill{margin-bottom:12px}
 .settings-stat{margin-bottom:14px}
 .settings-stat-bar{height:4px;background:var(--card2);border-radius:2px;overflow:hidden;margin-bottom:6px}
 .settings-stat-bar-fill{height:100%;background:#6366f1;border-radius:2px}
@@ -580,15 +589,26 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim{animation:no
 .settings-macro-grid .settings-macro-input-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .settings-macro-grid .settings-macro-unit{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;flex:0 0 auto;line-height:1;font-weight:600}
 .settings-macro-grid label{font-size:9px;letter-spacing:0.2px;font-weight:600;display:block;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;order:2}
-.settings-macro-day-list{display:flex;flex-direction:column;gap:8px}
-.settings-macro-day-card{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px}
+.settings-macro-day-list{display:flex;flex-direction:column;gap:5px}
+.settings-macro-day-card{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 12px}
+.settings-macro-day-card.is-open{border-radius:12px;padding:10px}
 .settings-macro-day-hdr{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;background:none;border:none;padding:0;margin:0;cursor:pointer;text-align:left;font-family:inherit}
 .settings-macro-day-hdr-open{margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--border)}
-.settings-macro-day-name{font-size:12px;color:var(--text);font-weight:700;letter-spacing:0.2px}
-.settings-macro-day-split{font-size:9px;color:var(--muted);font-weight:500;margin-left:6px}
-.settings-macro-day-meta{font-size:8px;color:var(--muted2);margin-top:3px}
-.settings-macro-day-chevron{font-size:12px;color:var(--muted2);flex-shrink:0}
-.settings-macro-buffer{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
+.settings-macro-day-hdr-main{display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow:hidden}
+.settings-macro-day-card.is-open .settings-macro-day-hdr-main{flex-direction:column;align-items:flex-start;gap:2px;overflow:visible}
+.settings-macro-day-name{font-size:12px;color:var(--text);font-weight:700;letter-spacing:0.2px;flex-shrink:0}
+.settings-macro-day-card.is-open .settings-macro-day-name{font-size:12px}
+.settings-macro-day-split{font-size:11px;color:#a3e635;font-weight:700;letter-spacing:0.3px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.settings-macro-day-card.is-open .settings-macro-day-split{display:block;font-size:13px;letter-spacing:0.4px;margin-top:2px;white-space:normal}
+.settings-macro-day-split.is-rest{color:var(--muted)}
+.settings-macro-day-split.is-unset{color:#fbbf24}
+.settings-macro-day-meta{font-size:9px;color:var(--muted2);margin-left:auto;flex-shrink:0;white-space:nowrap}
+.settings-macro-day-card.is-open .settings-macro-day-meta{margin-left:0;margin-top:2px}
+.settings-macro-day-chevron{font-size:13px;color:var(--muted2);flex-shrink:0}
+.settings-macro-buffer{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.settings-macros-head{margin-bottom:6px;padding:0 2px}
+.settings-macros-head .settings-card-title{margin-bottom:4px}
+.settings-macros-head .settings-hint{margin-bottom:0}
 .settings-instant-note{font-size:8px;color:var(--muted);text-align:center;padding:4px 0 8px}
 .settings-chip-row{display:flex;flex-wrap:nowrap;gap:4px;width:100%;margin-top:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
 .settings-chip-row::-webkit-scrollbar{display:none}
@@ -602,6 +622,9 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim{animation:no
 .settings-split-lift-scroll .settings-chip-row{overflow:visible;width:max-content}
 .settings-split-cat{font-size:7px;color:var(--muted);letter-spacing:1.5px;font-weight:700;margin:10px 0 6px}
 .settings-split-cat:first-child{margin-top:0}
+.daily-sub-cat{font-size:8px;letter-spacing:1.5px;font-weight:700;margin:14px 0 4px;padding:8px 0 0 8px;border-top:1px solid var(--border2);border-left:2px solid #2dd4bf;color:#2dd4bf}
+.daily-sub-cat:first-child{margin-top:0;padding-top:0;border-top:none}
+.daily-sub-cat + .settings-field-row{padding-top:6px}
 .settings-split-extras{display:flex;gap:6px}
 .settings-split-extra{flex:1;padding:8px 6px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:0.4px;text-align:center}
 .settings-split-extra.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:700}
@@ -623,7 +646,22 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim{animation:no
 .settings-meal-summary-title{font-size:10px;color:var(--text2);font-weight:600}
 .settings-meal-summary-sub{font-size:8px;color:var(--muted2);margin-top:2px}
 .settings-meal-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--card2)}
-.settings-link-btn{background:none;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:0.5px;padding:8px 0;width:100%;text-align:center;margin-top:4px}
+.settings-macro-breakdown{display:flex;flex-direction:column;gap:14px}
+.settings-macro-breakdown-row{display:flex;flex-direction:column;gap:7px}
+.settings-macro-breakdown-hdr{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.settings-macro-breakdown-title{font-size:10px;color:var(--text2);font-weight:600}
+.settings-macro-breakdown-sub{font-size:8px;color:var(--muted2)}
+.settings-macro-breakdown-row.is-total .settings-macro-breakdown-title{color:#fb923c}
+.settings-macro-breakdown-row.is-total .settings-macro-input-wrap{background:var(--card2)}
+.settings-macro-readout-val{flex:1 1 0;min-width:0;padding:8px 0 8px 6px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--text);line-height:1.2;box-sizing:border-box}
+.settings-shake-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.settings-shake-card{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:10px}
+.settings-shake-card-title{font-size:12px;color:var(--text);font-weight:700;letter-spacing:0.2px}
+.settings-shake-card-sub{font-size:8px;color:var(--muted2);margin-top:3px}
+.settings-shake-step,.settings-step-btn-lg{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-size:18px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;font-family:inherit}
+.settings-shake-step-sm,.settings-step-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;font-family:inherit}
+.settings-shake-step-sm{background:var(--bg)}
+.settings-link-btn{background:none;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:0.5px;padding:10px 0;width:100%;text-align:left;margin-top:8px}
 .journal-entry{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
 .journal-entry:hover{border-color:var(--muted2)}
 .menu-overlay{position:fixed;inset:0;z-index:200;background:#000000cc;backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
@@ -868,7 +906,9 @@ const BS={
   travel:     {c:"#94a3b8",l:"Drive · Gym",       bg:"#0c0f12",bd:"#1a2028",tc:"#cbd5e1"},
   travelback: {c:"#94a3b8",l:"Drive · Home",      bg:"#0c0f12",bd:"#1a2028",tc:"#cbd5e1"},
   drivework:  {c:"#94a3b8",l:"Drive · Work",      bg:"#0c0f12",bd:"#1a2028",tc:"#cbd5e1"},
+  drivehome:  {c:"#94a3b8",l:"Drive · From Work", bg:"#0c0f12",bd:"#1a2028",tc:"#cbd5e1"},
   brush:      {c:"#2dd4bf",l:"Brush Teeth",       bg:"#011412",bd:"#032a26",tc:"#5eead4"},
+  winddown:   {c:"#5eead4",l:"Screen cutoff",     bg:"#041412",bd:"#0d3330",tc:"#99f6e4"},
   recovery:   {c:"#c084fc",l:"Recovery",          bg:"#100c1e",bd:"#1e1030",tc:"#d8b4fe"},
   personal:   {c:"#64748b",l:"Personal Time",     bg:"#0a0c10",bd:"#161b22",tc:"#94a3b8"},
   soccer:     {c:"#22c55e",l:"Soccer",            bg:"#021a0a",bd:"#14532d",tc:"#4ade80"},
@@ -877,13 +917,13 @@ const BS={
 };
 // Picker order: Time (wake/sleep/drives first) → Activity → Nutrition → Habits
 const TYPE_KEYS=[
-  'wake','sleep','travel','travelback','drivework','caffeine','work','workend',
+  'wake','sleep','travel','travelback','drivework','drivehome','caffeine','work','workend',
   'training','cardio','walk','soccer','sauna',
   'meal','shake','supps','dextrose','creatine','collagen',
-  'journal','deepjournal','brush','recovery','trade','personal','misc',
+  'journal','deepjournal','brush','winddown','recovery','trade','personal','misc',
 ];
 // Once-per-day anchors — still selectable as current type; otherwise shown disabled in picker
-const SINGLETON_TYPES=new Set(['wake','sleep','work','workend','caffeine','travel','travelback','drivework']);
+const SINGLETON_TYPES=new Set(['wake','sleep','work','workend','caffeine','travel','travelback','drivework','drivehome','winddown']);
 const PICKER_CAT_ORDER=['time','activity','nutrition','habit'];
 const PICKER_CAT_LABEL={time:'TIME',activity:'ACTIVITY',nutrition:'NUTRITION',habit:'HABITS'};
 const POWDER_TYPES=new Set(['dextrose','creatine','collagen']);
@@ -1030,6 +1070,7 @@ const BASE_SCHEDULE={
   ]},
   MON:{mt:"BACK",work:true,blocks:[
     {t:"12:00 AM",l:"Caffeine",type:"caffeine"},
+    {t:"5:00 AM",l:"Drive home from work · 30 min",type:"drivehome"},
     {t:"5:30 AM",l:"Shift ends · Home",type:"workend"},
     {t:"5:45 AM",type:"shake",scoops:4,idx:1,tot:3,l:"Shake 1 · 60g protein"},
     {t:"5:35 AM",l:"Supplements",type:"supps"},
@@ -1053,6 +1094,7 @@ const BASE_SCHEDULE={
   ]},
   TUE:{mt:"LEGS",work:true,blocks:[
     {t:"12:00 AM",l:"Caffeine",type:"caffeine"},
+    {t:"5:00 AM",l:"Drive home from work · 30 min",type:"drivehome"},
     {t:"5:30 AM",l:"Shift ends · Home",type:"workend"},
     {t:"5:45 AM",type:"shake",scoops:4,idx:1,tot:3,l:"Shake 1 · 60g protein"},
     {t:"5:35 AM",l:"Supplements",type:"supps"},
@@ -1076,6 +1118,7 @@ const BASE_SCHEDULE={
   ]},
   WED:{mt:"ABS",work:true,blocks:[
     {t:"12:00 AM",l:"Caffeine",type:"caffeine"},
+    {t:"5:00 AM",l:"Drive home from work · 30 min",type:"drivehome"},
     {t:"5:30 AM",l:"Shift ends · Home",type:"workend"},
     {t:"5:45 AM",type:"shake",scoops:4,idx:1,tot:3,l:"Shake 1 · 60g protein"},
     {t:"5:35 AM",l:"Supplements",type:"supps"},
@@ -1099,6 +1142,7 @@ const BASE_SCHEDULE={
   ]},
   THU:{mt:"ARMS",work:true,blocks:[
     {t:"12:00 AM",l:"Caffeine",type:"caffeine"},
+    {t:"5:00 AM",l:"Drive home from work · 30 min",type:"drivehome"},
     {t:"5:30 AM",l:"Shift ends · Home",type:"workend"},
     {t:"5:45 AM",type:"shake",scoops:4,idx:1,tot:3,l:"Shake 1 · 60g protein"},
     {t:"5:35 AM",l:"Supplements",type:"supps"},
@@ -1122,6 +1166,7 @@ const BASE_SCHEDULE={
   ]},
   FRI:{mt:"CHESTBACK",work:false,blocks:[
     {t:"12:00 AM",l:"Caffeine",type:"caffeine"},
+    {t:"5:00 AM",l:"Drive home from work · 30 min",type:"drivehome"},
     {t:"5:30 AM",l:"Shift ends · Home",type:"workend"},
     {t:"5:45 AM",type:"shake",scoops:4,idx:1,tot:3,l:"Shake 1 · 60g protein"},
     {t:"5:35 AM",l:"Supplements",type:"supps"},
@@ -1298,20 +1343,33 @@ function commitHtml(html){
   }
 }
 
-function showToast(msg){
+function showToast(msg,opts){
   try{
+    opts=opts||{};
     var existing=document.getElementById('app-toast');
     if(existing)existing.remove();
     var t=document.createElement('div');
     t.id='app-toast';
-    t.textContent=msg;
-    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:10px 18px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px #000a;animation:modalIn 0.18s ease';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:10px 18px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px #000a;animation:modalIn 0.18s ease;display:flex;align-items:center;gap:10px;max-width:90vw';
+    var label=document.createElement('span');
+    label.textContent=msg;
+    t.appendChild(label);
+    if(typeof opts.onUndo==='function'){
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.textContent='Undo';
+      btn.style.cssText='background:transparent;border:1px solid var(--accent-border);color:var(--accent);font-family:inherit;font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:0.5px;flex-shrink:0';
+      btn.onclick=function(e){e.stopPropagation();try{opts.onUndo();}catch(err){}try{t.remove();}catch(err2){}};
+      t.appendChild(btn);
+    }
     document.body.appendChild(t);
+    var hold=opts.onUndo?10000:1800;
     setTimeout(function(){
+      if(!t.parentNode)return;
       t.style.transition='opacity 0.3s';
       t.style.opacity='0';
       setTimeout(function(){try{t.remove();}catch(e){}},300);
-    },1800);
+    },hold);
   }catch(e){}
 }
 
@@ -1364,7 +1422,7 @@ function _writeState(){
       checked,expanded,consistency,streaks,sleepLog,
       journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
       schedVersion:SCHED_VERSION,bsHash:_liveBsHash(),
-      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailyTodoItems,dailyTodoLog,
+      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
       anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v))
     }));
   }catch(e){}
@@ -3518,6 +3576,7 @@ const UI_DEFAULTS={
   streaksMode:'live',
   strengthTab:'workouts',
   inventoryTracking:true,
+  showFoodEditTab:false,
 };
 var uiSettings=Object.assign({},UI_DEFAULTS,safeParseLS('recomp_ui',{})||{});
 // Migrate legacy theme keys + ensure layout arrays exist
@@ -3544,6 +3603,7 @@ var uiSettings=Object.assign({},UI_DEFAULTS,safeParseLS('recomp_ui',{})||{});
   if(!['live','records'].includes(uiSettings.streaksMode))uiSettings.streaksMode=UI_DEFAULTS.streaksMode;
   if(!['workouts','cardio','sauna'].includes(uiSettings.strengthTab))uiSettings.strengthTab=UI_DEFAULTS.strengthTab;
   if(typeof uiSettings.inventoryTracking!=='boolean')uiSettings.inventoryTracking=true;
+  if(typeof uiSettings.showFoodEditTab!=='boolean')uiSettings.showFoodEditTab=false;
   // Schedule always first in nav and never hidden
   uiSettings.navOrder=uiSettings.navOrder.filter(id=>id!=='schedule');
   uiSettings.navOrder.unshift('schedule');
@@ -4048,6 +4108,16 @@ function hubIsSkipped(dk,i,suffix){
 }
 function hubIsBlockDone(dk,i,suffix){
   return hubIsChecked(dk,i,suffix)||hubIsSkipped(dk,i,suffix);
+}
+// Mirror timeline isPausedByFast: active-fast auto-skips are hidden, not "complete".
+function hubIsPausedByFast(dk,i){
+  return typeof isFasting==='function'&&isFasting()&&(fastAutoSkipped||[]).includes(`${getDateKey(dk)}-${i}`);
+}
+function hubPausedFastingCard(kind){
+  const color=hubWidgetColor('fast')||'#60a5fa';
+  const label=kind==='shake'?'SHAKE':'MEALS';
+  return hubCard({label,color,tap:'openFastModal()',empty:true,body:
+    hubEmptyState({title:'Fasting',color})});
 }
 function hubPct(cur,max){return max>0?Math.min(100,Math.round((cur/max)*100)):0;}
 function hubBar(pct,color){
@@ -4652,6 +4722,12 @@ function getDayShakeBlocks(dk){
     .filter(({b})=>!b.hidden&&!_isProvisionalBlock(b)&&b.type==='shake')
     .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
 }
+function hubMealBlocksLive(dk){
+  return (typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[]).filter(x=>!hubIsPausedByFast(dk,x.i));
+}
+function hubShakeBlocksLive(dk){
+  return (typeof getDayShakeBlocks==='function'?getDayShakeBlocks(dk):[]).filter(x=>!hubIsPausedByFast(dk,x.i));
+}
 // Mirror renderHubBoard `done` flags so completed cards can sink to the bottom.
 function hubWidgetDoneForDay(id,dk){
   const dateStr=DATE_INPUT_FMT(getDateForDay(dk));
@@ -4689,12 +4765,12 @@ function hubWidgetDoneForDay(id,dk){
     return taken.length>=supplementTypes.length;
   }
   if(id==='nextMeal'){
-    const meals=typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[];
+    const meals=typeof hubMealBlocksLive==='function'?hubMealBlocksLive(dk):(typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[]);
     if(!meals.length)return false;
     return meals.every(x=>hubIsBlockDone(dk,x.i));
   }
   if(id==='shake'){
-    const shakes=typeof getDayShakeBlocks==='function'?getDayShakeBlocks(dk):[];
+    const shakes=typeof hubShakeBlocksLive==='function'?hubShakeBlocksLive(dk):(typeof getDayShakeBlocks==='function'?getDayShakeBlocks(dk):[]);
     if(!shakes.length)return false;
     return shakes.every(x=>hubIsChecked(dk,x.i)||hubIsSkipped(dk,x.i));
   }
@@ -4713,6 +4789,19 @@ function hubWidgetDoneForDay(id,dk){
     return taken.length>=dailyTodoItems.length;
   }
   if(id==='todons')return false; // stay visible as a live guardrail
+  return false;
+}
+// Meal/shake hub cards with nothing live while fasting — sink below completed.
+function hubIsFastingPausedWidget(id,dk){
+  if(typeof isFasting!=='function'||!isFasting())return false;
+  if(id==='nextMeal'){
+    const meals=typeof hubMealBlocksLive==='function'?hubMealBlocksLive(dk):[];
+    return !meals.length;
+  }
+  if(id==='shake'){
+    const shakes=typeof hubShakeBlocksLive==='function'?hubShakeBlocksLive(dk):[];
+    return !shakes.length;
+  }
   return false;
 }
 // Hub display order: always-active context pinned at top, then true
@@ -4797,11 +4886,14 @@ function sortHubWidgetsForDay(widgets,dk){
     return m;
   }
   function band(id){
+    // Fasting meal/shake empties go after completed cards (last).
+    if(hubIsFastingPausedWidget(id,dk))return 4;
     if(hubWidgetDoneForDay(id,dk))return 3;
     if(PINNED.indexOf(id)>=0)return 0;
     if(nextActionMins(id)!=null)return 1;
     return 2;
   }
+  const FAST_PAUSE_ORD={nextMeal:0,shake:1};
   return list.sort((a,b)=>{
     const ba=band(a),bb=band(b);
     if(ba!==bb)return ba-bb;
@@ -4813,6 +4905,11 @@ function sortHubWidgetsForDay(widgets,dk){
     if(ba===1){
       const da=nextActionMins(a)-nextActionMins(b);
       if(da!==0)return da;
+    }
+    if(ba===4){
+      const pa=FAST_PAUSE_ORD[a]!=null?FAST_PAUSE_ORD[a]:99;
+      const pb=FAST_PAUSE_ORD[b]!=null?FAST_PAUSE_ORD[b]:99;
+      if(pa!==pb)return pa-pb;
     }
     return tie(a)-tie(b);
   });
@@ -4970,7 +5067,7 @@ function renderHubBoard(dk,flush){
       }
     }else if(wid==='nextMeal'){
       const mCol=hubWidgetColor('nextMeal');
-      const ordered=(typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[]);
+      const ordered=typeof hubMealBlocksLive==='function'?hubMealBlocksLive(dk):(typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[]);
       const now=new Date();
       const nowMins=now.getHours()*60+now.getMinutes();
       const isToday=dateStr===DATE_INPUT_FMT(new Date())&&schedWeekOffset===0;
@@ -4984,9 +5081,12 @@ function renderHubBoard(dk,flush){
       const mealDoneN=ordered.filter(x=>hubIsBlockDone(dk,x.i)).length;
       const mealMeta=ordered.length?mealDoneN+'/'+ordered.length:'';
       if(!ordered.length){
-        const fastCol=hubWidgetColor('fast');
-        cards.push(hubCard({label:'FASTING',color:fastCol,tap:'openFastModal()',empty:true,body:
-          hubEmptyState({title:'Fasting',color:fastCol})}));
+        if(typeof isFasting==='function'&&isFasting())cards.push(hubPausedFastingCard('meal'));
+        else{
+          const fastCol=hubWidgetColor('fast');
+          cards.push(hubCard({label:'FASTING',color:fastCol,tap:'openFastModal()',empty:true,body:
+            hubEmptyState({title:'Fasting',color:fastCol})}));
+        }
       }else{
         cards.push(hubCard({label:'NEXT MEAL',color:mCol,tap:`openHubMealLog('${dk}')`,done:!next,empty:false,body:
           next?hubTimedBody(next.b.t,next.b.l||next.b.type,mealMeta,mCol)
@@ -4994,15 +5094,14 @@ function renderHubBoard(dk,flush){
       }
     }else if(wid==='shake'){
       const shCol=hubWidgetColor('shake');
-      const blocks=getEffectiveBlocks(dk)||[];
-      const shakes=blocks.map((b,i)=>({b,i})).filter(({b})=>!b.hidden&&b.type==='shake')
-        .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+      const shakes=typeof hubShakeBlocksLive==='function'?hubShakeBlocksLive(dk):(typeof getDayShakeBlocks==='function'?getDayShakeBlocks(dk):[]);
       const shakeProg=(done,tot,pct)=>{
         const p=pct!=null?pct:hubPct(done,tot);
         return`<div class="hub-shake-prog"><span class="hub-shake-prog-label">${done}/${tot}</span><div class="hub-shake-prog-track"><div class="hub-shake-prog-fill" style="width:${p}%;background:${shCol}"></div></div></div>`;
       };
       if(!shakes.length){
-        cards.push(hubCard({label:'SHAKE',color:shCol,tap:'hubScrollToTimeline()',empty:true,body:
+        if(typeof isFasting==='function'&&isFasting())cards.push(hubPausedFastingCard('shake'));
+        else cards.push(hubCard({label:'SHAKE',color:shCol,tap:'hubScrollToTimeline()',empty:true,body:
           hubEmptyState({title:'No shake today',color:shCol})}));
       }else{
         let next=null,doneN=0;
@@ -6152,6 +6251,1205 @@ let mealPlan=normalizeMealPlan(saved&&saved.mealPlan);
 if(saved&&saved.mealPlan){
   try{applyMealPlanToDM();}catch(e){}
 }
+
+// ─── DAILY SCHEDULES (Settings → Daily Schedule profiles) ─────────────────────
+function _nextDayKey(dk){
+  const i=DAYS.indexOf(dk);
+  return i<0?'MON':DAYS[(i+1)%7];
+}
+function _prevDayKey(dk){
+  const i=DAYS.indexOf(dk);
+  return i<0?'SUN':DAYS[(i+6)%7];
+}
+function _findBlockTime(type,preferDays){
+  const order=preferDays&&preferDays.length?preferDays:DAYS;
+  for(let i=0;i<order.length;i++){
+    const day=schedule[order[i]];
+    if(!day||!day.blocks)continue;
+    const b=day.blocks.find(x=>x&&x.type===type&&!x.hidden);
+    if(b&&b.t)return{t:b.t,tEnd:b.tEnd||null,dk:order[i]};
+  }
+  for(let i=0;i<DAYS.length;i++){
+    const day=schedule[DAYS[i]];
+    if(!day||!day.blocks)continue;
+    const b=day.blocks.find(x=>x&&x.type===type);
+    if(b&&b.t)return{t:b.t,tEnd:b.tEnd||null,dk:DAYS[i]};
+  }
+  return null;
+}
+function _daysWithType(type){
+  return DAYS.filter(dk=>{
+    const day=schedule[dk];
+    return day&&day.blocks&&day.blocks.some(b=>b&&b.type===type&&!b.hidden);
+  });
+}
+function sleepHoursLabel(t,tEnd){
+  const a=parseTimeToMins(t),b=parseTimeToMins(tEnd);
+  if(a==null||b==null)return'Sleep';
+  let mins=b-a;if(mins<=0)mins+=1440;
+  const h=Math.round((mins/60)*10)/10;
+  return'Sleep · '+h+' hrs';
+}
+function _defaultAnchorEnabled(isOff){
+  return{
+    caffeine:true,
+    supps:true,
+    brushMorning:true,
+    trade:!isOff,
+    walk:true,
+    journalMorning:true,
+    deepJournal:true,
+    journalEvening:true,
+    brushEvening:true,
+    winddown:true,
+  };
+}
+function _mergeAnchorEnabled(srcEnabled,isOff){
+  const base=_defaultAnchorEnabled(!!isOff);
+  const from=srcEnabled&&typeof srcEnabled==='object'?srcEnabled:{};
+  const out={};
+  Object.keys(base).forEach(k=>{
+    out[k]=from[k]===false?false:true;
+  });
+  if(isOff)out.trade=false;
+  return out;
+}
+function isAnchorEnabled(profile,key){
+  if(!profile||!key)return true;
+  if(!profile.enabled||typeof profile.enabled!=='object')return true;
+  return profile.enabled[key]!==false;
+}
+function seedDailySchedulesFromSchedule(){
+  const workNightDays=_daysWithType('drivework').length?_daysWithType('drivework'):_daysWithType('work');
+  const nights=workNightDays.length?workNightDays.slice():['SUN','MON','TUE','WED','THU'];
+  const morningDays=nights.map(_nextDayKey);
+  const dw=_findBlockTime('drivework',nights);
+  const ws=_findBlockTime('work',nights);
+  const dh=_findBlockTime('drivehome',morningDays)||null;
+  const we=_findBlockTime('workend',morningDays);
+  // Infer drive-home ~30 min before shift end when block is missing
+  let driveHomeT=(dh&&dh.t)||'5:00 AM';
+  if(!dh&&we&&we.t){
+    const m=parseTimeToMins(we.t);
+    if(m!=null)driveHomeT=minsToTime(m-30);
+  }
+  const sleepDays=_daysWithType('sleep');
+  const wakeOnlyDays=DAYS.filter(dk=>{
+    const day=schedule[dk];
+    if(!day||!day.blocks)return false;
+    const hasWake=day.blocks.some(b=>b&&b.type==='wake'&&!b.hidden);
+    const hasSleep=day.blocks.some(b=>b&&b.type==='sleep'&&!b.hidden);
+    return hasWake&&!hasSleep;
+  });
+  const afterWorkDays=sleepDays.length?sleepDays.slice():['MON','TUE','WED','THU','FRI'];
+  const offDays=wakeOnlyDays.length?wakeOnlyDays.slice():DAYS.filter(dk=>!afterWorkDays.includes(dk));
+  const sleepA=_findBlockTime('sleep',afterWorkDays);
+  const sleepOff=_findBlockTime('sleep',offDays);
+  const wakeOff=_findBlockTime('wake',offDays);
+  // Gym profiles: Mon–Thu vs Fri–Sun by default when training exists
+  const trainDays=_daysWithType('training');
+  const weekdayDefault=['MON','TUE','WED','THU'];
+  const weekendDefault=['FRI','SAT','SUN'];
+  let weekdayDays=trainDays.filter(dk=>weekdayDefault.includes(dk));
+  let weekendDays=trainDays.filter(dk=>weekendDefault.includes(dk));
+  if(!weekdayDays.length&&!weekendDays.length){
+    weekdayDays=weekdayDefault.slice();
+    weekendDays=weekendDefault.slice();
+  }else{
+    // Keep exclusive profiles covering all training days
+    weekdayDays=weekdayDays.length?weekdayDays:trainDays.filter(dk=>!weekendDays.includes(dk));
+    weekendDays=weekendDays.length?weekendDays:trainDays.filter(dk=>!weekdayDays.includes(dk));
+    // Fill remaining week slots into weekend/weekday defaults for chip UI
+    DAYS.forEach(dk=>{
+      if(weekdayDays.includes(dk)||weekendDays.includes(dk))return;
+      if(weekdayDefault.includes(dk))weekdayDays.push(dk);
+      else weekendDays.push(dk);
+    });
+  }
+  const gW=_findBlockTime('travel',weekdayDays);
+  const gWt=_findBlockTime('training',weekdayDays);
+  const gWh=_findBlockTime('travelback',weekdayDays);
+  const gE=_findBlockTime('travel',weekendDays);
+  const gEt=_findBlockTime('training',weekendDays);
+  const gEh=_findBlockTime('travelback',weekendDays);
+  function _dur(a,b){
+    const am=parseTimeToMins(a),bm=parseTimeToMins(b);
+    if(am==null||bm==null)return 45;
+    let d=bm-am;if(d<=0)d+=1440;
+    return Math.max(15,Math.min(180,d));
+  }
+  function _gapMins(a,b){
+    const am=parseTimeToMins(a),bm=parseTimeToMins(b);
+    if(am==null||bm==null)return null;
+    let d=bm-am;if(d<0)d+=1440;
+    return d;
+  }
+  function _seedAnchors(preferDays,isOff,wakeAnchorT,preDriveMin,postHomeMin){
+    const caf=_findBlockTime('caffeine',preferDays);
+    const tr=_findBlockTime('trade',preferDays);
+    const sup=_findBlockTime('supps',preferDays);
+    const walk=_findBlockTime('walk',preferDays);
+    const wd=_findBlockTime('winddown',preferDays);
+    let brushAm=null,brushPm=null,jAm=null,jPm=null,deep=null,shake1=null,walkDur=20;
+    let seededShakes=null;
+    for(let i=0;i<preferDays.length;i++){
+      const blocks=(schedule[preferDays[i]]&&schedule[preferDays[i]].blocks)||[];
+      const brushes=blocks.filter(b=>b&&b.type==='brush'&&!b.hidden).slice().sort((a,b)=>(parseTimeToMins(a.t)||0)-(parseTimeToMins(b.t)||0));
+      if(brushes.length&&!brushAm){brushAm=brushes[0].t;brushPm=brushes[brushes.length-1].t;}
+      const journals=blocks.filter(b=>b&&b.type==='journal'&&!b.hidden);
+      journals.forEach(b=>{
+        const l=(b.l||'').toLowerCase();
+        if(l.includes('evening')||l.includes('night')){if(!jPm)jPm=b.t;}
+        else if(!jAm)jAm=b.t;
+      });
+      const dj=blocks.find(b=>b&&b.type==='deepjournal'&&!b.hidden);
+      if(dj&&!deep)deep=dj.t;
+      if(!shake1){
+        const s1=blocks.find(b=>b&&b.type==='shake'&&b.idx===1&&!b.hidden)
+          ||blocks.filter(b=>b&&b.type==='shake'&&!b.hidden).sort((a,b)=>(parseTimeToMins(a.t)||0)-(parseTimeToMins(b.t)||0))[0];
+        if(s1)shake1=s1.t;
+      }
+      if(!seededShakes){
+        const sh=blocks.filter(b=>b&&b.type==='shake'&&!b.hidden).slice().sort((a,b)=>{
+          const ai=a.idx!=null?a.idx:99,bi=b.idx!=null?b.idx:99;
+          if(ai!==bi)return ai-bi;
+          return (parseTimeToMins(a.t)||0)-(parseTimeToMins(b.t)||0);
+        });
+        if(sh.length)seededShakes=sh;
+      }
+      const wlk=blocks.find(b=>b&&b.type==='walk');
+      if(wlk&&wlk.dur)walkDur=Number(wlk.dur)||20;
+      if(brushAm&&jAm&&deep&&shake1&&seededShakes)break;
+    }
+    let windDefault=wd&&wd.t;
+    if(!windDefault){
+      const sleepT=_findBlockTime('sleep',preferDays);
+      if(sleepT&&sleepT.t){
+        const m=parseTimeToMins(sleepT.t);
+        if(m!=null)windDefault=minsToTime(m-30);
+      }
+      if(!windDefault)windDefault=brushPm||'8:00 PM';
+      if(sleepT&&sleepT.t){
+        const sm=parseTimeToMins(sleepT.t);
+        if(sm!=null&&sm<12*60)windDefault=brushPm||'8:00 PM';
+      }
+    }
+    const defaultOffset=isOff?2:15;
+    let shake1AfterWakeMin=defaultOffset;
+    const wakeT=wakeAnchorT||(isOff?((wakeOff&&wakeOff.t)||'10:00 AM'):((we&&we.t)||'5:30 AM'));
+    const shake1T=shake1||(isOff?'10:02 AM':'5:45 AM');
+    const gap=_gapMins(wakeT,shake1T);
+    if(gap!=null&&gap>=0&&gap<=120)shake1AfterWakeMin=gap;
+    const proteinFromBlock=b=>{
+      const m=(b.l||'').match(/(\d+)\s*g\s*protein/i);
+      if(m)return Math.max(15,Math.min(80,Number(m[1])));
+      if(b.scoops!=null)return Math.max(15,Math.min(80,Math.round(Number(b.scoops)*15)));
+      return null;
+    };
+    const count=Math.max(1,Math.min(4,(seededShakes&&seededShakes.length)||3));
+    const items=[];
+    for(let i=0;i<count;i++){
+      const b=seededShakes&&seededShakes[i];
+      const proteinG=b?proteinFromBlock(b):(i===0?60:30);
+      if(i===0)items.push({proteinG:proteinG||60,afterWakeMin:shake1AfterWakeMin});
+      else if(i===1)items.push({proteinG:proteinG||30,beforeDriveMin:preDriveMin!=null?preDriveMin:10});
+      else if(i===2)items.push({proteinG:proteinG||30,afterHomeMin:postHomeMin!=null?postHomeMin:15});
+      else{
+        let beforeBedMin=30;
+        const sleepT=_findBlockTime('sleep',preferDays);
+        if(b&&b.t&&sleepT&&sleepT.t){
+          const gap=_gapMins(b.t,sleepT.t);
+          if(gap!=null&&gap>=0&&gap<=180)beforeBedMin=gap;
+        }
+        items.push({proteinG:proteinG||30,beforeBedMin:beforeBedMin});
+      }
+    }
+    const out={
+      caffeine:(caf&&caf.t)||'12:00 AM',
+      brushMorning:brushAm||(isOff?'10:00 AM':'5:30 AM'),
+      brushEvening:brushPm||'8:20 PM',
+      journalMorning:jAm||(isOff?'11:15 AM':'6:20 AM'),
+      deepJournal:deep||(isOff?'11:25 AM':'6:30 AM'),
+      journalEvening:jPm||'8:00 PM',
+      supps:(sup&&sup.t)||(isOff?'10:05 AM':'5:35 AM'),
+      walk:(walk&&walk.t)||(isOff?'10:20 AM':'10:20 AM'),
+      walkDurationMin:walkDur,
+      winddown:windDefault||'8:00 PM',
+      shakes:{count:count,items:items},
+      enabled:_defaultAnchorEnabled(isOff),
+    };
+    if(!isOff)out.trade=(tr&&tr.t)||'6:35 AM';
+    return out;
+  }
+  function _seedGymShakes(preferDays,travelT,travelBackT){
+    let pre=null,post=null;
+    for(let i=0;i<preferDays.length;i++){
+      const blocks=(schedule[preferDays[i]]&&schedule[preferDays[i]].blocks)||[];
+      const tr=travelT||((blocks.find(b=>b&&b.type==='travel')||{}).t);
+      const tb=travelBackT||((blocks.find(b=>b&&b.type==='travelback')||{}).t);
+      if(!pre&&tr){const s=_findPreGymShake(blocks,tr);if(s)pre=s.t;}
+      if(!post&&tb){const s=_findPostGymShake(blocks,tb);if(s)post=s.t;}
+      if(pre&&post)break;
+    }
+    return{preShake:pre||null,postShake:post||null};
+  }
+  function _buildGymProfile(workoutT,driveToT,driveBackT,durMin,shakes){
+    const wm=parseTimeToMins(workoutT);
+    const dt=parseTimeToMins(driveToT);
+    let driveMin=30;
+    if(wm!=null&&dt!=null){
+      let g=wm-dt;if(g<0)g+=1440;
+      driveMin=Math.max(5,Math.min(120,g));
+    }
+    let postShakeAfterHomeMin=15;
+    let preShakeBeforeDriveMin=10;
+    if(shakes&&shakes.preShake&&driveToT){
+      const gap=_gapMins(shakes.preShake,driveToT);
+      if(gap!=null&&gap>=0&&gap<=60)preShakeBeforeDriveMin=gap;
+    }
+    if(shakes&&shakes.postShake&&driveBackT){
+      // post shake is after arrive-home; arrive-home ≈ driveBack + driveMin
+      const pm=parseTimeToMins(shakes.postShake),hm=parseTimeToMins(driveBackT);
+      if(pm!=null&&hm!=null){
+        let afterArrive=pm-(hm+driveMin);
+        if(afterArrive<-720)afterArrive+=1440;
+        if(afterArrive>=0&&afterArrive<=60)postShakeAfterHomeMin=afterArrive;
+      }
+    }
+    return{
+      workout:workoutT||'3:45 PM',
+      driveMin:driveMin,
+      durationMin:durMin,
+      cardioMin:20,
+      saunaMin:15,
+      _seedPreShakeBeforeDriveMin:preShakeBeforeDriveMin,
+      _seedPostShakeAfterHomeMin:postShakeAfterHomeMin,
+    };
+  }
+  const wdShakes=_seedGymShakes(weekdayDays,gW&&gW.t,gWh&&gWh.t);
+  const weShakes=_seedGymShakes(weekendDays,gE&&gE.t,gEh&&gEh.t);
+  const wdGym=_buildGymProfile(gWt&&gWt.t,gW&&gW.t,gWh&&gWh.t,_dur(gWt&&gWt.t,gWh&&gWh.t),wdShakes);
+  const weGym=_buildGymProfile(gEt&&gEt.t,gE&&gE.t,gEh&&gEh.t,_dur(gEt&&gEt.t,gEh&&gEh.t),weShakes);
+  return{
+    cascadeNeighbors:true,
+    work:{
+      workNightDays:nights,
+      workNights:{
+        driveToWork:(dw&&dw.t)||'8:30 PM',
+        shiftStart:(ws&&ws.t)||'9:00 PM',
+        driveHome:driveHomeT,
+        shiftEnd:(we&&we.t)||'5:30 AM',
+      },
+    },
+    sleep:{
+      afterWorkDays:afterWorkDays,
+      afterWork:{t:(sleepA&&sleepA.t)||'9:00 AM',tEnd:(sleepA&&sleepA.tEnd)||'3:00 PM'},
+      offDays:offDays.length?offDays:['SAT','SUN'],
+      off:{
+        wake:(wakeOff&&wakeOff.t)||'10:00 AM',
+        t:(sleepOff&&sleepOff.t)||null,
+        tEnd:(sleepOff&&sleepOff.tEnd)||null,
+      },
+    },
+    gym:{
+      weekdayDays:weekdayDays,
+      weekday:{
+        workout:wdGym.workout,
+        driveMin:wdGym.driveMin,
+        durationMin:wdGym.durationMin,
+        cardioMin:wdGym.cardioMin,
+        saunaMin:wdGym.saunaMin,
+      },
+      weekendDays:weekendDays,
+      weekend:{
+        workout:weGym.workout,
+        driveMin:weGym.driveMin,
+        durationMin:weGym.durationMin,
+        cardioMin:weGym.cardioMin,
+        saunaMin:weGym.saunaMin,
+      },
+    },
+    anchors:{
+      afterWork:_seedAnchors(afterWorkDays,false,(we&&we.t)||'5:30 AM',wdGym._seedPreShakeBeforeDriveMin,wdGym._seedPostShakeAfterHomeMin),
+      off:_seedAnchors(offDays.length?offDays:['SAT','SUN'],true,(wakeOff&&wakeOff.t)||'10:00 AM',weGym._seedPreShakeBeforeDriveMin,weGym._seedPostShakeAfterHomeMin),
+    },
+  };
+}
+function normalizeDailySchedules(raw){
+  const seed=seedDailySchedulesFromSchedule();
+  if(!raw||typeof raw!=='object')return seed;
+  const w=raw.work||{};
+  const wn=w.workNights||{};
+  const s=raw.sleep||{};
+  const aw=s.afterWork||{};
+  const off=s.off||{};
+  const g=raw.gym||{};
+  const gw=g.weekday||{};
+  const ge=g.weekend||{};
+  const an=raw.anchors||{};
+  const anAw=an.afterWork||{};
+  const anOff=an.off||{};
+  const uniqDays=arr=>{
+    const out=[];
+    (arr||[]).forEach(d=>{if(DAYS.includes(d)&&!out.includes(d))out.push(d);});
+    return out;
+  };
+  const mergeAnchor=(src,fallback,isOff)=>{
+    const fbPlan=fallback.shakes||{count:3,items:[
+      {proteinG:60,afterWakeMin:15},
+      {proteinG:30,beforeDriveMin:10},
+      {proteinG:30,afterHomeMin:15},
+    ]};
+    let plan=null;
+    if(src.shakes&&Array.isArray(src.shakes.items)&&src.shakes.items.length){
+      const count=Math.max(1,Math.min(4,Number(src.shakes.count)||src.shakes.items.length||3));
+      const items=[];
+      for(let i=0;i<count;i++){
+        const it=src.shakes.items[i]||fbPlan.items[i]||{};
+        const proteinG=Math.max(15,Math.min(80,Number(it.proteinG)||(i===0?60:30)));
+        if(i===0){
+          const awv=it.afterWakeMin!=null?Number(it.afterWakeMin):NaN;
+          items.push({proteinG:proteinG,afterWakeMin:Math.max(0,Math.min(120,Number.isFinite(awv)?awv:((fbPlan.items[0]&&fbPlan.items[0].afterWakeMin)||15)))});
+        }else if(i===1){
+          const bd=it.beforeDriveMin!=null?Number(it.beforeDriveMin):NaN;
+          items.push({proteinG:proteinG,beforeDriveMin:Math.max(0,Math.min(60,Number.isFinite(bd)?bd:10))});
+        }else if(i===2){
+          const ah=it.afterHomeMin!=null?Number(it.afterHomeMin):NaN;
+          items.push({proteinG:proteinG,afterHomeMin:Math.max(0,Math.min(60,Number.isFinite(ah)?ah:15))});
+        }else{
+          let bb=it.beforeBedMin!=null?Number(it.beforeBedMin):NaN;
+          if(!Number.isFinite(bb)&&it.t)bb=30;
+          items.push({proteinG:proteinG,beforeBedMin:Math.max(0,Math.min(180,Number.isFinite(bb)?bb:30))});
+        }
+      }
+      plan={count:count,items:items};
+    }else{
+      // Migrate legacy flat offset fields
+      let afterWake=src.shake1AfterWakeMin!=null?Number(src.shake1AfterWakeMin):null;
+      if(afterWake==null&&src.shake1&&fallback._wakeAnchor){
+        const am=parseTimeToMins(fallback._wakeAnchor),bm=parseTimeToMins(src.shake1);
+        if(am!=null&&bm!=null){let d=bm-am;if(d<0)d+=1440;if(d>=0&&d<=120)afterWake=d;}
+      }
+      if(afterWake==null)afterWake=(fbPlan.items[0]&&fbPlan.items[0].afterWakeMin)!=null?fbPlan.items[0].afterWakeMin:15;
+      const beforeDrive=src.preShakeBeforeDriveMin!=null?Number(src.preShakeBeforeDriveMin):((fbPlan.items[1]&&fbPlan.items[1].beforeDriveMin)||10);
+      const afterHome=src.postShakeAfterHomeMin!=null?Number(src.postShakeAfterHomeMin):((fbPlan.items[2]&&fbPlan.items[2].afterHomeMin)||15);
+      const count=Math.max(1,Math.min(4,Number(fbPlan.count)||3));
+      const items=[];
+      for(let i=0;i<count;i++){
+        const fb=fbPlan.items[i]||{};
+        if(i===0)items.push({proteinG:fb.proteinG||60,afterWakeMin:Math.max(0,Math.min(120,afterWake))});
+        else if(i===1)items.push({proteinG:fb.proteinG||30,beforeDriveMin:Math.max(0,Math.min(60,beforeDrive))});
+        else if(i===2)items.push({proteinG:fb.proteinG||30,afterHomeMin:Math.max(0,Math.min(60,afterHome))});
+        else items.push({proteinG:fb.proteinG||30,beforeBedMin:Math.max(0,Math.min(180,Number(fb.beforeBedMin)!=null?Number(fb.beforeBedMin):30))});
+      }
+      plan={count:count,items:items};
+    }
+    return{
+      caffeine:src.caffeine||fallback.caffeine,
+      trade:src.trade||fallback.trade,
+      brushMorning:src.brushMorning||fallback.brushMorning,
+      brushEvening:src.brushEvening||fallback.brushEvening,
+      journalMorning:src.journalMorning||fallback.journalMorning,
+      deepJournal:src.deepJournal||fallback.deepJournal,
+      journalEvening:src.journalEvening||fallback.journalEvening,
+      supps:src.supps||fallback.supps,
+      walk:src.walk||fallback.walk,
+      walkDurationMin:src.walkDurationMin!=null?Math.max(5,Math.min(120,Number(src.walkDurationMin)||20)):(fallback.walkDurationMin||20),
+      winddown:src.winddown||fallback.winddown,
+      shakes:plan,
+      enabled:_mergeAnchorEnabled(src.enabled,isOff),
+    };
+  };
+  function _migrateGymProfile(src,fallback){
+    const workout=src.workout||fallback.workout;
+    const wm=parseTimeToMins(workout);
+    let driveMin=src.driveMin!=null?Number(src.driveMin):null;
+    if(driveMin==null&&src.driveToMin!=null)driveMin=Number(src.driveToMin);
+    if(driveMin==null&&src.driveHomeMin!=null)driveMin=Number(src.driveHomeMin);
+    if(driveMin==null&&src.driveToGym&&wm!=null){
+      const dt=parseTimeToMins(src.driveToGym);
+      if(dt!=null){let g=wm-dt;if(g<0)g+=1440;driveMin=Math.max(5,Math.min(120,g));}
+    }
+    if(driveMin==null)driveMin=fallback.driveMin||30;
+    driveMin=Math.max(5,Math.min(120,driveMin));
+    const durationMin=src.durationMin!=null?Math.max(15,Math.min(180,Number(src.durationMin)||45)):(fallback.durationMin||45);
+    return{
+      workout:workout,
+      driveMin:driveMin,
+      durationMin:durationMin,
+      cardioMin:src.cardioMin!=null?Math.max(0,Math.min(120,Number(src.cardioMin)||20)):(fallback.cardioMin||20),
+      saunaMin:src.saunaMin!=null?Math.max(0,Math.min(120,Number(src.saunaMin)||15)):(fallback.saunaMin||15),
+    };
+  }
+  const wdProf=_migrateGymProfile(gw,seed.gym.weekday);
+  const weProf=_migrateGymProfile(ge,seed.gym.weekend);
+  return{
+    cascadeNeighbors:raw.cascadeNeighbors!==false,
+    work:{
+      workNightDays:uniqDays(w.workNightDays).length?uniqDays(w.workNightDays):seed.work.workNightDays,
+      workNights:{
+        driveToWork:wn.driveToWork||seed.work.workNights.driveToWork,
+        shiftStart:wn.shiftStart||seed.work.workNights.shiftStart,
+        driveHome:wn.driveHome||seed.work.workNights.driveHome,
+        shiftEnd:wn.shiftEnd||seed.work.workNights.shiftEnd,
+      },
+    },
+    sleep:{
+      afterWorkDays:uniqDays(s.afterWorkDays).length?uniqDays(s.afterWorkDays):seed.sleep.afterWorkDays,
+      afterWork:{t:aw.t||seed.sleep.afterWork.t,tEnd:aw.tEnd||seed.sleep.afterWork.tEnd},
+      offDays:uniqDays(s.offDays).length?uniqDays(s.offDays):seed.sleep.offDays,
+      off:{
+        wake:off.wake||seed.sleep.off.wake,
+        t:off.t!=null?off.t:seed.sleep.off.t,
+        tEnd:off.tEnd!=null?off.tEnd:seed.sleep.off.tEnd,
+      },
+    },
+    gym:{
+      weekdayDays:uniqDays(g.weekdayDays).length?uniqDays(g.weekdayDays):seed.gym.weekdayDays,
+      weekday:wdProf,
+      weekendDays:uniqDays(g.weekendDays).length?uniqDays(g.weekendDays):seed.gym.weekendDays,
+      weekend:weProf,
+    },
+    anchors:{
+      afterWork:mergeAnchor(anAw,{...seed.anchors.afterWork,_wakeAnchor:(wn.shiftEnd||seed.work.workNights.shiftEnd)},false),
+      off:mergeAnchor(anOff,{...seed.anchors.off,_wakeAnchor:(off.wake||seed.sleep.off.wake)},true),
+    },
+  };
+}
+function _upsertSingletonBlock(blocks,type,opts){
+  if(!Array.isArray(blocks))return;
+  const show=!!opts.show;
+  const t=opts.t;
+  const tEnd=opts.tEnd;
+  const label=opts.l;
+  let b=blocks.find(x=>x&&x.type===type);
+  if(!show){
+    if(b)b.hidden=true;
+    return;
+  }
+  if(b){
+    if(t)b.t=t;
+    if(tEnd!==undefined){
+      if(tEnd)b.tEnd=tEnd;else delete b.tEnd;
+    }
+    if(label)b.l=label;
+    delete b.hidden;
+  }else{
+    const nb={t:t||'12:00 PM',l:label||((BS[type]&&BS[type].l)||type),type:type};
+    if(tEnd)nb.tEnd=tEnd;
+    blocks.push(nb);
+  }
+}
+function syncWorkScheduleToSchedule(){
+  if(!dailySchedules||!dailySchedules.work)return;
+  const nights=new Set(dailySchedules.work.workNightDays||[]);
+  const times=dailySchedules.work.workNights||{};
+  const morningSet=new Set([...nights].map(_nextDayKey));
+  DAYS.forEach(dk=>{
+    if(!schedule[dk])schedule[dk]={blocks:[]};
+    if(!schedule[dk].blocks)schedule[dk].blocks=[];
+    const blocks=schedule[dk].blocks;
+    const isNight=nights.has(dk);
+    const needsMorning=morningSet.has(dk);
+    schedule[dk].work=isNight;
+    _upsertSingletonBlock(blocks,'drivework',{show:isNight,t:times.driveToWork,l:'Drive to work · 30 min'});
+    _upsertSingletonBlock(blocks,'work',{show:isNight,t:times.shiftStart,l:'Shift start'});
+    _upsertSingletonBlock(blocks,'drivehome',{show:needsMorning,t:times.driveHome,l:'Drive home from work · 30 min'});
+    _upsertSingletonBlock(blocks,'workend',{show:needsMorning,t:times.shiftEnd,l:'Shift ends · Home'});
+  });
+}
+function syncSleepScheduleToSchedule(){
+  if(!dailySchedules||!dailySchedules.sleep)return;
+  const after=new Set(dailySchedules.sleep.afterWorkDays||[]);
+  const off=new Set(dailySchedules.sleep.offDays||[]);
+  const aw=dailySchedules.sleep.afterWork||{};
+  const of=dailySchedules.sleep.off||{};
+  DAYS.forEach(dk=>{
+    if(!schedule[dk])schedule[dk]={blocks:[]};
+    if(!schedule[dk].blocks)schedule[dk].blocks=[];
+    const blocks=schedule[dk].blocks;
+    if(after.has(dk)){
+      _upsertSingletonBlock(blocks,'sleep',{show:true,t:aw.t,tEnd:aw.tEnd,l:sleepHoursLabel(aw.t,aw.tEnd)});
+      _upsertSingletonBlock(blocks,'wake',{show:false});
+    }else if(off.has(dk)){
+      if(of.t&&of.tEnd){
+        _upsertSingletonBlock(blocks,'sleep',{show:true,t:of.t,tEnd:of.tEnd,l:sleepHoursLabel(of.t,of.tEnd)});
+        _upsertSingletonBlock(blocks,'wake',{show:false});
+      }else{
+        _upsertSingletonBlock(blocks,'sleep',{show:false});
+        _upsertSingletonBlock(blocks,'wake',{show:true,t:of.wake||'10:00 AM',l:'Wake up'});
+      }
+    }
+  });
+}
+function _dayGymFlags(dk,blocks){
+  blocks=blocks||(schedule[dk]&&schedule[dk].blocks)||[];
+  const day=schedule[dk];
+  const tb=blocks.find(b=>b&&b.type==='training');
+  const cardioOn=day&&day.cardio!=null?!!day.cardio:!!(tb&&tb.cardio);
+  const saunaOn=day&&day.sauna!=null?!!day.sauna:!!(tb&&tb.sa);
+  return{cardioOn:cardioOn,saunaOn:saunaOn};
+}
+function _getGymProfileForDay(dk){
+  if(!dailySchedules||!dailySchedules.gym)return null;
+  const wd=new Set(dailySchedules.gym.weekdayDays||[]);
+  const we=new Set(dailySchedules.gym.weekendDays||[]);
+  if(wd.has(dk))return dailySchedules.gym.weekday;
+  if(we.has(dk))return dailySchedules.gym.weekend;
+  return null;
+}
+function _getAnchorProfileForDay(dk){
+  if(!dailySchedules||!dailySchedules.sleep||!dailySchedules.anchors)return null;
+  const after=new Set(dailySchedules.sleep.afterWorkDays||[]);
+  const off=new Set(dailySchedules.sleep.offDays||[]);
+  if(after.has(dk))return dailySchedules.anchors.afterWork;
+  if(off.has(dk))return dailySchedules.anchors.off;
+  return dailySchedules.anchors.afterWork||dailySchedules.anchors.off||null;
+}
+function _getShakePlan(profile){
+  if(profile&&profile.shakes&&Array.isArray(profile.shakes.items)&&profile.shakes.items.length){
+    const count=Math.max(1,Math.min(4,Number(profile.shakes.count)||profile.shakes.items.length||3));
+    return{count:count,items:profile.shakes.items};
+  }
+  const aw=profile&&profile.shake1AfterWakeMin!=null?Number(profile.shake1AfterWakeMin):NaN;
+  const bd=profile&&profile.preShakeBeforeDriveMin!=null?Number(profile.preShakeBeforeDriveMin):NaN;
+  const ah=profile&&profile.postShakeAfterHomeMin!=null?Number(profile.postShakeAfterHomeMin):NaN;
+  return{
+    count:3,
+    items:[
+      {proteinG:60,afterWakeMin:Math.max(0,Math.min(120,Number.isFinite(aw)?aw:15))},
+      {proteinG:30,beforeDriveMin:Math.max(0,Math.min(60,Number.isFinite(bd)?bd:10))},
+      {proteinG:30,afterHomeMin:Math.max(0,Math.min(60,Number.isFinite(ah)?ah:15))},
+    ],
+  };
+}
+function _shakeTimingOffsets(profile){
+  const plan=_getShakePlan(profile);
+  const i0=plan.items[0]||{};
+  const i1=plan.items[1]||{};
+  const i2=plan.items[2]||{};
+  const i3=plan.items[3]||{};
+  const aw=Number(i0.afterWakeMin),bd=Number(i1.beforeDriveMin),ah=Number(i2.afterHomeMin),bb=Number(i3.beforeBedMin);
+  return{
+    afterWakeMin:Math.max(0,Math.min(120,Number.isFinite(aw)?aw:15)),
+    beforeDriveMin:Math.max(0,Math.min(60,Number.isFinite(bd)?bd:10)),
+    afterHomeMin:Math.max(0,Math.min(60,Number.isFinite(ah)?ah:15)),
+    beforeBedMin:Math.max(0,Math.min(180,Number.isFinite(bb)?bb:30)),
+  };
+}
+function _defaultDrinkProteinPerScoop(){
+  return(typeof proteinDrinks!=='undefined'&&proteinDrinks&&proteinDrinks[0]&&proteinDrinks[0].P)||15;
+}
+function _scoopsForProteinG(proteinG){
+  const p=_defaultDrinkProteinPerScoop();
+  return Math.max(1,Math.ceil((Number(proteinG)||30)/Math.max(1,p)));
+}
+function _ensureAnchorShakePlan(profile){
+  if(!profile)return null;
+  if(!profile.shakes||!Array.isArray(profile.shakes.items))profile.shakes=_getShakePlan(profile);
+  return profile.shakes;
+}
+function computePlannedShakeMacros(profile){
+  const plan=_getShakePlan(profile);
+  const drink=(typeof proteinDrinks!=='undefined'&&proteinDrinks&&proteinDrinks[0])||null;
+  let P=0,C=0,F=0,kcal=0;
+  const count=plan.count||0;
+  for(let i=0;i<count;i++){
+    const item=plan.items[i]||{};
+    const proteinG=Math.max(15,Math.min(80,Number(item.proteinG)||(i===0?60:30)));
+    P+=proteinG;
+    if(drink){
+      const scoops=_scoopsForProteinG(proteinG);
+      C+=(drink.C||0)*scoops;
+      F+=(drink.F||0)*scoops;
+      kcal+=(drink.kcal||0)*scoops;
+    }else{
+      kcal+=proteinG*4;
+    }
+  }
+  return{P:Math.round(P),C:Math.round(C),F:Math.round(F),kcal:Math.round(kcal)};
+}
+function computePlannedMealsShakesMacros(profile){
+  const mp=mealPlan||{slots:[]};
+  let meals={P:0,C:0,F:0,kcal:0};
+  (mp.slots||[]).forEach(slot=>{
+    const m=computeSlotMacros(slot.items);
+    meals.P+=m.P;meals.C+=m.C;meals.F+=m.F;meals.kcal+=m.kcal;
+  });
+  const shakes=computePlannedShakeMacros(profile);
+  return{
+    meals:meals,
+    shakes:shakes,
+    total:{P:meals.P+shakes.P,C:meals.C+shakes.C,F:meals.F+shakes.F,kcal:meals.kcal+shakes.kcal},
+  };
+}
+function renderShakesPlanEditor(profileKey,profile){
+  const isWork=profileKey==='afterWork';
+  const plan=_getShakePlan(profile);
+  const count=plan.count||3;
+  const stepBtn=(onclick,sm)=>`<button type="button" class="${sm?'settings-step-btn':'settings-step-btn-lg'}" onclick="${onclick}">`;
+  const shakeRows=[];
+  for(let i=0;i<count;i++){
+    const item=plan.items[i]||{};
+    const proteinG=item.proteinG!=null?item.proteinG:(i===0?60:30);
+    let timingLabel='Time';
+    let timingValue='';
+    let timingControls='';
+    if(i===0){
+      const mins=item.afterWakeMin!=null?item.afterWakeMin:(isWork?15:2);
+      timingLabel=isWork?'After shift ends':'After waking';
+      timingValue=`${mins} min`;
+      timingControls=`${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},-5)`,true)}−</button>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${timingValue}</span>
+          ${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},5)`,true)}+</button>`;
+    }else if(i===1){
+      const mins=item.beforeDriveMin!=null?item.beforeDriveMin:10;
+      timingLabel='Before gym';
+      timingValue=`${mins} min`;
+      timingControls=`${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},-5)`,true)}−</button>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${timingValue}</span>
+          ${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},5)`,true)}+</button>`;
+    }else if(i===2){
+      const mins=item.afterHomeMin!=null?item.afterHomeMin:15;
+      timingLabel='After gym';
+      timingValue=`${mins} min`;
+      timingControls=`${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},-5)`,true)}−</button>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${timingValue}</span>
+          ${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},5)`,true)}+</button>`;
+    }else{
+      const mins=item.beforeBedMin!=null?item.beforeBedMin:30;
+      timingLabel='Before sleep';
+      timingValue=`${mins} min`;
+      timingControls=`${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},-5)`,true)}−</button>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${timingValue}</span>
+          ${stepBtn(`nudgeAnchorShakeItemTiming('${profileKey}',${i},5)`,true)}+</button>`;
+    }
+    shakeRows.push(`
+      <div class="settings-shake-card">
+        <div class="settings-shake-card-title">Shake ${i+1}</div>
+        <div class="settings-shake-card-sub">${proteinG}g protein</div>
+        <div class="settings-field-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <label>Protein</label>
+          <div class="settings-field-controls">
+            ${stepBtn(`nudgeAnchorShakeProtein('${profileKey}',${i},-5)`,true)}−</button>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#38bdf8;min-width:52px;text-align:center;font-weight:600">${proteinG} g</span>
+            ${stepBtn(`nudgeAnchorShakeProtein('${profileKey}',${i},5)`,true)}+</button>
+          </div>
+        </div>
+        <div class="settings-field-row">
+          <label>${timingLabel}</label>
+          <div class="settings-field-controls">${timingControls}</div>
+        </div>
+      </div>`);
+  }
+  return`
+    ${dailySubCat('COUNT','#fb923c')}
+    <div style="margin-bottom:4px">
+      <div class="settings-field-controls" style="gap:12px">
+        ${stepBtn(`nudgeAnchorShakeCount('${profileKey}',-1)`,false)}−</button>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fb923c;min-width:40px;text-align:center">${count}</div>
+        ${stepBtn(`nudgeAnchorShakeCount('${profileKey}',1)`,false)}+</button>
+        <span style="font-size:9px;color:var(--muted2)">per day</span>
+      </div>
+    </div>
+    <div class="settings-shake-list">${shakeRows.join('')}</div>`;
+}
+function dailySectionCard(title,hint,body,accent){
+  const c=accent||'var(--muted)';
+  return`<div class="settings-card">
+    <div class="settings-card-title" style="color:${c}">${title}</div>
+    ${hint?`<div class="settings-hint">${hint}</div>`:''}
+    ${body||''}
+  </div>`;
+}
+function dailySubCat(title,accent){
+  const c=accent||'#2dd4bf';
+  return`<div class="daily-sub-cat" style="color:${c};border-left-color:${c}">${title}</div>`;
+}
+function computeGymTimeline(gymProfile,anchorProfile,dayFlags,actualLogs){
+  if(!gymProfile||!gymProfile.workout)return null;
+  const wm=parseTimeToMins(gymProfile.workout);
+  if(wm==null)return null;
+  const driveMin=Math.max(5,Math.min(120,Number(gymProfile.driveMin)!=null?Number(gymProfile.driveMin):(Number(gymProfile.driveToMin)||Number(gymProfile.driveHomeMin)||30)));
+  const durationMin=Math.max(15,Math.min(180,Number(gymProfile.durationMin)||45));
+  const cardioPlanned=(dayFlags&&dayFlags.cardioOn)?Math.max(0,Math.min(120,Number(gymProfile.cardioMin)||20)):0;
+  const saunaPlanned=(dayFlags&&dayFlags.saunaOn)?Math.max(0,Math.min(120,Number(gymProfile.saunaMin)||15)):0;
+  const offsets=_shakeTimingOffsets(anchorProfile);
+  const preOffset=offsets.beforeDriveMin;
+  const postOffset=offsets.afterHomeMin;
+  let cardioMin=cardioPlanned;
+  let saunaMin=saunaPlanned;
+  if(actualLogs){
+    if(dayFlags&&dayFlags.cardioOn&&actualLogs.cardioDur!=null)cardioMin=Math.max(0,Number(actualLogs.cardioDur)||0);
+    if(dayFlags&&dayFlags.saunaOn&&actualLogs.saunaDur!=null)saunaMin=Math.max(0,Number(actualLogs.saunaDur)||0);
+  }
+  const driveToMins=wm-driveMin;
+  const driveToGym=minsToTime(driveToMins<0?driveToMins+1440:driveToMins);
+  const liftEnd=wm+durationMin;
+  const leaveGym=liftEnd+cardioMin+saunaMin;
+  const arriveHome=leaveGym+driveMin;
+  const preM=parseTimeToMins(driveToGym);
+  const preShake=preM!=null?minsToTime(preM-preOffset<0?preM-preOffset+1440:preM-preOffset):null;
+  return{
+    preShake:preShake,
+    driveToGym:driveToGym,
+    workout:gymProfile.workout,
+    liftEnd:minsToTime(liftEnd>=1440?liftEnd-1440:liftEnd),
+    leaveGym:minsToTime(leaveGym>=1440?leaveGym-1440:leaveGym),
+    driveHome:minsToTime(leaveGym>=1440?leaveGym-1440:leaveGym),
+    arriveHome:minsToTime(arriveHome>=1440?arriveHome-1440:arriveHome),
+    postShake:minsToTime(arriveHome+postOffset>=1440?arriveHome+postOffset-1440:arriveHome+postOffset),
+    driveMin:driveMin,
+    durationMin:durationMin,
+    cardioMin:cardioMin,
+    saunaMin:saunaMin,
+  };
+}
+function formatGymTimelinePreview(gymProfile,anchorProfile){
+  const tl=computeGymTimeline(gymProfile,anchorProfile,{cardioOn:true,saunaOn:true});
+  if(!tl)return'—';
+  return`Drive ${tl.driveToGym} · Lift ends ${tl.liftEnd} · Leave ${tl.leaveGym} · Home ${tl.arriveHome}`;
+}
+function updateGymDayAdjust(dk){
+  if(typeof gymDayAdjust==='undefined')return;
+  const gymProfile=_getGymProfileForDay(dk);
+  const logKey=getLogKey(dk);
+  if(!gymProfile){delete gymDayAdjust[logKey];return;}
+  const anchorProfile=_getAnchorProfileForDay(dk);
+  const dayFlags=_dayGymFlags(dk);
+  const planned=computeGymTimeline(gymProfile,anchorProfile,dayFlags);
+  if(!planned){delete gymDayAdjust[logKey];return;}
+  const actualLogs={};
+  const cl=(typeof cardioLog!=='undefined'&&cardioLog)?cardioLog[logKey]:null;
+  const sl=(typeof saunaLog!=='undefined'&&saunaLog)?saunaLog[logKey]:null;
+  if(dayFlags.cardioOn&&cl&&cl.duration>0)actualLogs.cardioDur=cl.duration;
+  if(dayFlags.saunaOn&&sl&&sl.duration>0)actualLogs.saunaDur=sl.duration;
+  const actual=computeGymTimeline(gymProfile,anchorProfile,dayFlags,actualLogs);
+  if(!actual){delete gymDayAdjust[logKey];return;}
+  const plannedLeave=parseTimeToMins(planned.leaveGym);
+  const actualLeave=parseTimeToMins(actual.leaveGym);
+  if(plannedLeave==null||actualLeave==null){delete gymDayAdjust[logKey];return;}
+  let delta=actualLeave-plannedLeave;
+  if(delta<-720)delta+=1440;
+  if(delta>720)delta-=1440;
+  if(delta===0)delete gymDayAdjust[logKey];
+  else gymDayAdjust[logKey]={leaveGymDeltaMin:delta};
+}
+function _applyGymDayAdjustToBlocks(blocks,dk){
+  if(!blocks||!blocks.length)return blocks;
+  const logKey=getLogKey(dk);
+  const adj=(typeof gymDayAdjust!=='undefined'&&gymDayAdjust)?gymDayAdjust[logKey]:null;
+  if(!adj||!adj.leaveGymDeltaMin)return blocks;
+  const delta=adj.leaveGymDeltaMin;
+  const tb=blocks.find(b=>b&&b.type==='travelback'&&!b.hidden);
+  const threshold=tb?parseTimeToMins(tb.t):null;
+  if(threshold==null)return blocks;
+  return blocks.map(b=>{
+    if(!b||b.hidden||!b.t)return b;
+    const m=parseTimeToMins(b.t);
+    if(m==null)return b;
+    const isDriveHome=b.type==='travelback';
+    let after=false;
+    if(isDriveHome)after=true;
+    else{
+      let diff=m-threshold;
+      if(diff<-720)diff+=1440;
+      if(diff>=0)after=true;
+    }
+    if(!after)return b;
+    const nb={...b};
+    let nm=m+delta;
+    if(nm<0)nm+=1440;
+    if(nm>=1440)nm-=1440;
+    nb.t=minsToTime(nm);
+    return nb;
+  });
+}
+function syncGymScheduleToSchedule(){
+  if(!dailySchedules||!dailySchedules.gym)return;
+  const wd=new Set(dailySchedules.gym.weekdayDays||[]);
+  const we=new Set(dailySchedules.gym.weekendDays||[]);
+  DAYS.forEach(dk=>{
+    if(!schedule[dk]||!schedule[dk].blocks)return;
+    const gymProfile=wd.has(dk)?dailySchedules.gym.weekday:we.has(dk)?dailySchedules.gym.weekend:null;
+    if(!gymProfile)return;
+    const anchorProfile=_getAnchorProfileForDay(dk);
+    const blocks=schedule[dk].blocks;
+    const dayFlags=_dayGymFlags(dk,blocks);
+    const tl=computeGymTimeline(gymProfile,anchorProfile,dayFlags);
+    if(!tl)return;
+    const travel=blocks.find(b=>b&&b.type==='travel');
+    const training=blocks.find(b=>b&&b.type==='training');
+    const travelback=blocks.find(b=>b&&b.type==='travelback');
+    if(travel){travel.t=tl.driveToGym;travel.l='Drive to gym · '+tl.driveMin+' min';}
+    if(training&&tl.workout)training.t=tl.workout;
+    if(travelback){travelback.t=tl.driveHome;travelback.l='Drive home · '+tl.driveMin+' min';}
+  });
+}
+function syncGymShakeTimesToSchedule(){
+  // Re-apply full shake plan after gym times update so pre/post stay aligned
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  const after=new Set((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]);
+  const off=new Set((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]);
+  const aw=dailySchedules.anchors.afterWork||{};
+  const of=dailySchedules.anchors.off||{};
+  DAYS.forEach(dk=>{
+    if(!schedule[dk]||!schedule[dk].blocks)return;
+    const profile=after.has(dk)?aw:off.has(dk)?of:null;
+    if(!profile)return;
+    _syncShakePlanToDay(dk,schedule[dk].blocks,profile);
+  });
+}
+// ── Profile-first cascade (explicit links, one code path) ─────────────────────
+const CASCADE_LINKS={
+  'work.workNights.shiftEnd':['anchors.afterWork.supps','anchors.afterWork.brushMorning','anchors.afterWork.journalMorning','anchors.afterWork.deepJournal','anchors.afterWork.trade'],
+  'work.workNights.driveHome':['anchors.afterWork.supps','anchors.afterWork.brushMorning','anchors.afterWork.journalMorning','anchors.afterWork.deepJournal','anchors.afterWork.trade'],
+  'work.workNights.driveToWork':['anchors.afterWork.brushEvening','anchors.afterWork.journalEvening','anchors.off.brushEvening','anchors.off.journalEvening'],
+  'work.workNights.shiftStart':['anchors.afterWork.brushEvening','anchors.afterWork.journalEvening','anchors.off.brushEvening','anchors.off.journalEvening'],
+};
+const CASCADE_FIELD_LABELS={
+  'anchors.afterWork.supps':'Supplements',
+  'anchors.afterWork.brushMorning':'Brush AM','anchors.afterWork.brushEvening':'Brush PM',
+  'anchors.afterWork.journalMorning':'Check-in AM','anchors.afterWork.journalEvening':'Check-in PM',
+  'anchors.afterWork.deepJournal':'Journal','anchors.afterWork.trade':'Trading',
+  'anchors.off.brushEvening':'Brush PM','anchors.off.journalEvening':'Check-in PM',
+};
+function _getProfileByPath(path){
+  if(!dailySchedules||!path)return undefined;
+  const parts=String(path).split('.');
+  let cur=dailySchedules;
+  for(let i=0;i<parts.length;i++){
+    if(cur==null||typeof cur!=='object')return undefined;
+    cur=cur[parts[i]];
+  }
+  return cur;
+}
+function _setProfileByPath(path,val){
+  if(!dailySchedules||!path)return;
+  const parts=String(path).split('.');
+  let cur=dailySchedules;
+  for(let i=0;i<parts.length-1;i++){
+    if(!cur[parts[i]]||typeof cur[parts[i]]!=='object')cur[parts[i]]={};
+    cur=cur[parts[i]];
+  }
+  cur[parts[parts.length-1]]=val;
+}
+function _shiftProfileTime(path,deltaMin){
+  const v=_getProfileByPath(path);
+  if(!v||typeof v!=='string')return false;
+  const m=parseTimeToMins(v);
+  if(m==null||!deltaMin)return false;
+  _setProfileByPath(path,minsToTime(m+deltaMin));
+  return true;
+}
+function applyCascadeToProfiles(anchorPath,oldVal,newVal){
+  if(!dailySchedules)return[];
+  const oldM=parseTimeToMins(oldVal),newM=parseTimeToMins(newVal);
+  if(dailySchedules.cascadeNeighbors===false)return[];
+  if(oldM==null||newM==null||oldM===newM)return[];
+  const delta=newM-oldM;
+  const moved=[];
+  const links=CASCADE_LINKS[anchorPath]||[];
+  links.forEach(p=>{
+    if(_shiftProfileTime(p,delta))moved.push(CASCADE_FIELD_LABELS[p]||(p.split('.').pop()));
+  });
+  window._lastCascadeSummary=moved.length?('Also moved: '+[...new Set(moved)].join(', ')+' '+(delta>0?'+':'')+delta+' min'):'';
+  return moved;
+}
+function _findPreGymShake(blocks,travelT){
+  const tm=parseTimeToMins(travelT);
+  if(tm==null)return null;
+  let best=null,bestM=-Infinity;
+  blocks.forEach(b=>{
+    if(!b||b.hidden||b.type!=='shake')return;
+    const m=parseTimeToMins(b.t);
+    if(m==null||m>tm)return;
+    if(m>=bestM){bestM=m;best=b;}
+  });
+  return best;
+}
+function _findPostGymShake(blocks,homeT){
+  const hm=parseTimeToMins(homeT);
+  if(hm==null)return null;
+  let best=null,bestM=Infinity;
+  blocks.forEach(b=>{
+    if(!b||b.hidden||b.type!=='shake')return;
+    const m=parseTimeToMins(b.t);
+    if(m==null||m<hm)return;
+    if(m<=bestM){bestM=m;best=b;}
+  });
+  return best;
+}
+function _upsertJournalBlock(blocks,kind,t,show){
+  if(!Array.isArray(blocks))return;
+  let b=null;
+  if(kind==='deep'){
+    b=blocks.find(x=>x&&x.type==='deepjournal');
+    if(!show){if(b)b.hidden=true;return;}
+    if(b){b.t=t||b.t;b.l=b.l||'Journal';delete b.hidden;}
+    else blocks.push({t:t||'6:30 AM',l:'Journal',type:'deepjournal'});
+    return;
+  }
+  const journals=blocks.filter(x=>x&&x.type==='journal');
+  if(kind==='evening'){
+    b=journals.find(x=>{const l=(x.l||'').toLowerCase();return l.includes('evening')||l.includes('night');})
+      ||(journals.length>1?journals[journals.length-1]:null);
+  }else{
+    b=journals.find(x=>{const l=(x.l||'').toLowerCase();return l.includes('morning')||(!l.includes('evening')&&!l.includes('night'));})
+      ||journals[0]||null;
+  }
+  if(!show){if(b)b.hidden=true;return;}
+  const label=kind==='evening'?'Evening Check-in':'Morning Check-in';
+  if(b){b.t=t||b.t;if(!b.l||/check-in|journal/i.test(b.l))b.l=label;delete b.hidden;}
+  else blocks.push({t:t||(kind==='evening'?'8:00 PM':'6:20 AM'),l:label,type:'journal'});
+}
+function _upsertBrushSlot(blocks,slot,t,show){
+  // slot: 'morning' | 'evening' — earliest / latest brush
+  const brushes=blocks.filter(x=>x&&x.type==='brush').slice().sort((a,b)=>(parseTimeToMins(a.t)||0)-(parseTimeToMins(b.t)||0));
+  let b=null;
+  if(slot==='evening')b=brushes.length?brushes[brushes.length-1]:null;
+  else b=brushes[0]||null;
+  // If only one brush and we need both slots, push a second for evening
+  if(slot==='evening'&&brushes.length===1&&show){
+    const mornM=parseTimeToMins(brushes[0].t);
+    const eveM=parseTimeToMins(t);
+    if(mornM!=null&&eveM!=null&&Math.abs(eveM-mornM)>90){
+      blocks.push({t:t||'8:20 PM',l:'Brush Teeth',type:'brush'});
+      return;
+    }
+  }
+  if(!show){if(b&&brushes.length>1)b.hidden=true;return;}
+  if(b){b.t=t||b.t;b.l='Brush Teeth';delete b.hidden;}
+  else blocks.push({t:t||(slot==='evening'?'8:20 PM':'5:30 AM'),l:'Brush Teeth',type:'brush'});
+}
+function _getWakeAnchorForDay(dk){
+  if(!dailySchedules)return null;
+  const after=new Set((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]);
+  const off=new Set((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]);
+  if(after.has(dk)){
+    return (dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.shiftEnd)||null;
+  }
+  if(off.has(dk)){
+    return (dailySchedules.sleep&&dailySchedules.sleep.off&&dailySchedules.sleep.off.wake)||null;
+  }
+  return (dailySchedules.sleep&&dailySchedules.sleep.off&&dailySchedules.sleep.off.wake)
+    ||(dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.shiftEnd)
+    ||null;
+}
+function _computeShake1Time(dk,anchorProfile){
+  const wakeT=_getWakeAnchorForDay(dk);
+  if(!wakeT)return null;
+  const wm=parseTimeToMins(wakeT);
+  if(wm==null)return null;
+  const offset=_shakeTimingOffsets(anchorProfile).afterWakeMin;
+  let m=wm+offset;
+  if(m>=1440)m-=1440;
+  return minsToTime(m);
+}
+function _getSleepStartForDay(dk){
+  if(!dailySchedules||!dailySchedules.sleep)return null;
+  const after=new Set(dailySchedules.sleep.afterWorkDays||[]);
+  const off=new Set(dailySchedules.sleep.offDays||[]);
+  if(after.has(dk))return(dailySchedules.sleep.afterWork&&dailySchedules.sleep.afterWork.t)||null;
+  if(off.has(dk)){
+    const of=dailySchedules.sleep.off||{};
+    return of.t||null;
+  }
+  return(dailySchedules.sleep.afterWork&&dailySchedules.sleep.afterWork.t)
+    ||(dailySchedules.sleep.off&&dailySchedules.sleep.off.t)
+    ||null;
+}
+function _computeShakeBeforeBedTime(dk,anchorProfile){
+  const sleepT=_getSleepStartForDay(dk);
+  if(!sleepT)return null;
+  const sm=parseTimeToMins(sleepT);
+  if(sm==null)return null;
+  const offset=_shakeTimingOffsets(anchorProfile).beforeBedMin;
+  let m=sm-offset;
+  if(m<0)m+=1440;
+  return minsToTime(m);
+}
+function _syncShakePlanToDay(dk,blocks,profile){
+  if(!blocks||!profile)return;
+  const plan=_getShakePlan(profile);
+  const count=Math.max(1,Math.min(4,Number(plan.count)||3));
+  const gymProfile=_getGymProfileForDay(dk);
+  const dayFlags=_dayGymFlags(dk,blocks);
+  const tl=gymProfile?computeGymTimeline(gymProfile,profile,dayFlags):null;
+  const shake1T=_computeShake1Time(dk,profile);
+  const shake4T=_computeShakeBeforeBedTime(dk,profile);
+  for(let i=1;i<=4;i++){
+    let b=blocks.find(x=>x&&x.type==='shake'&&x.idx===i);
+    if(!b&&i<=count){
+      // Fallback: nth shake by time order if idx missing
+      const ordered=blocks.filter(x=>x&&x.type==='shake').slice().sort((a,c)=>(parseTimeToMins(a.t)||0)-(parseTimeToMins(c.t)||0));
+      if(ordered[i-1]&&(ordered[i-1].idx==null||ordered[i-1].idx===i))b=ordered[i-1];
+    }
+    if(i>count){
+      if(b)b.hidden=true;
+      continue;
+    }
+    const item=plan.items[i-1]||{};
+    const proteinG=Math.max(15,Math.min(80,Number(item.proteinG)||(i===1?60:30)));
+    const scoops=_scoopsForProteinG(proteinG);
+    let t=null;
+    if(i===1)t=shake1T;
+    else if(i===2)t=tl&&tl.preShake;
+    else if(i===3)t=tl&&tl.postShake;
+    else t=shake4T;
+    if(!t)continue;
+    const label='Shake '+i+' · '+proteinG+'g protein';
+    if(b){
+      b.t=t;b.scoops=scoops;b.idx=i;b.tot=count;b.l=label;delete b.hidden;
+    }else{
+      const nb={t:t,type:'shake',scoops:scoops,idx:i,tot:count,l:label};
+      if(i===2)nb.sub=[{l:'Dextrose · 2 scoops — pre-workout',type:'dextrose',scoops:2}];
+      if(i===3)nb.sub=[{l:'Dextrose · 2 scoops — post-workout',type:'dextrose',scoops:2}];
+      blocks.push(nb);
+    }
+  }
+  blocks.filter(b=>b&&b.type==='shake'&&!b.hidden).forEach(b=>{b.tot=count;});
+}
+function syncAnchorsScheduleToSchedule(){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  const after=new Set((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]);
+  const off=new Set((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]);
+  const aw=dailySchedules.anchors.afterWork||{};
+  const of=dailySchedules.anchors.off||{};
+  DAYS.forEach(dk=>{
+    if(!schedule[dk])schedule[dk]={blocks:[]};
+    if(!schedule[dk].blocks)schedule[dk].blocks=[];
+    const blocks=schedule[dk].blocks;
+    const profile=after.has(dk)?aw:off.has(dk)?of:null;
+    if(!profile)return;
+    const isAfter=after.has(dk);
+    const on=k=>isAnchorEnabled(profile,k);
+    _upsertSingletonBlock(blocks,'caffeine',{show:on('caffeine'),t:profile.caffeine,l:'Caffeine'});
+    _upsertBrushSlot(blocks,'morning',profile.brushMorning,on('brushMorning'));
+    _upsertBrushSlot(blocks,'evening',profile.brushEvening,on('brushEvening'));
+    _upsertJournalBlock(blocks,'morning',profile.journalMorning,on('journalMorning'));
+    _upsertJournalBlock(blocks,'deep',profile.deepJournal,on('deepJournal'));
+    _upsertJournalBlock(blocks,'evening',profile.journalEvening,on('journalEvening'));
+    if(isAfter&&profile.trade){
+      _upsertSingletonBlock(blocks,'trade',{show:on('trade'),t:profile.trade,l:'Trading'});
+    }else if(!isAfter){
+      _upsertSingletonBlock(blocks,'trade',{show:false});
+    }
+    if(profile.supps)_upsertSingletonBlock(blocks,'supps',{show:on('supps'),t:profile.supps,l:'Supplements'});
+    else _upsertSingletonBlock(blocks,'supps',{show:false});
+    _syncShakePlanToDay(dk,blocks,profile);
+    const walkDur=Math.max(5,Math.min(120,Number(profile.walkDurationMin)||20));
+    if(profile.walk)_upsertWalk(blocks,profile.walk,walkDur,on('walk'));
+    else _upsertWalk(blocks,null,walkDur,false);
+    if(profile.winddown)_upsertSingletonBlock(blocks,'winddown',{show:on('winddown'),t:profile.winddown,l:'Screen cutoff'});
+    else _upsertSingletonBlock(blocks,'winddown',{show:false});
+  });
+}
+function _upsertShake1(blocks,t){
+  if(!Array.isArray(blocks)||!t)return;
+  let b=blocks.find(x=>x&&x.type==='shake'&&x.idx===1);
+  if(!b){
+    const shakes=blocks.filter(x=>x&&x.type==='shake').slice().sort((a,c)=>(parseTimeToMins(a.t)||0)-(parseTimeToMins(c.t)||0));
+    b=shakes[0]||null;
+  }
+  if(b){b.t=t;if(b.idx==null)b.idx=1;delete b.hidden;}
+  else blocks.push({t:t,type:'shake',scoops:4,idx:1,tot:3,l:'Shake 1 · 60g protein'});
+}
+function _upsertWalk(blocks,t,durMin,show){
+  if(!Array.isArray(blocks))return;
+  let b=blocks.find(x=>x&&x.type==='walk');
+  const dur=Math.max(5,Math.min(120,Number(durMin)||20));
+  if(!show){if(b)b.hidden=true;return;}
+  const label='Walk · '+dur+' min';
+  if(b){b.t=t||b.t;b.l=label;b.dur=dur;delete b.hidden;}
+  else blocks.push({t:t||'10:20 AM',l:label,type:'walk',dur:dur});
+}
+function renderDailyCascadeNote(){
+  const s=window._lastCascadeSummary||'';
+  if(!s)return'';
+  return`<div class="daily-cascade-note">${s}</div>`;
+}
+function snapshotDailySchedUndo(){
+  try{
+    window._dailySchedUndo={
+      schedule:JSON.parse(JSON.stringify(schedule)),
+      dailySchedules:JSON.parse(JSON.stringify(dailySchedules)),
+    };
+  }catch(e){window._dailySchedUndo=null;}
+}
+window.undoDailyScheduleChange=function(){
+  const snap=window._dailySchedUndo;
+  if(!snap){showToast('Nothing to undo');return;}
+  try{
+    schedule=snap.schedule;
+    dailySchedules=normalizeDailySchedules(snap.dailySchedules);
+    window._dailySchedUndo=null;
+    window._lastCascadeSummary='';
+    saveState();
+    showToast('Daily schedule undone');
+    renderApp();
+  }catch(e){showToast('Undo failed');}
+};
+function undoDailyScheduleChange(){window.undoDailyScheduleChange();}
+var _dailySchedApplyTimer=null;
+function applyDailyScheduleChanges(opts){
+  opts=opts||{};
+  if(_dailySchedApplyTimer)clearTimeout(_dailySchedApplyTimer);
+  _dailySchedApplyTimer=setTimeout(function(){
+    _dailySchedApplyTimer=null;
+    if(!dailySchedules)dailySchedules=normalizeDailySchedules(null);
+    if(!opts.skipSnapshot)snapshotDailySchedUndo();
+    syncWorkScheduleToSchedule();
+    syncSleepScheduleToSchedule();
+    syncGymScheduleToSchedule();
+    syncAnchorsScheduleToSchedule();
+    syncGymShakeTimesToSchedule();
+    saveState();
+    showToast('Schedule updated',{onUndo:function(){window.undoDailyScheduleChange();}});
+    if(window._lastCascadeSummary){
+      const s=window._lastCascadeSummary;
+      setTimeout(function(){if(window._lastCascadeSummary===s)window._lastCascadeSummary='';},10000);
+    }
+    renderApp();
+  },150);
+}
+function syncDailySchedulesToSchedule(){
+  syncWorkScheduleToSchedule();
+  syncSleepScheduleToSchedule();
+  syncGymScheduleToSchedule();
+  syncAnchorsScheduleToSchedule();
+  syncGymShakeTimesToSchedule();
+}
+let dailySchedules=normalizeDailySchedules(saved&&saved.dailySchedules);
+let gymDayAdjust=saved?.gymDayAdjust||{};
+// Keep recurring gym blocks aligned with duration-based dailySchedules model
+(function(){
+  if(typeof syncGymScheduleToSchedule==='function')syncGymScheduleToSchedule();
+  if(typeof syncGymShakeTimesToSchedule==='function')syncGymShakeTimesToSchedule();
+})();
+// One-time: ensure drivehome exists on mornings that already have shift end
+(function migrateDrivehomeBlocks(){
+  if(!schedule)return;
+  let added=false;
+  DAYS.forEach(dk=>{
+    const blocks=schedule[dk]&&schedule[dk].blocks;
+    if(!blocks)return;
+    const we=blocks.find(b=>b&&b.type==='workend'&&!b.hidden);
+    if(!we)return;
+    if(blocks.some(b=>b&&b.type==='drivehome'))return;
+    const m=parseTimeToMins(we.t);
+    const t=m!=null?minsToTime(m-30):(dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.driveHome)||'5:00 AM';
+    // Push — never splice — so index-based checked/skipped keys stay stable.
+    blocks.push({t:t,l:'Drive home from work · 30 min',type:'drivehome'});
+    added=true;
+  });
+  if(added){
+    window._orphanNewBlocksNeedPersist=true;
+    try{flushState();}catch(e){}
+    window._orphanNewBlocksNeedPersist=false;
+  }
+})();
+
 // Backfills any protein drinks added before the food-database sync existed
 // — the fix in addProteinDrink only reaches NEW drinks going forward, an
 // already-saved drinks list entirely bypasses it, same issue hit before
@@ -6237,8 +7535,10 @@ function getDateKey(dk){
 function getEffectiveBlocks(dk){
   const d=getDateForDay(dk);
   const dateStr=DATE_INPUT_FMT(d);
-  if(oneTimeOverrides[dateStr])return oneTimeOverrides[dateStr];
-  return (schedule[dk]&&schedule[dk].blocks)||[];
+  let blocks;
+  if(oneTimeOverrides[dateStr])blocks=oneTimeOverrides[dateStr];
+  else blocks=(schedule[dk]&&schedule[dk].blocks)||[];
+  return _applyGymDayAdjustToBlocks(blocks,dk);
 }
 
 // Date-isolated log key for macros/sauna/trade
@@ -6373,11 +7673,11 @@ function computeDayMacros(dk){
 //               misc (habits + self-care merged into one bucket)
 const BLOCK_CATEGORY={
   wake:'time',sleep:'time',work:'time',workend:'time',fast:'time',caffeine:'time',
-  travel:'time',travelback:'time',drivework:'time',
+  travel:'time',travelback:'time',drivework:'time',drivehome:'time',
   training:'activity',anabolic:'activity',soccer:'activity',sauna:'activity',cardio:'activity',walk:'activity',
   meal:'nutrition',mealopen:'nutrition',mealclose:'nutrition',preworkout:'nutrition',postworkout:'nutrition',
   shake:'nutrition',supps:'nutrition',dextrose:'nutrition',creatine:'nutrition',collagen:'nutrition',
-  journal:'habit',deepjournal:'habit',brush:'habit',recovery:'habit',trade:'habit',personal:'habit',misc:'habit',
+  journal:'habit',deepjournal:'habit',brush:'habit',winddown:'habit',recovery:'habit',trade:'habit',personal:'habit',misc:'habit',
 };
 const CATEGORY_META={
   overall:{label:'OVERALL',color:'#facc15'},
@@ -9114,7 +10414,12 @@ window.openMealFoodsFromBlock=function(){
   const dk=modal.dk;
   if(ms&&/^m\d+$/.test(ms)){
     modal=null;
-    window.openFoodHub('edit');
+    if(uiSettings&&uiSettings.showFoodEditTab)window.openFoodHub('edit');
+    else{
+      activePage='settings';
+      window.settingsView='meals';window.settingsTab='meals';
+      renderApp();
+    }
     return;
   }
   if(ms&&String(ms).startsWith('c')){
@@ -9934,6 +11239,7 @@ function recalcMacroLog(dk){
 
 // ─── FOOD HUB VIEW ────────────────────────────────────────────────────────────
 window.setFoodHubView=function(v){
+  if(v==='edit'&&!(uiSettings&&uiSettings.showFoodEditTab))v='plan';
   if(!['macros','plan','database','edit'].includes(v))v='macros';
   foodHubView=v;window._foodHubView=v;renderApp();
 };
@@ -9947,6 +11253,12 @@ window.setNutritionView=function(v){
 };
 function setNutritionView(v){window.setNutritionView(v);}
 window.openFoodHub=function(view,dayKey){
+  if(view==='edit'&&!(uiSettings&&uiSettings.showFoodEditTab)){
+    activePage='settings';
+    window.settingsView='meals';window.settingsTab='meals';
+    renderApp();
+    return;
+  }
   if(view&&['macros','plan','database','edit'].includes(view))foodHubView=view;
   if(dayKey){
     window._mpDay=dayKey;
@@ -10138,7 +11450,7 @@ function buildExportState(keys){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailyTodoItems,dailyTodoLog,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
     anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -10182,7 +11494,7 @@ window.exportData=function(){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailyTodoItems,dailyTodoLog,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,noTradeDays,fullGymRestDays,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
     anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -16158,8 +17470,11 @@ function phaseView(){
     ['macros','MACROS'],
     ['plan','PLAN'],
     ['database','FOOD DB'],
-    ['edit','EDIT'],
   ];
+  if(uiSettings.showFoodEditTab)FOOD_TABS.push(['edit','EDIT']);
+  if(foodHubView==='edit'&&!uiSettings.showFoodEditTab){
+    foodHubView='plan';window._foodHubView='plan';
+  }
   const tabSub={
     macros:'Logged macros · trends',
     plan:'Daily meal plan',
@@ -16169,7 +17484,7 @@ function phaseView(){
   let body='';
   if(foodHubView==='plan')body=renderFoodHubPlanView();
   else if(foodHubView==='database')body=renderFoodHubDatabaseView();
-  else if(foodHubView==='edit')body=renderMealPlanEditor();
+  else if(foodHubView==='edit'&&uiSettings.showFoodEditTab)body=renderMealPlanEditor();
   else body=phaseView();
 
   return`<div class="page-wrap" style="padding:0">
@@ -17880,12 +19195,12 @@ function renderMealPlanEditor(){
   const mp=mealPlan||seedMealPlanFromExisting();
   const foodOpts=((mpFoods&&mpFoods.length)?mpFoods:MP_FOODS_DEFAULT).map(f=>`<option value="${f.id}">${f.name}</option>`).join('');
   return`<div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
-      <div style="font-size:7px;color:var(--muted);letter-spacing:1.5px;font-weight:700;margin-bottom:10px">MEALS PER DAY</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <button type="button" onclick="mealPlanSetCount(${Math.max(2,(mp.count||3)-1)})" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-size:18px;cursor:pointer">−</button>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="settings-card-title" style="color:#fb923c;margin-bottom:10px">MEALS PER DAY</div>
+      <div class="settings-field-controls" style="gap:12px">
+        <button type="button" class="settings-step-btn-lg" onclick="mealPlanSetCount(${Math.max(2,(mp.count||3)-1)})">−</button>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fb923c;min-width:40px;text-align:center">${mp.count||mp.slots.length}</div>
-        <button type="button" onclick="mealPlanSetCount(${Math.min(6,(mp.count||3)+1)})" style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-size:18px;cursor:pointer">+</button>
+        <button type="button" class="settings-step-btn-lg" onclick="mealPlanSetCount(${Math.min(6,(mp.count||3)+1)})">+</button>
         <span style="font-size:9px;color:var(--muted2)">2–6 meals</span>
       </div>
     </div>
@@ -17893,19 +19208,19 @@ function renderMealPlanEditor(){
       const macros=computeSlotMacros(slot.items);
       const mealOpen=window.settingsCollapse['meal-'+si]!=null?window.settingsCollapse['meal-'+si]:false;
       const itemsHtml=(slot.items||[]).map((it,fi)=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--card2)">
+        <div class="settings-field-controls" style="padding:6px 0;border-bottom:1px solid var(--card2)">
           <div style="flex:1;min-width:0">
             <div style="font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.n}</div>
             <div style="font-size:8px;color:var(--muted2)">${it.a||''}</div>
           </div>
-          <div style="display:flex;align-items:center;gap:4px">
-            <button type="button" onclick="mealPlanSetFoodSv(${si},${fi},-1)" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--card2);color:var(--text3);cursor:pointer">−</button>
+          <div class="settings-field-controls" style="gap:4px">
+            <button type="button" class="settings-step-btn" style="width:24px;height:24px;font-size:12px;color:var(--text3)" onclick="mealPlanSetFoodSv(${si},${fi},-1)">−</button>
             <span style="font-size:10px;color:#fb923c;min-width:18px;text-align:center">${it.defaultSv!=null?it.defaultSv:1}</span>
-            <button type="button" onclick="mealPlanSetFoodSv(${si},${fi},1)" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--card2);color:var(--text3);cursor:pointer">+</button>
+            <button type="button" class="settings-step-btn" style="width:24px;height:24px;font-size:12px;color:var(--text3)" onclick="mealPlanSetFoodSv(${si},${fi},1)">+</button>
             <button type="button" onclick="mealPlanRemoveFood(${si},${fi})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
           </div>
         </div>`).join('')||`<div style="font-size:9px;color:var(--muted2);padding:8px 0">No foods yet</div>`;
-      return`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
+      return`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px">
         <button type="button" class="settings-meal-summary" onclick="toggleSettingsCollapse('meal-${si}')">
           <div>
             <div class="settings-meal-summary-title">${slot.name||slot.id.toUpperCase()}</div>
@@ -17918,7 +19233,7 @@ function renderMealPlanEditor(){
             <div><label class="lbl">NAME</label><input id="mp-slot-n-${si}" class="inp" value="${(slot.name||'').replace(/"/g,'&quot;')}" style="margin-bottom:0" onblur="mealPlanUpdateSlot(${si},'name',this.value)"/></div>
             <div><label class="lbl">TIME</label><button type="button" class="time-pick-btn" onclick="openMealSlotTimePicker(${si})">${(slot.t||'Set time').replace(/</g,'&lt;')}</button></div>
           </div>
-          <div style="font-size:7px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">FOODS</div>
+          <div style="font-size:8px;color:#fb923c;letter-spacing:1.5px;font-weight:700;margin-bottom:6px">FOODS</div>
           ${itemsHtml}
           <div style="display:flex;gap:6px;margin-top:10px;align-items:center">
             <select id="mp-add-food-${si}" style="flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:8px">
@@ -19469,6 +20784,7 @@ window.saveCardioLog=function(){
     checked[`${getDateKey(dk)}-${cardioIdx}`]=true;
   }
   if(dur>0)onGymActivityChecked(dk);
+  updateGymDayAdjust(dk);
   saveState();modal=null;render();
 };
 function saveCardioLog(){window.saveCardioLog();}
@@ -19529,6 +20845,7 @@ window.saveSauna=function(){
     checked[sk]=true;
   }
   if(dur>0)onGymActivityChecked(dk);
+  updateGymDayAdjust(dk);
   saveState();modal=null;render();
 };
 function saveSauna(){window.saveSauna();}
@@ -21296,6 +22613,236 @@ window.saveMealPlan=function(){
 };
 function saveMealPlan(){window.saveMealPlan();}
 
+window.openDailySchedTimePicker=function(path,title){
+  if(!dailySchedules)dailySchedules=normalizeDailySchedules(null);
+  const parts=String(path||'').split('.');
+  let cur=dailySchedules;
+  for(let i=0;i<parts.length-1;i++){
+    if(!cur[parts[i]]||typeof cur[parts[i]]!=='object')cur[parts[i]]={};
+    cur=cur[parts[i]];
+  }
+  const key=parts[parts.length-1];
+  const curVal=cur[key]||'';
+  openAppTimePicker({
+    title:title||'TIME',
+    value:curVal,
+    onDone:function(str){
+      snapshotDailySchedUndo();
+      let c=dailySchedules;
+      for(let i=0;i<parts.length-1;i++){
+        if(!c[parts[i]]||typeof c[parts[i]]!=='object')c[parts[i]]={};
+        c=c[parts[i]];
+      }
+      const prevVal=c[key];
+      c[key]=str;
+      applyCascadeToProfiles(path,prevVal,str);
+      applyDailyScheduleChanges({skipSnapshot:true});
+    },
+  });
+};
+function openDailySchedTimePicker(path,title){window.openDailySchedTimePicker(path,title);}
+
+window.toggleDailyWorkNight=function(dk){
+  if(!dailySchedules||!dailySchedules.work)return;
+  snapshotDailySchedUndo();
+  const arr=dailySchedules.work.workNightDays||(dailySchedules.work.workNightDays=[]);
+  const i=arr.indexOf(dk);
+  if(i>=0)arr.splice(i,1);else arr.push(dk);
+  arr.sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function toggleDailyWorkNight(dk){window.toggleDailyWorkNight(dk);}
+
+window.toggleDailySleepProfile=function(dk,profile){
+  if(!dailySchedules||!dailySchedules.sleep)return;
+  snapshotDailySchedUndo();
+  const after=dailySchedules.sleep.afterWorkDays||(dailySchedules.sleep.afterWorkDays=[]);
+  const off=dailySchedules.sleep.offDays||(dailySchedules.sleep.offDays=[]);
+  const rm=arr=>{const i=arr.indexOf(dk);if(i>=0)arr.splice(i,1);};
+  if(profile==='after'){
+    rm(off);
+    if(!after.includes(dk))after.push(dk);
+  }else{
+    rm(after);
+    if(!off.includes(dk))off.push(dk);
+  }
+  after.sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b));
+  off.sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function toggleDailySleepProfile(dk,profile){window.toggleDailySleepProfile(dk,profile);}
+
+window.toggleDailyGymProfile=function(dk,profile){
+  if(!dailySchedules||!dailySchedules.gym)return;
+  snapshotDailySchedUndo();
+  const wd=dailySchedules.gym.weekdayDays||(dailySchedules.gym.weekdayDays=[]);
+  const we=dailySchedules.gym.weekendDays||(dailySchedules.gym.weekendDays=[]);
+  const rm=arr=>{const i=arr.indexOf(dk);if(i>=0)arr.splice(i,1);};
+  if(profile==='weekday'){
+    rm(we);
+    if(!wd.includes(dk))wd.push(dk);
+  }else{
+    rm(wd);
+    if(!we.includes(dk))we.push(dk);
+  }
+  wd.sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b));
+  we.sort((a,b)=>DAYS.indexOf(a)-DAYS.indexOf(b));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function toggleDailyGymProfile(dk,profile){window.toggleDailyGymProfile(dk,profile);}
+
+window.nudgeGymField=function(profile,field,delta){
+  if(!dailySchedules||!dailySchedules.gym)return;
+  snapshotDailySchedUndo();
+  const p=profile==='weekend'?dailySchedules.gym.weekend:dailySchedules.gym.weekday;
+  if(!p)return;
+  const limits={
+    driveMin:[5,120,30],
+    durationMin:[15,180,45],
+    cardioMin:[0,120,20],
+    saunaMin:[0,120,15],
+  };
+  const lim=limits[field]||[0,180,0];
+  p[field]=Math.max(lim[0],Math.min(lim[1],(Number(p[field])||lim[2])+delta));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeGymField(profile,field,delta){window.nudgeGymField(profile,field,delta);}
+window.nudgeGymDuration=function(profile,delta){window.nudgeGymField(profile,'durationMin',delta);};
+function nudgeGymDuration(profile,delta){window.nudgeGymDuration(profile,delta);}
+
+window.nudgeAnchorShakeOffset=function(profile,field,delta){
+  // Legacy path — prefer nudgeAnchorShakeItemTiming
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  const plan=_ensureAnchorShakePlan(p);
+  if(!plan||!plan.items)return;
+  if(field==='shake1AfterWakeMin'&&plan.items[0]){
+    plan.items[0].afterWakeMin=Math.max(0,Math.min(120,(Number(plan.items[0].afterWakeMin)||15)+delta));
+  }else if(field==='preShakeBeforeDriveMin'&&plan.items[1]){
+    plan.items[1].beforeDriveMin=Math.max(0,Math.min(60,(Number(plan.items[1].beforeDriveMin)||10)+delta));
+  }else if(field==='postShakeAfterHomeMin'&&plan.items[2]){
+    plan.items[2].afterHomeMin=Math.max(0,Math.min(60,(Number(plan.items[2].afterHomeMin)||15)+delta));
+  }
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeAnchorShakeOffset(profile,field,delta){window.nudgeAnchorShakeOffset(profile,field,delta);}
+
+window.nudgeAnchorShakeCount=function(profile,delta){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  const plan=_ensureAnchorShakePlan(p);
+  const next=Math.max(1,Math.min(4,(Number(plan.count)||3)+delta));
+  while(plan.items.length<next){
+    const i=plan.items.length;
+    if(i===0)plan.items.push({proteinG:60,afterWakeMin:profile==='off'?2:15});
+    else if(i===1)plan.items.push({proteinG:30,beforeDriveMin:10});
+    else if(i===2)plan.items.push({proteinG:30,afterHomeMin:15});
+    else plan.items.push({proteinG:30,beforeBedMin:30});
+  }
+  plan.count=next;
+  plan.items=plan.items.slice(0,next);
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeAnchorShakeCount(profile,delta){window.nudgeAnchorShakeCount(profile,delta);}
+
+window.nudgeAnchorShakeProtein=function(profile,idx,delta){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  const plan=_ensureAnchorShakePlan(p);
+  const item=plan.items[idx];
+  if(!item)return;
+  item.proteinG=Math.max(15,Math.min(80,(Number(item.proteinG)||(idx===0?60:30))+delta));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeAnchorShakeProtein(profile,idx,delta){window.nudgeAnchorShakeProtein(profile,idx,delta);}
+
+window.nudgeAnchorShakeItemTiming=function(profile,idx,delta){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  const plan=_ensureAnchorShakePlan(p);
+  const item=plan.items[idx];
+  if(!item)return;
+  if(idx===0)item.afterWakeMin=Math.max(0,Math.min(120,(Number(item.afterWakeMin)||(profile==='off'?2:15))+delta));
+  else if(idx===1)item.beforeDriveMin=Math.max(0,Math.min(60,(Number(item.beforeDriveMin)||10)+delta));
+  else if(idx===2)item.afterHomeMin=Math.max(0,Math.min(60,(Number(item.afterHomeMin)||15)+delta));
+  else{
+    if(item.t!=null&&item.beforeBedMin==null){delete item.t;item.beforeBedMin=30;}
+    item.beforeBedMin=Math.max(0,Math.min(180,(Number(item.beforeBedMin)||30)+delta));
+  }
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeAnchorShakeItemTiming(profile,idx,delta){window.nudgeAnchorShakeItemTiming(profile,idx,delta);}
+
+window.nudgeWalkDuration=function(profile,delta){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  p.walkDurationMin=Math.max(5,Math.min(120,(Number(p.walkDurationMin)||20)+delta));
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeWalkDuration(profile,delta){window.nudgeWalkDuration(profile,delta);}
+
+window.anchorsEditProfile=window.anchorsEditProfile||'afterWork';
+window.setAnchorsEditProfile=function(p){
+  window.anchorsEditProfile=(p==='off')?'off':'afterWork';
+  renderApp();
+};
+function setAnchorsEditProfile(p){window.setAnchorsEditProfile(p);}
+
+window.toggleAnchorEnabled=function(profile,key){
+  if(!dailySchedules||!dailySchedules.anchors||!key)return;
+  snapshotDailySchedUndo();
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  if(!p.enabled||typeof p.enabled!=='object')p.enabled=_defaultAnchorEnabled(profile==='off');
+  if(profile==='off'&&key==='trade'){p.enabled.trade=false;applyDailyScheduleChanges({skipSnapshot:true});return;}
+  p.enabled[key]=!isAnchorEnabled(p,key);
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function toggleAnchorEnabled(profile,key){window.toggleAnchorEnabled(profile,key);}
+
+window.openAnchorShake4TimePicker=function(profile){
+  // Legacy: shake 4 is now offset before sleep — open settings nudger path instead
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  const p=profile==='off'?dailySchedules.anchors.off:dailySchedules.anchors.afterWork;
+  if(!p)return;
+  const plan=_ensureAnchorShakePlan(p);
+  while(plan.items.length<4)plan.items.push({proteinG:30,beforeBedMin:30});
+  plan.count=Math.max(plan.count||1,4);
+  const item=plan.items[3];
+  if(item.t!=null&&item.beforeBedMin==null){delete item.t;item.beforeBedMin=30;}
+  if(item.beforeBedMin==null)item.beforeBedMin=30;
+  renderApp();
+};
+function openAnchorShake4TimePicker(profile){window.openAnchorShake4TimePicker(profile);}
+
+window.toggleDailyCascade=function(){
+  if(!dailySchedules)dailySchedules=normalizeDailySchedules(null);
+  dailySchedules.cascadeNeighbors=dailySchedules.cascadeNeighbors===false;
+  saveState();
+  renderApp();
+};
+function toggleDailyCascade(){window.toggleDailyCascade();}
+
+window.toggleShowFoodEditTab=function(){
+  uiSettings.showFoodEditTab=!uiSettings.showFoodEditTab;
+  saveUISettings();
+  if(!uiSettings.showFoodEditTab&&foodHubView==='edit'){
+    foodHubView='plan';window._foodHubView='plan';
+  }
+  renderApp();
+};
+function toggleShowFoodEditTab(){window.toggleShowFoodEditTab();}
+
 window.saveSettings=function(){
   function gn(id){var el=document.getElementById(id);return el?parseFloat(el.value)||0:0;}
   function gs(id){var el=document.getElementById(id);return el?el.value||'':'';}
@@ -21350,8 +22897,6 @@ function getSettingsView(){
 window.settingsView=window.settingsView||(window.settingsTab&&window.settingsTab!=='phase'?window.settingsTab:'hub');
 window.setSettingsView=function(v){
   if(v==='phase'&&modules&&modules.phases===false)v='hub';
-  // Meals editor lives on Food hub Edit tab now
-  if(v==='meals'){window.openFoodHub('edit');return;}
   // To-donts are managed from the hub TODONT widget
   if(v==='habits')v='hub';
   window.settingsView=v;
@@ -21369,25 +22914,39 @@ function setSettingsTab(t){window.setSettingsTab(t);}
 function setSettingsView(v){window.setSettingsView(v);}
 
 const SETTINGS_SECTIONS={
-  phase:{label:'PHASE',hubLabel:'Phase',color:'#6366f1',sub:'Phase name and dates'},
-  split:{label:'TRAINING SPLIT',hubLabel:'Training Split',color:'#a3e635',sub:'Lift, cardio, and sauna by day'},
-  macros:{label:'MACROS',hubLabel:'Macros',color:'#f59e0b',sub:'Overall or by day'},
-  layout:{label:'LAYOUT',hubLabel:'Layout',color:'#22d3ee',sub:'Nav bar, hub widgets, and placement'},
-  style:{label:'APPEARANCE',hubLabel:'Appearance',color:'#34d399',sub:'Theme, size, and start page'},
-  modules:{label:'MODULES',hubLabel:'Modules',color:'#a78bfa',sub:'Turn features on or off'},
-  notifications:{label:'NOTIFICATIONS',hubLabel:'Notifications',color:'#e879f9',sub:'Push reminders'},
-  data:{label:'DATA',hubLabel:'Data',color:'#60a5fa',sub:'Health · Export · Restore'},
+  phase:{label:'PHASE',hubLabel:'Phase',color:'#6366f1',sub:'Name and dates'},
+  split:{label:'TRAINING SPLIT',hubLabel:'Training Split',color:'#a3e635',sub:'Lift by day'},
+  daily:{label:'DAILY SCHEDULE',hubLabel:'Daily Schedule',color:'#f87171',sub:'Work, sleep, gym, meals'},
+  'daily-work':{label:'WORK',hubLabel:'Work',color:'#f87171',sub:'Shift and commute'},
+  'daily-sleep':{label:'SLEEP',hubLabel:'Sleep',color:'#818cf8',sub:'Sleep and wake'},
+  'daily-gym':{label:'GYM',hubLabel:'Gym',color:'#94a3b8',sub:'Workout and drive'},
+  'daily-anchors':{label:'ANCHORS',hubLabel:'Anchors',color:'#2dd4bf',sub:'Daily habits'},
+  meals:{label:'MEALS',hubLabel:'Meals',color:'#fb923c',sub:'Foods and shakes'},
+  macros:{label:'MACROS',hubLabel:'Macros',color:'#f59e0b',sub:'Targets'},
+  layout:{label:'LAYOUT',hubLabel:'Layout',color:'#22d3ee',sub:'Nav and hub'},
+  style:{label:'APPEARANCE',hubLabel:'Appearance',color:'#34d399',sub:'Theme and size'},
+  modules:{label:'MODULES',hubLabel:'Modules',color:'#a78bfa',sub:'Feature switches'},
+  notifications:{label:'NOTIFICATIONS',hubLabel:'Notifications',color:'#e879f9',sub:'Reminders'},
+  data:{label:'DATA',hubLabel:'Data',color:'#60a5fa',sub:'Backup and import'},
 };
 function settingsHubRow(id,subtitle){
-  const sec=SETTINGS_SECTIONS[id]||{hubLabel:id,color:'#6366f1'};
+  const sec=SETTINGS_SECTIONS[id]||{hubLabel:id,color:'#6366f1',sub:''};
+  const sub=subtitle!=null&&subtitle!==''?subtitle:(sec.sub||'');
   return`<button type="button" class="settings-hub-row" onclick="setSettingsView('${id}')">
-    <span class="settings-hub-dot" style="background:${sec.color}"></span>
+    <span class="settings-hub-icon">${navIcon(id,sec.color,true,'chip')}</span>
     <span class="settings-hub-body">
       <span class="settings-hub-label">${sec.hubLabel||sec.label}</span>
-      <span class="settings-hub-sub">${subtitle}</span>
+      ${sub?`<span class="settings-hub-sub">${sub}</span>`:''}
     </span>
     <span class="settings-hub-chevron">›</span>
   </button>`;
+}
+function settingsHubGroup(title,rowsHtml){
+  if(!rowsHtml)return'';
+  return`<div class="settings-hub-group">
+    <div class="settings-hub-group-label">${title}</div>
+    <div class="settings-hub">${rowsHtml}</div>
+  </div>`;
 }
 function settingsToggle(label,sub,on,fn){
   return`<div class="settings-toggle-row">
@@ -21396,13 +22955,17 @@ function settingsToggle(label,sub,on,fn){
       <span style="position:absolute;top:2px;${on?'right:2px':'left:2px'};width:16px;height:16px;border-radius:50%;background:${on?'var(--accent)':'var(--muted)'};display:block;transition:all 0.15s"></span>
     </button></div>`;
 }
-function settingsSectionHdr(view){
+function settingsSectionHdr(view,backTo){
   const sec=SETTINGS_SECTIONS[view]||{label:view.toUpperCase(),color:'#6366f1',sub:''};
   const sub=sec.sub||'';
+  const back=backTo||'hub';
   return`<div class="settings-section-hdr">
-    <button type="button" class="settings-back-btn" onclick="setSettingsView('hub')" aria-label="Back to Settings">‹</button>
+    <button type="button" class="settings-back-btn" onclick="setSettingsView('${back}')" aria-label="Back">‹</button>
     <div class="settings-section-hdr-text">
-      <div class="settings-section-title" style="color:${sec.color}">${sec.label}</div>
+      <div class="settings-section-title-row">
+        <span class="settings-hub-icon">${navIcon(view,sec.color,true,'chip')}</span>
+        <div class="settings-section-title" style="color:${sec.color}">${sec.label}</div>
+      </div>
       ${sub?`<div class="settings-section-sub">${sub}</div>`:''}
     </div>
   </div>`;
@@ -21441,6 +23004,23 @@ function settingsMacroFields(prefix,vals){
     ['Fat','#60a5fa',`${prefix}-F`,v.F??'','g'],
   ]);
 }
+function settingsMacroReadout(vals){
+  const v=vals||{};
+  const cells=[
+    ['Calories','var(--accent)',v.kcal??0,''],
+    ['Protein','#fb923c',v.P??0,'g'],
+    ['Carbs','#f59e0b',v.C??0,'g'],
+    ['Fat','#60a5fa',v.F??0,'g'],
+  ];
+  return`<div class="settings-macro-grid">${cells.map(([l,col,val,unit])=>`
+    <div>
+      <div class="settings-macro-input-wrap" style="border-left-color:${col}">
+        <span class="settings-macro-readout-val">${val}</span>
+        ${unit?`<span class="settings-macro-unit">${unit}</span>`:''}
+      </div>
+      <label style="color:${col}">${l}</label>
+    </div>`).join('')}</div>`;
+}
 function settingsSplitChipRow(dk,selected,resting){
   const sel=new Set(selected||[]);
   const muscle=`<div class="settings-split-lift-scroll"><div class="settings-chip-row">${WORKOUT_CHIP_OPTS.map(([mt,lbl])=>`
@@ -21469,11 +23049,6 @@ function settingsSplitDayPanel(dk){
 function renderSettingsPage(){
   let view=getSettingsView();
   if(view==='phase'&&modules&&modules.phases===false)view='hub';
-  if(view==='meals'){
-    window.settingsView='hub';window.settingsTab='hub';
-    setTimeout(()=>{if(typeof openFoodHub==='function')openFoodHub('edit');},0);
-    view='hub';
-  }
   if(view==='habits'){window.settingsView='hub';window.settingsTab='hub';view='hub';}
   const cm=customMacros||{};
   const totalDays=Math.round((phaseEnd-phaseStart)/(24*60*60*1000));
@@ -21487,37 +23062,264 @@ function renderSettingsPage(){
   const segRow=(opts,cur,key)=>`<div class="toggle-pill" style="margin-bottom:0">${opts.map(([v,l])=>`
     <button class="toggle-opt" onclick="setUIOption('${key}','${v}')" style="background:${cur===v?'var(--accent-bg)':'transparent'};color:${cur===v?'var(--accent)':'var(--muted)'};border:${cur===v?'1px solid var(--accent-border)':'1px solid transparent'}">${l}</button>`).join('')}</div>`;
   const styleCard=(title,inner)=>`<div class="settings-card"><div class="settings-card-title">${title}</div>${inner}</div>`;
-
+  const ds=dailySchedules||normalizeDailySchedules(null);
+  const dayChipRow=(selected,onclickForDk)=>`<div class="settings-chip-row" style="flex-wrap:wrap">${DAYS.map(dk=>`
+    <button type="button" class="settings-chip${(selected||[]).includes(dk)?' active':''}" onclick="${onclickForDk(dk)}">${dk}</button>`).join('')}</div>`;
+  const timePickRow=(label,path,val,title)=>`<div class="settings-field-row">
+    <label>${label}</label>
+    <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${(val||'Set time').replace(/</g,'&lt;')}</button>
+  </div>`;
+  const workNightsTimes=(ds.work&&ds.work.workNights)||{};
+  const workNightDaysList=ds.work&&ds.work.workNightDays||[];
+  const sleepAw=ds.sleep&&ds.sleep.afterWork||{};
+  const sleepOff=ds.sleep&&ds.sleep.off||{};
+  const sleepAfterDays=ds.sleep&&ds.sleep.afterWorkDays||[];
+  const sleepOffDays=ds.sleep&&ds.sleep.offDays||[];
+  const gymWd=ds.gym&&ds.gym.weekday||{};
+  const gymWe=ds.gym&&ds.gym.weekend||{};
+  const gymWdDays=ds.gym&&ds.gym.weekdayDays||[];
+  const gymWeDays=ds.gym&&ds.gym.weekendDays||[];
+  const anAw=(ds.anchors&&ds.anchors.afterWork)||{};
+  const anOff=(ds.anchors&&ds.anchors.off)||{};
+  const cascadeSummary=window._lastCascadeSummary||'';
+  const gymMinNudgeRow=(profile,field,label,mins)=>`<div class="settings-field-row">
+    <label>${label}</label>
+    <div class="settings-field-controls">
+      <button type="button" class="settings-step-btn" onclick="nudgeGymField('${profile}','${field}',-5)">−</button>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${mins!=null?mins:(field==='durationMin'?45:field==='cardioMin'?20:field==='saunaMin'?15:30)} min</span>
+      <button type="button" class="settings-step-btn" onclick="nudgeGymField('${profile}','${field}',5)">+</button>
+    </div>
+  </div>`;
   if(view==='hub'){
-    const themeLbl=(THEMES.find(t=>t[0]===uiSettings.theme)||['','DARK'])[1];
-    const accentLbl=(ACCENTS.find(a=>a[0]===uiSettings.accent)||['','LIME'])[1];
-    const modDefs=[['fasting','Fasting'],['phases','Phases'],['caffeine','Caffeine'],['trading','Trading']];
-    const modOn=modDefs.filter(([k])=>modules&&modules[k]).length;
-    const macroModeHub=getMacroMode();
-    const dt=cm.dailyTarget;
-    const dayCustom=Object.keys((cm.dayTargets)||{}).length;
-    const macroSub=macroModeHub==='overall'
-      ?(dt&&(dt.P||dt.C||dt.F||dt.kcal)?`Overall · ${dt.kcal||0} kcal · ${dt.P||0}P`:'Overall · set daily targets')
-      :`By day · ${dayCustom?dayCustom+' custom':'defaults from split'}`;
-    const splitSub=getSplitSummaryAbbr();
-    const hubRows=[
+    const scheduleRows=[
+      settingsHubRow('daily'),
+      settingsHubRow('split'),
+      settingsHubRow('macros'),
       !(modules&&modules.phases===false)?settingsHubRow('phase',phaseActive?`Day ${elapsed} of ${totalDays} · ${pct}%`:'No active phase'):'',
-      settingsHubRow('split',splitSub),
-      settingsHubRow('macros',macroSub),
-      settingsHubRow('layout','Nav · Hub widgets · Placement'),
-      settingsHubRow('style',`${themeLbl} · ${accentLbl}`),
-      settingsHubRow('modules',`${modOn} of ${modDefs.length} enabled`),
-      settingsHubRow('notifications',notificationsEnabled?'Enabled':'Off'),
-      settingsHubRow('data','Health · Export · Restore'),
     ].filter(Boolean).join('');
+    const appRows=[
+      settingsHubRow('style'),
+      settingsHubRow('layout'),
+      settingsHubRow('notifications'),
+    ].join('');
+    const systemRows=[
+      settingsHubRow('modules'),
+      settingsHubRow('data'),
+    ].join('');
     return`<div class="page-wrap" style="padding:0">
       <div style="padding:18px 18px 14px;border-bottom:1px solid var(--border2)">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#6366f1;line-height:1">SETTINGS</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:0.1px">Choose a section</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:0.1px">Pick a section</div>
       </div>
-      <div class="page-body"><div class="settings-hub">${hubRows}</div></div>
+      <div class="page-body">
+        ${settingsHubGroup('SCHEDULE',scheduleRows)}
+        ${settingsHubGroup('APP',appRows)}
+        ${settingsHubGroup('SYSTEM',systemRows)}
+      </div>
     </div>`;
   }
+
+  const dailyHubSection=`
+    <div class="settings-hub" style="margin-top:10px">
+      ${settingsHubRow('daily-work')}
+      ${settingsHubRow('daily-sleep')}
+      ${settingsHubRow('daily-gym')}
+      ${settingsHubRow('meals')}
+      ${settingsHubRow('daily-anchors')}
+    </div>
+    <div class="settings-card" style="margin-top:10px">
+      ${settingsToggle('Cascade neighbors','Shift linked blocks when times move',ds.cascadeNeighbors!==false,'toggleDailyCascade()')}
+      <div class="settings-hint" style="margin-top:8px;margin-bottom:0">Auto-saves. Undo ~10s from toast.</div>
+      ${cascadeSummary?`<div class="daily-cascade-note">${cascadeSummary}</div>`:''}
+    </div>
+  `;
+
+  const ACC_WORK='#f87171',ACC_SLEEP='#818cf8',ACC_GYM='#94a3b8',ACC_ANCH='#2dd4bf',ACC_MEAL='#fb923c';
+  const dailyWorkSection=`
+    ${renderDailyCascadeNote()}
+    ${dailySectionCard('WORK NIGHTS','Days with a shift',dayChipRow(workNightDaysList,dk=>`toggleDailyWorkNight('${dk}')`),ACC_WORK)}
+    ${dailySectionCard('TIMES','',`
+      ${dailySubCat('EVENING',ACC_WORK)}
+      ${timePickRow('Drive to work','work.workNights.driveToWork',workNightsTimes.driveToWork,'DRIVE TO WORK')}
+      ${timePickRow('Shift start','work.workNights.shiftStart',workNightsTimes.shiftStart,'SHIFT START')}
+      ${dailySubCat('NEXT MORNING',ACC_WORK)}
+      ${timePickRow('Drive home from work','work.workNights.driveHome',workNightsTimes.driveHome,'DRIVE HOME')}
+      ${timePickRow('Shift end','work.workNights.shiftEnd',workNightsTimes.shiftEnd,'SHIFT END')}
+      <div class="settings-hint" style="margin-top:10px;margin-bottom:0">Home + end = next morning</div>
+    `,ACC_WORK)}
+  `;
+
+  const dailySleepSection=`
+    ${renderDailyCascadeNote()}
+    ${dailySectionCard('AFTER WORK NIGHT','Sleep after a shift',`
+      ${dailySubCat('DAYS',ACC_SLEEP)}
+      ${dayChipRow(sleepAfterDays,dk=>`toggleDailySleepProfile('${dk}','after')`)}
+      ${dailySubCat('TIMES',ACC_SLEEP)}
+      ${timePickRow('Sleep start','sleep.afterWork.t',sleepAw.t,'SLEEP START')}
+      ${timePickRow('Sleep end / wake','sleep.afterWork.tEnd',sleepAw.tEnd,'SLEEP END')}
+    `,ACC_SLEEP)}
+    ${dailySectionCard('OFF DAY','Wake when not post-shift',`
+      ${dailySubCat('DAYS',ACC_SLEEP)}
+      ${dayChipRow(sleepOffDays,dk=>`toggleDailySleepProfile('${dk}','off')`)}
+      ${dailySubCat('TIMES',ACC_SLEEP)}
+      ${timePickRow('Wake up','sleep.off.wake',sleepOff.wake,'WAKE UP')}
+    `,ACC_SLEEP)}
+  `;
+
+  const dailyGymSection=`
+    ${renderDailyCascadeNote()}
+    ${dailySectionCard('WEEKDAY GYM','Start, drive, and extras',`
+      ${dailySubCat('DAYS',ACC_GYM)}
+      ${dayChipRow(gymWdDays,dk=>`toggleDailyGymProfile('${dk}','weekday')`)}
+      ${dailySubCat('SESSION',ACC_GYM)}
+      ${timePickRow('Workout start','gym.weekday.workout',gymWd.workout,'WORKOUT')}
+      ${gymMinNudgeRow('weekday','driveMin','Drive duration',gymWd.driveMin)}
+      ${gymMinNudgeRow('weekday','durationMin','Workout duration',gymWd.durationMin)}
+      ${dailySubCat('WHEN ON',ACC_GYM)}
+      ${gymMinNudgeRow('weekday','cardioMin','Cardio (when ON)',gymWd.cardioMin)}
+      ${gymMinNudgeRow('weekday','saunaMin','Sauna (when ON)',gymWd.saunaMin)}
+      <div class="settings-hint" style="margin-top:6px;margin-bottom:0">Preview: ${formatGymTimelinePreview(gymWd,anAw)}</div>
+    `,ACC_GYM)}
+    ${dailySectionCard('WEEKEND GYM','Start, drive, and extras',`
+      ${dailySubCat('DAYS',ACC_GYM)}
+      ${dayChipRow(gymWeDays,dk=>`toggleDailyGymProfile('${dk}','weekend')`)}
+      ${dailySubCat('SESSION',ACC_GYM)}
+      ${timePickRow('Workout start','gym.weekend.workout',gymWe.workout,'WORKOUT')}
+      ${gymMinNudgeRow('weekend','driveMin','Drive duration',gymWe.driveMin)}
+      ${gymMinNudgeRow('weekend','durationMin','Workout duration',gymWe.durationMin)}
+      ${dailySubCat('WHEN ON',ACC_GYM)}
+      ${gymMinNudgeRow('weekend','cardioMin','Cardio (when ON)',gymWe.cardioMin)}
+      ${gymMinNudgeRow('weekend','saunaMin','Sauna (when ON)',gymWe.saunaMin)}
+      <div class="settings-hint" style="margin-top:6px;margin-bottom:0">Preview: ${formatGymTimelinePreview(gymWe,anOff)}</div>
+    `,ACC_GYM)}
+  `;
+
+  const walkDurRow=(profile,mins,enabled)=>`<div class="settings-field-row" style="opacity:${enabled===false?'0.45':'1'}">
+    <label>Walk duration</label>
+    <div class="settings-field-controls">
+      <button type="button" class="settings-step-btn" onclick="nudgeWalkDuration('${profile}',-5)">−</button>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${mins||20} min</span>
+      <button type="button" class="settings-step-btn" onclick="nudgeWalkDuration('${profile}',5)">+</button>
+    </div>
+  </div>`;
+
+  const habitToggleBtn=(profileKey,key,on)=>`<button type="button" onclick="toggleAnchorEnabled('${profileKey}','${key}')" style="width:40px;height:22px;border-radius:11px;border:1px solid ${on?'var(--accent-border)':'var(--border2)'};background:${on?'var(--accent-bg)':'var(--card2)'};cursor:pointer;position:relative;padding:0;flex-shrink:0" aria-pressed="${on?'true':'false'}" title="${on?'On':'Off'}">
+      <span style="position:absolute;top:2px;${on?'right:2px':'left:2px'};width:16px;height:16px;border-radius:50%;background:${on?'var(--accent)':'var(--muted)'};display:block"></span>
+    </button>`;
+  const habitTimeRow=(profile,profileKey,key,label,path,val,title)=>{
+    const on=isAnchorEnabled(profile,key);
+    return`<div class="settings-field-row" style="opacity:${on?'1':'0.45'}">
+      <label>${label}</label>
+      <div class="settings-field-controls">
+        <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${(val||'Set time').replace(/</g,'&lt;')}</button>
+        ${habitToggleBtn(profileKey,key,on)}
+      </div>
+    </div>`;
+  };
+  const renderAnchorsMorningFields=(profileKey,profile)=>{
+    const pathBase=profileKey==='off'?'anchors.off':'anchors.afterWork';
+    const isWork=profileKey==='afterWork';
+    return`
+      ${habitTimeRow(profile,profileKey,'caffeine','Caffeine',pathBase+'.caffeine',profile.caffeine,'CAFFEINE')}
+      ${habitTimeRow(profile,profileKey,'supps','Supplements',pathBase+'.supps',profile.supps,'SUPPS')}
+      ${habitTimeRow(profile,profileKey,'brushMorning','Brush · morning',pathBase+'.brushMorning',profile.brushMorning,'BRUSH AM')}
+      ${isWork?habitTimeRow(profile,profileKey,'trade','Trading',pathBase+'.trade',profile.trade,'TRADING'):''}
+    `;
+  };
+  const renderAnchorsEveningFields=(profileKey,profile)=>{
+    const pathBase=profileKey==='off'?'anchors.off':'anchors.afterWork';
+    const walkOn=isAnchorEnabled(profile,'walk');
+    return`
+      ${dailySubCat('WALK',ACC_ANCH)}
+      <div class="settings-field-row" style="opacity:${walkOn?'1':'0.45'}">
+        <label>Walk time</label>
+        <div class="settings-field-controls">
+          <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${pathBase}.walk','WALK')">${(profile.walk||'Set time').replace(/</g,'&lt;')}</button>
+          ${habitToggleBtn(profileKey,'walk',walkOn)}
+        </div>
+      </div>
+      ${walkDurRow(profileKey,profile.walkDurationMin,walkOn)}
+      ${dailySubCat('JOURNALS',ACC_ANCH)}
+      ${habitTimeRow(profile,profileKey,'journalMorning','Morning check-in',pathBase+'.journalMorning',profile.journalMorning,'CHECK-IN AM')}
+      ${habitTimeRow(profile,profileKey,'deepJournal','Deep journal',pathBase+'.deepJournal',profile.deepJournal,'JOURNAL')}
+      ${habitTimeRow(profile,profileKey,'journalEvening','Evening check-in',pathBase+'.journalEvening',profile.journalEvening,'CHECK-IN PM')}
+      ${dailySubCat('CLOSE-OUT',ACC_ANCH)}
+      ${habitTimeRow(profile,profileKey,'brushEvening','Brush · evening',pathBase+'.brushEvening',profile.brushEvening,'BRUSH PM')}
+      ${habitTimeRow(profile,profileKey,'winddown','Screen cutoff',pathBase+'.winddown',profile.winddown,'SCREEN CUTOFF')}
+    `;
+  };
+
+  const anchorsProfile=window.anchorsEditProfile==='off'?'off':'afterWork';
+  const anchorsDays=anchorsProfile==='off'?sleepOffDays:sleepAfterDays;
+  const anchorsProfileObj=anchorsProfile==='off'?anOff:anAw;
+  const anchorsIsWork=anchorsProfile==='afterWork';
+  const anchorsDaysHtml=`<div class="settings-chip-row" style="flex-wrap:wrap;margin-bottom:4px">${DAYS.map(dk=>`
+    <span class="settings-chip${(anchorsDays||[]).includes(dk)?' active':''}" style="cursor:default;opacity:${(anchorsDays||[]).includes(dk)?'1':'0.35'}">${dk}</span>`).join('')}</div>`;
+  const morningHint=anchorsIsWork
+    ?'After shift end'
+    :'After waking';
+  const dailyAnchorsSection=`
+    ${renderDailyCascadeNote()}
+    <div class="settings-hint" style="margin-bottom:10px">Work = after shift. Off = wake. Shakes → Meals.</div>
+    <div class="toggle-pill" style="margin-bottom:12px">
+      <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('afterWork')" style="background:${anchorsProfile==='afterWork'?'var(--accent-bg)':'transparent'};color:${anchorsProfile==='afterWork'?'var(--accent)':'var(--muted)'};border:${anchorsProfile==='afterWork'?'1px solid var(--accent-border)':'1px solid transparent'}">Work nights</button>
+      <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('off')" style="background:${anchorsProfile==='off'?'var(--accent-bg)':'transparent'};color:${anchorsProfile==='off'?'var(--accent)':'var(--muted)'};border:${anchorsProfile==='off'?'1px solid var(--accent-border)':'1px solid transparent'}">Off days</button>
+    </div>
+    ${dailySectionCard(anchorsIsWork?'WORK NIGHTS':'OFF DAYS','These days',`
+      ${anchorsDaysHtml}
+      <button type="button" class="settings-link-btn" onclick="setSettingsView('daily-sleep')" style="margin:6px 0 0;padding:0;text-align:left">Edit days in Sleep ›</button>
+    `,ACC_ANCH)}
+    ${dailySectionCard('MORNING',morningHint,renderAnchorsMorningFields(anchorsProfile,anchorsProfileObj),ACC_ANCH)}
+    ${dailySectionCard('EVENING','Later habits · toggle to hide',renderAnchorsEveningFields(anchorsProfile,anchorsProfileObj),ACC_ANCH)}
+  `;
+
+  const shakesProfile=window.anchorsEditProfile==='off'?'off':'afterWork';
+  const shakesProfileObj=shakesProfile==='off'?anOff:anAw;
+  const plannedMacros=computePlannedMealsShakesMacros(shakesProfileObj);
+  const shakesLabel=shakesProfile==='off'?'Off days':'Work nights';
+  const mealsSection=`
+    ${renderDailyCascadeNote()}
+    <div class="settings-card">
+      <div class="settings-card-title" style="color:#fb923c">PLANNED MACROS</div>
+      <div class="settings-macro-breakdown">
+        <div class="settings-macro-breakdown-row">
+          <div class="settings-macro-breakdown-hdr">
+            <div class="settings-macro-breakdown-title">Meals</div>
+            <div class="settings-macro-breakdown-sub">P ${plannedMacros.meals.P} · ${plannedMacros.meals.kcal} kcal</div>
+          </div>
+          ${settingsMacroReadout(plannedMacros.meals)}
+        </div>
+        <div class="settings-macro-breakdown-row">
+          <div class="settings-macro-breakdown-hdr">
+            <div class="settings-macro-breakdown-title">Shakes · ${shakesLabel}</div>
+            <div class="settings-macro-breakdown-sub">P ${plannedMacros.shakes.P} · ${plannedMacros.shakes.kcal} kcal</div>
+          </div>
+          ${settingsMacroReadout(plannedMacros.shakes)}
+        </div>
+        <div class="settings-macro-breakdown-row is-total">
+          <div class="settings-macro-breakdown-hdr">
+            <div class="settings-macro-breakdown-title">Total</div>
+            <div class="settings-macro-breakdown-sub">P ${plannedMacros.total.P} · C ${plannedMacros.total.C} · F ${plannedMacros.total.F} · ${plannedMacros.total.kcal} kcal</div>
+          </div>
+          ${settingsMacroReadout(plannedMacros.total)}
+        </div>
+      </div>
+      <div class="settings-hint" style="margin-top:12px;margin-bottom:0">Uses shake profile above. Save meals to schedule.</div>
+    </div>
+    ${renderMealPlanEditor()}
+    <div class="settings-card">
+      <div class="settings-card-title" style="color:#fb923c">SHAKES</div>
+      <div class="settings-hint" style="margin-bottom:10px">Count, protein, timing</div>
+      <div class="toggle-pill" style="margin-bottom:12px">
+        <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('afterWork')" style="background:${shakesProfile==='afterWork'?'var(--accent-bg)':'transparent'};color:${shakesProfile==='afterWork'?'var(--accent)':'var(--muted)'};border:${shakesProfile==='afterWork'?'1px solid var(--accent-border)':'1px solid transparent'}">Work nights</button>
+        <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('off')" style="background:${shakesProfile==='off'?'var(--accent-bg)':'transparent'};color:${shakesProfile==='off'?'var(--accent)':'var(--muted)'};border:${shakesProfile==='off'?'1px solid var(--accent-border)':'1px solid transparent'}">Off days</button>
+      </div>
+      ${renderShakesPlanEditor(shakesProfile,shakesProfileObj)}
+    </div>
+    <div class="settings-card">
+      ${settingsToggle('Show Edit tab on Food','Show Edit on Food page',!!uiSettings.showFoodEditTab,'toggleShowFoodEditTab()')}
+    </div>
+  `;
 
   const phaseSection=`
     <div class="settings-card">
@@ -21526,7 +23328,7 @@ function renderSettingsPage(){
         <div class="settings-stat-meta"><span>Day ${elapsed} of ${totalDays}</span><strong>${pct}%</strong></div>
       </div>`:`<div style="background:var(--card2);border-radius:8px;padding:12px;margin-bottom:14px;text-align:center">
         <div style="font-size:9px;color:var(--muted2);letter-spacing:1px">NO ACTIVE PHASE</div>
-        <div style="font-size:8px;color:var(--muted);margin-top:4px">Set dates below and start to begin</div>
+        <div style="font-size:8px;color:var(--muted);margin-top:4px">Set dates to start</div>
       </div>`}
       ${settingsFieldRow('Phase name','s-pl',phaseEditorLabel(),'text','e.g. Recomp Phase')}
       ${settingsFieldRow('Start date','s-ps',DATE_INPUT_FMT(phaseEditorStart()),'date')}
@@ -21558,28 +23360,30 @@ function renderSettingsPage(){
 
   const notificationsSection=`
     <div class="settings-card">
-      ${settingsToggle('Push notifications','Reminders for schedule blocks and goals',notificationsEnabled,notificationsEnabled?'':'window.requestNotifications()')}
-      <div class="settings-hint" style="margin-top:10px;margin-bottom:0">Uses browser notifications about 15 minutes before schedule blocks.</div>
+      ${settingsToggle('Push notifications','Block reminders',notificationsEnabled,notificationsEnabled?'':'window.requestNotifications()')}
+      <div class="settings-hint" style="margin-top:10px;margin-bottom:0">~15 min before blocks</div>
     </div>
   `;
 
   const macroMode=getMacroMode();
   const macroEditDay=window.macroEditDay||null;
   const dayRows=DAYS.map(dk=>{
-    let splitLbl;
-    if(isSplitRestDay(dk))splitLbl='Abs (Rest)';
+    let splitLbl,splitCls='settings-macro-day-split';
+    if(isSplitRestDay(dk)){splitLbl='Abs (Rest)';splitCls+=' is-rest';}
     else{
       const types=getTrainingTypesForDay(dk);
-      splitLbl=types.length?formatSplitLabel(types):'Unset';
+      if(types.length)splitLbl=formatSplitLabel(types);
+      else{splitLbl='Unset';splitCls+=' is-unset';}
     }
     const vals=getDayMacroEditorValues(dk);
     const open=macroEditDay===dk;
     const glance=`${vals.kcal||0} kcal · ${vals.P||0}P`;
-    return`<div class="settings-macro-day-card">
+    return`<div class="settings-macro-day-card${open?' is-open':''}">
       <button type="button" class="settings-macro-day-hdr${open?' settings-macro-day-hdr-open':''}" onclick="toggleMacroDay('${dk}')">
-        <div style="min-width:0">
-          <div><span class="settings-macro-day-name">${DAY_FULL[dk]}</span><span class="settings-macro-day-split">${splitLbl}</span></div>
-          ${open?'':`<div class="settings-macro-day-meta">${glance}${vals.custom?' · custom':''}</div>`}
+        <div class="settings-macro-day-hdr-main">
+          <span class="settings-macro-day-name">${open?DAY_FULL[dk]:dk}</span>
+          <span class="${splitCls}">${splitLbl}</span>
+          ${open?'':`<span class="settings-macro-day-meta">${glance}${vals.custom?' · custom':''}</span>`}
         </div>
         <span class="settings-macro-day-chevron">${open?'▾':'›'}</span>
       </button>
@@ -21591,34 +23395,36 @@ function renderSettingsPage(){
       </div>
     </div>`;
   }).join('');
-  const macrosModeToggle=`<div class="toggle-pill" style="margin-bottom:12px">
+  const macrosModeToggle=`<div class="toggle-pill" style="margin-bottom:8px">
     <button type="button" class="toggle-opt" onclick="setMacroMode('overall')" style="background:${macroMode==='overall'?'var(--accent-bg)':'transparent'};color:${macroMode==='overall'?'var(--accent)':'var(--muted)'};border:${macroMode==='overall'?'1px solid var(--accent-border)':'1px solid transparent'}">Overall</button>
     <button type="button" class="toggle-opt" onclick="setMacroMode('byType')" style="background:${macroMode==='byType'?'var(--accent-bg)':'transparent'};color:${macroMode==='byType'?'var(--accent)':'var(--muted)'};border:${macroMode==='byType'?'1px solid var(--accent-border)':'1px solid transparent'}">By day</button>
   </div>`;
   const macrosBuffer=`<div class="settings-macro-buffer">
-    <div style="flex:1;min-width:120px">
+    <div style="flex:1;min-width:0">
       <div style="font-size:9px;color:var(--text2);font-weight:600">Buffer</div>
-      <div style="font-size:8px;color:var(--muted);margin-top:2px">±% that still counts as hit</div>
+      <div style="font-size:8px;color:var(--muted);margin-top:1px">Hit window %</div>
     </div>
-    <input type="number" inputmode="decimal" id="s-macro-buffer" value="${cm.bufferPct!=null?cm.bufferPct:5}" min="0" max="30" step="0.5" style="background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:7px 10px;width:70px;text-align:right;outline:none" onfocus="this.style.borderColor='#6366f1';this.style.fontSize='16px'" onblur="this.style.borderColor='var(--border2)';this.style.fontSize='11px'"/>
-    <span style="font-size:10px;color:var(--text2)">%</span>
+    <input type="number" inputmode="decimal" id="s-macro-buffer" value="${cm.bufferPct!=null?cm.bufferPct:5}" min="0" max="30" step="0.5" style="background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:6px 8px;width:64px;text-align:right;outline:none;flex-shrink:0" onfocus="this.style.borderColor='#6366f1';this.style.fontSize='16px'" onblur="this.style.borderColor='var(--border2)';this.style.fontSize='11px'"/>
+    <span style="font-size:10px;color:var(--text2);flex-shrink:0">%</span>
   </div>`;
   const macrosBody=macroMode==='overall'
     ?`<div class="settings-card">
       <div class="settings-card-title">EVERY DAY</div>
-      <div class="settings-hint">Same calories, protein, carbs, and fat every day.</div>
+      <div class="settings-hint">Same targets daily</div>
       ${settingsMacroFields('daily-target',{P:cm.dailyTarget?.P||'',C:cm.dailyTarget?.C||'',F:cm.dailyTarget?.F||'',kcal:cm.dailyTarget?.kcal||''})}
     </div>`
     :`<div style="margin-bottom:4px">
-      <div class="settings-card-title" style="padding:0 2px">TARGETS BY DAY</div>
-      <div class="settings-hint" style="margin-bottom:10px;padding:0 2px">Tap a day to edit. Rest uses Abs defaults until customized.</div>
+      <div class="settings-macros-head">
+        <div class="settings-card-title">TARGETS BY DAY</div>
+        <div class="settings-hint">Tap a day to edit</div>
+      </div>
       <div class="settings-macro-day-list">${dayRows}</div>
     </div>`;
   const macrosSection=`
     ${macrosModeToggle}
     ${macrosBody}
     ${macrosBuffer}
-    <button id="s-save-btn" data-label="SAVE MACROS" class="settings-save-btn" onclick="saveSettings()" style="background:#6366f1;color:#fff">SAVE MACROS</button>
+    <button id="s-save-btn" data-label="SAVE MACROS" class="settings-save-btn" onclick="saveSettings()" style="background:#6366f1;color:#fff;margin-top:0">SAVE MACROS</button>
   `;
 
   const ahHelpOpen=!!window.settingsCollapse['data-applehealth'];
@@ -21660,10 +23466,10 @@ function renderSettingsPage(){
   `;
 
   const MODULE_DEFS=[
-    ['fasting','Fasting','Fasting timer · history on Consistency'],
-    ['phases','Phases','Phase settings and progress'],
-    ['caffeine','Caffeine','Caffeine tracking'],
-    ['trading','Trading','Trading log and page'],
+    ['fasting','Fasting','Timer and history'],
+    ['phases','Phases','Phase progress'],
+    ['caffeine','Caffeine','Intake log'],
+    ['trading','Trading','Trade log'],
   ];
   const mods=modules||{};
   const modulesSection=`
@@ -21718,10 +23524,10 @@ function renderSettingsPage(){
     </div>`;
   }).join('')}`;
   const layoutSection=[
-    settingsCollapseCard('layout-nav','NAV BAR',navBarContent,true,'Bottom tab bar. Schedule stays home.'),
-    settingsCollapseCard('layout-subpages','SUBPAGES',subpagesContent,false,'Pills under the Schedule page.'),
-    moreLeftover.length?settingsCollapseCard('layout-more','MORE MENU',moreMenuContent,false,'Pages opened from the More button.'):'',
-    settingsCollapseCard('layout-hub','HUB WIDGETS',hubWidgetContent,false,'Placement and widgets on the Schedule hub.'),
+    settingsCollapseCard('layout-nav','NAV BAR',navBarContent,true,'Bottom tabs'),
+    settingsCollapseCard('layout-subpages','SUBPAGES',subpagesContent,false,'Under Schedule'),
+    moreLeftover.length?settingsCollapseCard('layout-more','MORE MENU',moreMenuContent,false,'Overflow menu'):'',
+    settingsCollapseCard('layout-hub','HUB WIDGETS',hubWidgetContent,false,'Schedule hub cards'),
     `<div class="settings-instant-note">Changes apply instantly</div>`,
   ].join('');
 
@@ -21733,8 +23539,8 @@ function renderSettingsPage(){
           <span style="font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;color:${uiSettings.accent===c?'var(--text2)':'var(--muted)'}">${l}</span>
         </button>`).join('')}</div>`)}
     ${styleCard('DISPLAY',`${segRow(FSIZES,uiSettings.fontSize,'fontSize')}
-      <div style="margin-top:14px">${settingsToggle('Reduce motion','Disable animations & transitions',uiSettings.reduceMotion,'toggleUIOption(\'reduceMotion\')')}
-      ${settingsToggle('Outdoor contrast','Brighter workout & sauna blocks in sunlight',uiSettings.outdoorContrast,'toggleUIOption(\'outdoorContrast\')')}</div>`)}
+      <div style="margin-top:14px">${settingsToggle('Reduce motion','Less animation',uiSettings.reduceMotion,'toggleUIOption(\'reduceMotion\')')}
+      ${settingsToggle('Outdoor contrast','Brighter gym blocks',uiSettings.outdoorContrast,'toggleUIOption(\'outdoorContrast\')')}</div>`)}
     ${styleCard('START PAGE',`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${HOMEPAGES.map(([v,l])=>`
       <button onclick="setUIOption('homePage','${v}')" style="padding:9px 8px;background:${uiSettings.homePage===v?'var(--accent-bg)':'var(--card2)'};border:1px solid ${uiSettings.homePage===v?'var(--accent-border)':'var(--border2)'};border-radius:8px;color:${uiSettings.homePage===v?'var(--accent)':'var(--text3)'};font-family:'IBM Plex Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:0.5px;text-align:left">${l}</button>`).join('')}</div>`)}
     <div class="settings-instant-note">Changes apply instantly</div>
@@ -21743,6 +23549,12 @@ function renderSettingsPage(){
   const sectionMap={
     phase:phaseSection,
     split:splitSection,
+    daily:dailyHubSection,
+    'daily-work':dailyWorkSection,
+    'daily-sleep':dailySleepSection,
+    'daily-gym':dailyGymSection,
+    'daily-anchors':dailyAnchorsSection,
+    meals:mealsSection,
     macros:macrosSection,
     layout:layoutSection,
     style:styleSection,
@@ -21751,9 +23563,10 @@ function renderSettingsPage(){
     notifications:notificationsSection,
   };
   const content=sectionMap[view]||'';
+  const backTo=(view==='daily-work'||view==='daily-sleep'||view==='daily-gym'||view==='daily-anchors'||view==='meals')?'daily':'hub';
 
   return`<div class="page-wrap" style="padding:0">
-    ${settingsSectionHdr(view)}
+    ${settingsSectionHdr(view,backTo)}
     <div class="page-body">${content}</div>
   </div>`;
 }
@@ -21820,8 +23633,72 @@ function navIcon(id,col,active,size='nav'){
       <span style="position:absolute;left:${chip?1:1}px;bottom:${chip?2:2}px;width:${chip?9:13}px;height:${bar}px;background:${c};border-radius:1px;transform:rotate(-38deg);transform-origin:left center"></span>
       <span style="position:absolute;right:0;top:${chip?1:1}px;width:0;height:0;border-left:${chip?3.5:5}px solid transparent;border-right:${chip?3.5:5}px solid transparent;border-bottom:${chip?4:6}px solid ${c};transform:rotate(48deg)"></span>
     </span>`,
-    settings:`<span style="display:block;width:${chip?9:12}px;height:${chip?9:12}px;border:${sw}px solid ${c};border-radius:50%;box-sizing:border-box;flex-shrink:0"></span>`,
+    settings:`<span style="position:relative;display:block;width:${chip?11:14}px;height:${chip?11:14}px;flex-shrink:0">
+      <span style="position:absolute;left:50%;top:0;width:${bar}px;height:100%;margin-left:-${bar/2}px;background:${c};border-radius:1px"></span>
+      <span style="position:absolute;left:0;top:50%;width:100%;height:${bar}px;margin-top:-${bar/2}px;background:${c};border-radius:1px"></span>
+      <span style="position:absolute;left:50%;top:0;width:${bar}px;height:100%;margin-left:-${bar/2}px;background:${c};border-radius:1px;transform:rotate(45deg)"></span>
+      <span style="position:absolute;left:50%;top:0;width:${bar}px;height:100%;margin-left:-${bar/2}px;background:${c};border-radius:1px;transform:rotate(-45deg)"></span>
+      <span style="position:absolute;left:50%;top:50%;width:${chip?4:6}px;height:${chip?4:6}px;margin:-${chip?2:3}px 0 0 -${chip?2:3}px;border-radius:50%;border:${sw}px solid ${c};box-sizing:border-box"></span>
+    </span>`,
+    daily:`<span style="position:relative;display:block;width:${chip?10:14}px;height:${H}px;border:${sw}px solid ${c};border-radius:2px;box-sizing:border-box;flex-shrink:0">
+      <span style="position:absolute;top:${chip?2.5:3.5}px;left:${chip?1.5:2}px;right:${chip?1.5:2}px;height:${bar}px;background:${c};border-radius:1px"></span>
+      <span style="position:absolute;top:${chip?5.5:8}px;left:${chip?1.5:2}px;width:${chip?2:3}px;height:${chip?2:3}px;border-radius:50%;background:${c}"></span>
+      <span style="position:absolute;top:${chip?5.5:8}px;left:${chip?4.5:6.5}px;width:${chip?2:3}px;height:${chip?2:3}px;border-radius:50%;background:${c}"></span>
+      <span style="position:absolute;top:${chip?5.5:8}px;right:${chip?1.5:2}px;width:${chip?2:3}px;height:${chip?2:3}px;border-radius:50%;background:${c}"></span>
+    </span>`,
+    'daily-work':`<span style="position:relative;display:block;width:${chip?10:14}px;height:${H}px;flex-shrink:0">
+      <span style="position:absolute;top:${chip?1:1}px;left:${chip?2.5:3.5}px;right:${chip?2.5:3.5}px;height:${chip?2:3}px;border:${sw}px solid ${c};border-bottom:none;border-radius:2px 2px 0 0;box-sizing:border-box"></span>
+      <span style="position:absolute;top:${chip?3:4}px;left:0;right:0;bottom:0;border:${sw}px solid ${c};border-radius:2px;box-sizing:border-box"></span>
+      <span style="position:absolute;bottom:${chip?1.5:2}px;left:50%;width:${chip?2.5:3.5}px;height:${chip?3:4}px;margin-left:-${chip?1.25:1.75}px;background:${c};border-radius:1px 1px 0 0"></span>
+    </span>`,
+    'daily-sleep':`<span style="position:relative;display:block;width:${chip?10:14}px;height:${H}px;flex-shrink:0">
+      <span style="position:absolute;left:${chip?2:3}px;top:${chip?1:1.5}px;width:${chip?7:10}px;height:${chip?7:10}px;border-radius:50%;border:${sw}px solid ${c};border-right-color:transparent;border-bottom-color:transparent;box-sizing:border-box;transform:rotate(-35deg)"></span>
+    </span>`,
+    'daily-anchors':`<span style="position:relative;display:block;width:${W}px;height:${H}px;flex-shrink:0">
+      <span style="position:absolute;left:50%;top:${chip?1:1}px;width:${chip?6:8}px;height:${chip?6:8}px;margin-left:-${chip?3:4}px;border:${sw}px solid ${c};border-radius:50%;box-sizing:border-box"></span>
+      <span style="position:absolute;left:50%;top:${chip?6:8}px;width:0;height:0;margin-left:-${chip?3:4}px;border-left:${chip?3:4}px solid transparent;border-right:${chip?3:4}px solid transparent;border-top:${chip?4:6}px solid ${c}"></span>
+    </span>`,
+    macros:`<span style="display:flex;align-items:flex-end;justify-content:center;gap:${chip?1.5:2}px;width:${W}px;height:${H}px;flex-shrink:0">
+      <span style="display:block;width:${bw}px;height:55%;background:${c};border-radius:1px 1px 0 0"></span>
+      <span style="display:block;width:${bw}px;height:100%;background:${c};border-radius:1px 1px 0 0"></span>
+      <span style="display:block;width:${bw}px;height:70%;background:${c};border-radius:1px 1px 0 0"></span>
+    </span>`,
+    phase:`<span style="position:relative;display:block;width:${chip?11:14}px;height:${chip?11:14}px;border:${sw}px solid ${c};border-radius:50%;box-sizing:border-box;flex-shrink:0;overflow:hidden">
+      <span style="position:absolute;left:50%;top:0;width:50%;height:50%;background:${c};transform-origin:0 100%"></span>
+    </span>`,
+    style:`<span style="display:flex;align-items:center;justify-content:center;gap:${chip?1.5:2}px;width:${W}px;height:${H}px;flex-shrink:0">
+      <span style="display:block;width:${chip?4:5}px;height:${chip?4:5}px;border-radius:50%;background:${c}"></span>
+      <span style="display:block;width:${chip?4:5}px;height:${chip?4:5}px;border-radius:1px;background:${c};opacity:0.7"></span>
+      <span style="display:block;width:${chip?3.5:4.5}px;height:${chip?3.5:4.5}px;border:${sw}px solid ${c};border-radius:50%;box-sizing:border-box"></span>
+    </span>`,
+    layout:`<span style="display:grid;grid-template-columns:1fr 1fr;gap:${chip?1.5:2}px;width:${chip?10:14}px;height:${chip?10:14}px;flex-shrink:0">
+      <span style="display:block;background:${c};border-radius:1px"></span>
+      <span style="display:block;background:${c};border-radius:1px;opacity:0.55"></span>
+      <span style="display:block;background:${c};border-radius:1px;opacity:0.55"></span>
+      <span style="display:block;background:${c};border-radius:1px"></span>
+    </span>`,
+    notifications:`<span style="position:relative;display:block;width:${chip?10:14}px;height:${H}px;flex-shrink:0">
+      <span style="position:absolute;left:${chip?1.5:2}px;right:${chip?1.5:2}px;top:${chip?2:3}px;height:${chip?5:7}px;border:${sw}px solid ${c};border-bottom:none;border-radius:${chip?5:7}px ${chip?5:7}px 0 0;box-sizing:border-box"></span>
+      <span style="position:absolute;left:0;right:0;top:${chip?6.5:9}px;height:${bar}px;background:${c};border-radius:1px"></span>
+      <span style="position:absolute;left:50%;bottom:0;width:${chip?2.5:3.5}px;height:${chip?2:2.5}px;margin-left:-${chip?1.25:1.75}px;background:${c};border-radius:0 0 1px 1px"></span>
+    </span>`,
+    modules:`<span style="display:flex;flex-direction:column;justify-content:center;gap:${chip?2:3}px;width:${W}px;height:${H}px;flex-shrink:0">
+      <span style="position:relative;display:block;width:100%;height:${chip?5:6}px;border-radius:${chip?2.5:3}px;border:${sw}px solid ${c};box-sizing:border-box">
+        <span style="position:absolute;left:${chip?0.5:1}px;top:50%;width:${chip?3.5:4.5}px;height:${chip?3.5:4.5}px;margin-top:-${chip?1.75:2.25}px;border-radius:50%;background:${c}"></span>
+      </span>
+      <span style="position:relative;display:block;width:100%;height:${chip?5:6}px;border-radius:${chip?2.5:3}px;border:${sw}px solid ${c};box-sizing:border-box">
+        <span style="position:absolute;right:${chip?0.5:1}px;top:50%;width:${chip?3.5:4.5}px;height:${chip?3.5:4.5}px;margin-top:-${chip?1.75:2.25}px;border-radius:50%;background:${c}"></span>
+      </span>
+    </span>`,
+    data:`<span style="position:relative;display:block;width:${chip?10:14}px;height:${H}px;flex-shrink:0">
+      <span style="position:absolute;left:0;right:0;top:0;height:${chip?3:4}px;border:${sw}px solid ${c};border-radius:${chip?3:4}px;box-sizing:border-box"></span>
+      <span style="position:absolute;left:0;right:0;top:${chip?3.5:5}px;height:${chip?3:4}px;border:${sw}px solid ${c};border-radius:${chip?3:4}px;box-sizing:border-box"></span>
+      <span style="position:absolute;left:0;right:0;top:${chip?7:10}px;height:${chip?3:4}px;border:${sw}px solid ${c};border-radius:${chip?3:4}px;box-sizing:border-box;background:${c}"></span>
+    </span>`,
   };
+  icons['daily-gym']=icons.strength;
+  icons.split=icons.strength;
+  icons.meals=icons.nutrition;
   return icons[id]||`<span style="display:block;width:${chip?6:8}px;height:${chip?6:8}px;border-radius:50%;background:${c};flex-shrink:0"></span>`;
 }
 function renderBottomNav(){

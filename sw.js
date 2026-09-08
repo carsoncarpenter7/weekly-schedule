@@ -5,8 +5,15 @@
 // updated the cache silently "for next time" — which never actually
 // arrived, since next time did the same thing. The cache now exists purely
 // as an offline fallback, not a stale-serving mechanism.
-const CACHE = 'recomp-shell-v70'; // bumped — daily schedules settings + hub fasting polish
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'recomp-shell-v84'; // bumped — stronger skipped strike, readable titles
+const SHELL = [
+  './', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
+  './personal/load-personal.js',
+  './personal/personal-profile.example.js',
+  './personal/historical-seeds.example.js',
+  './personal/personal-profile.js',
+  './personal/historical-seeds.js',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

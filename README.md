@@ -19,7 +19,37 @@ Open `index.html` in any mobile browser — no server, build step, or dependenci
 
 ## Stack
 
-Single-file HTML/CSS/JS. All data stored in `localStorage`.
+Single-file HTML/CSS/JS app shell (`index.html`). **Live tracking** (macros, journal, photos, checked blocks) stays in `localStorage` / IndexedDB in your browser.
+
+**Personal profile & historical import seeds** live in gitignored files under [`personal/`](personal/):
+
+| File | Purpose |
+|------|---------|
+| `personal/personal-profile.js` | Schedule template, meals, baseline, goals, foods, etc. (your copy — not in git) |
+| `personal/historical-seeds.js` | Bevel/Renpho/InBody/nutrition backfills (your copy — not in git) |
+| `personal/*.example.js` | Empty templates committed for friends |
+
+On load, [`personal/load-personal.js`](personal/load-personal.js) loads the `.example.js` files first, then your gitignored `personal-profile.js` / `historical-seeds.js` when those files exist (overwriting the examples). Opening `index.html` directly via `file://` works for the app and personal scripts (manifest and service worker are skipped on `file://` to avoid console errors). For install/PWA behavior, serve locally:
+
+```bash
+python3 -m http.server 8080
+# open http://localhost:8080
+```
+
+### First-time setup (your machine)
+
+Your extracted data is already in `personal/personal-profile.js` and `personal/historical-seeds.js` (gitignored). Keep those files when you pull app updates.
+
+### Sharing the app with someone else
+
+They clone the repo and get only the `.example.js` files — no weights, schedules, or import history. They copy and customize:
+
+```bash
+cp personal/personal-profile.example.js personal/personal-profile.js
+cp personal/historical-seeds.example.js personal/historical-seeds.js
+```
+
+Photos and day-to-day logs are **not** in the repo; they remain in each person's browser storage.
 
 ---
 

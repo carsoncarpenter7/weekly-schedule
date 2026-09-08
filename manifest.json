@@ -1,7 +1,7 @@
 {
-  "name": "Recomp Schedule",
-  "short_name": "RECOMP",
-  "description": "Body recomposition tracker — night shift schedule, macros, progress, journal",
+  "name": "Schedule",
+  "short_name": "Schedule",
+  "description": "A refined weekly schedule for body recomposition.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

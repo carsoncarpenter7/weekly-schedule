@@ -9,4 +9,5 @@
   load('personal/personal-profile.example.js');
   load('personal/historical-seeds.js');
   load('personal/personal-profile.js');
+  load('personal/debug-backup.js');
 })();

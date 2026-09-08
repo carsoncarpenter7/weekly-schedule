@@ -103,6 +103,15 @@ html.fs-s .app{zoom:0.92}html.fs-l .app{zoom:1.08}
 .hub-weight-val{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:0.95;color:var(--hub-col,#7dd3fc);font-weight:400}
 .hub-weight-unit{font-size:7px;letter-spacing:1.4px;font-weight:700;color:var(--muted2);margin-top:3px}
 .hub-weight-delta{font-size:8px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
+.hub-weight-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:stretch;min-width:0;width:100%;flex:1}
+.hub-weight-cell{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:0 5px}
+.hub-weight-cell:first-child{padding-left:0;padding-right:6px;border-right:1px solid color-mix(in srgb,var(--hub-col,#7dd3fc) 22%,var(--border2))}
+.hub-weight-cell:last-child{padding-left:6px;padding-right:0}
+.hub-weight-lab{font-size:6px;letter-spacing:0.8px;font-weight:700;color:var(--muted2);line-height:1.1;margin-bottom:2px}
+.hub-weight-grid .hub-weight-val{font-size:18px;letter-spacing:0.8px}
+.hub-weight-grid .hub-weight-unit{margin-top:1px}
+.hub-weight-empty{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.8px;line-height:0.95;color:color-mix(in srgb,var(--hub-col,#7dd3fc) 35%,var(--muted2));font-weight:400}
+.hub-weight-log{font-size:9px;font-weight:700;letter-spacing:0.2px;color:var(--hub-col,#7dd3fc);margin-top:3px;line-height:1.2}
 .hub-shake-prog{display:flex;align-items:center;gap:5px;margin-top:4px;min-width:0}
 .hub-shake-prog-label{font-size:8px;font-weight:700;color:var(--muted2);font-variant-numeric:tabular-nums;flex-shrink:0;letter-spacing:0.2px}
 .hub-shake-prog-track{flex:1;height:4px;border-radius:2px;background:var(--border2);overflow:hidden;min-width:0}
@@ -1317,6 +1326,38 @@ function eachShakePowderSub(b,baseKey,fn){
     fn(type,label,powderSubCheckKey(baseKey,type),sub);
   });
 }
+const POWDER_SUB_ORDER=['dextrose','creatine','collagen'];
+function _normalizeDraftSubs(subs){
+  const out=[];
+  const seen=new Set();
+  (subs||[]).forEach(s=>{
+    const type=s&&POWDER_TYPES.has(s.type)?s.type:(s?resolvePowderSubType(s):null);
+    if(!type||!POWDER_TYPES.has(type)||seen.has(type))return;
+    seen.add(type);
+    let sc=parseInt(s.scoops,10);
+    if(isNaN(sc)||sc<1)sc=defaultPowderScoops(type);
+    out.push({type,scoops:sc,l:(BS[type]&&BS[type].l)||type});
+  });
+  out.sort((a,b)=>POWDER_SUB_ORDER.indexOf(a.type)-POWDER_SUB_ORDER.indexOf(b.type));
+  return out;
+}
+function _draftSubsFromBlock(b){
+  if(!b||!b.sub||!b.sub.length)return[];
+  return _normalizeDraftSubs(b.sub);
+}
+function _subsSnapshotKey(subs){
+  return _normalizeDraftSubs(subs).map(s=>s.type+':'+s.scoops).join('|');
+}
+function _applyDraftSubsToTarget(target){
+  if(!target)return;
+  if(modal&&modal.draftSubOn){
+    const subs=_normalizeDraftSubs(modal.draftSubs);
+    if(subs.length)target.sub=subs;
+    else delete target.sub;
+  }else{
+    delete target.sub;
+  }
+}
 function availableTypeKeys(dk,currentType){
   // Always return full TYPE_KEYS — singleton filtering is visual (disabled chips)
   return TYPE_KEYS.slice();
@@ -1353,6 +1394,42 @@ const SCHED_VERSION="2026-06-17-v109";
 // formula, or every save/load cycle falsely "mismatches" and silently
 // resets the schedule + customMacros back to defaults.
 function _liveBsHash(){return JSON.stringify(BASE_SCHEDULE).split("").reduce((a,c)=>((a<<5)-a+c.charCodeAt(0))|0,0).toString(36);}
+
+// One-shot debug backup apply — personal/debug-backup.js (gitignored) sets
+// window.__PERSONAL__.backup. When exportDate differs from the stamp, write
+// into localStorage the same way importData does, then reload once.
+(function _applyDebugBackupOnce(){
+  const backup=window.__PERSONAL__&&window.__PERSONAL__.backup;
+  if(!backup||typeof backup!=='object')return;
+  const stamp=backup.exportDate||'';
+  if(!stamp)return;
+  try{if(localStorage.getItem('recomp_debug_backup_stamp')===stamp)return;}catch(e){return;}
+  try{
+    const data=JSON.parse(JSON.stringify(backup));
+    const photos=data.photos;delete data.photos;
+    const ui=data.uiSettings;delete data.uiSettings;
+    const mpFoodsIn=data.mpFoods;delete data.mpFoods;
+    const mpPresetsIn=data.mpPresets;delete data.mpPresets;
+    const fastStateIn=data.fastState;delete data.fastState;
+    const eatingStateIn=data.eatingState;delete data.eatingState;
+    localStorage.setItem('recomp_v3',JSON.stringify(data));
+    if(ui){try{localStorage.setItem('recomp_ui',JSON.stringify(ui));}catch(e){}}
+    if(mpFoodsIn){try{localStorage.setItem('mp_foods',JSON.stringify(mpFoodsIn));}catch(e){}}
+    if(mpPresetsIn){try{localStorage.setItem('mp_presets',JSON.stringify(mpPresetsIn));}catch(e){}}
+    if(fastStateIn){try{localStorage.setItem('recomp_fast',JSON.stringify(fastStateIn));}catch(e){}}
+    else{try{localStorage.removeItem('recomp_fast');}catch(e){}}
+    if(eatingStateIn){try{localStorage.setItem('recomp_eating',JSON.stringify(eatingStateIn));}catch(e){}}
+    else{try{localStorage.removeItem('recomp_eating');}catch(e){}}
+    localStorage.setItem('recomp_debug_backup_stamp',stamp);
+    // Photos optional — this Sep 8 export has none; restore if present then reload.
+    if(photos&&typeof photos==='object'&&Object.keys(photos).length){
+      // PhotoDB may not be ready yet; defer to after a microtask isn't reliable
+      // here. Persist stamp already set so we don't loop; photos can be re-imported
+      // via Settings if needed. Still reload so recomp_v3 takes effect.
+    }
+    location.reload();
+  }catch(e){console.error('debug backup apply failed',e);}
+})();
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 function loadState(){
@@ -1529,7 +1606,7 @@ function showToast(msg,opts){
       t.appendChild(btn);
     }
     document.body.appendChild(t);
-    var hold=opts.onUndo?10000:1800;
+    var hold=opts.onUndo?3500:1200;
     setTimeout(function(){
       if(!t.parentNode)return;
       t.style.transition='opacity 0.3s';
@@ -1588,7 +1665,7 @@ function _writeState(){
       checked,expanded,consistency,streaks,sleepLog,
       journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
       schedVersion:SCHED_VERSION,bsHash:_liveBsHash(),
-      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
+      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,exercisePRsSideMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
       anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v))
     }));
   }catch(e){}
@@ -1672,6 +1749,9 @@ let oneTimeOverrides=saved?.oneTimeOverrides||{}; // {dateStr:[blocks]} — a fu
 let templates=saved?.templates||[
   {l:"Protein Shake",type:"shake",scoops:2,idx:1,tot:6,t:"6:15 AM"},
   {l:"Custom Meal",type:"meal",t:"12:00 PM"},
+  {l:"Dextrose",type:"dextrose",scoops:2,t:"2:15 PM"},
+  {l:"Creatine",type:"creatine",scoops:1,t:"2:15 PM"},
+  {l:"Collagen",type:"collagen",scoops:1,t:"8:00 AM"},
 ];
 // One-time cleanup for anyone who already loaded the app before this
 // change: Drive to gym / Take supplements / Walk were removed as
@@ -1690,6 +1770,15 @@ if(saved?.templates){
   templates=templates.filter(t=>!_removedDefaults.some(([l,ty,tm])=>t.l===l&&t.type===ty&&t.t===tm));
   if(!templates.some(t=>t.type==='meal'&&t.l==='Custom Meal')){
     templates.push({l:"Custom Meal",type:"meal",t:"12:00 PM"});
+  }
+  if(!templates.some(t=>t.type==='dextrose'&&t.l==='Dextrose')){
+    templates.push({l:"Dextrose",type:"dextrose",scoops:2,t:"2:15 PM"});
+  }
+  if(!templates.some(t=>t.type==='creatine'&&t.l==='Creatine')){
+    templates.push({l:"Creatine",type:"creatine",scoops:1,t:"2:15 PM"});
+  }
+  if(!templates.some(t=>t.type==='collagen'&&t.l==='Collagen')){
+    templates.push({l:"Collagen",type:"collagen",scoops:1,t:"8:00 AM"});
   }
 }
 let schedule=saved?saved.schedule||JSON.parse(JSON.stringify(BASE_SCHEDULE)):{SUN:{blocks:[]},MON:{blocks:[]},TUE:{blocks:[]},WED:{blocks:[]},THU:{blocks:[]},FRI:{blocks:[]},SAT:{blocks:[]}};
@@ -1751,7 +1840,8 @@ function getDailyTargetFallback(){
 // (that comes later, once there's an onboarding flow that can set this
 // deliberately for a new person instead of everyone just getting
 // everything by default).
-var modules=saved&&saved.modules||{fasting:true,phases:true,caffeine:true,trading:true};
+var modules=saved&&saved.modules||{fasting:true,phases:true,caffeine:true,trading:true,work:true};
+if(modules&&modules.work===undefined)modules.work=true;
 let onboardingComplete=saved?(saved.onboardingComplete!==undefined?saved.onboardingComplete:true):false;
 let onboardingStep=0;
 // To-donts: avoidance habits (definitions + per-date violation log)
@@ -1867,7 +1957,6 @@ window.setDrinkDefaultServings=function(drinkId,servings){
   if(!d||!(servings>0))return;
   d.defaultServings=servings;
   saveState();renderApp();
-  showToast(`${servings} scoop${servings!==1?'s':''} saved as default`);
 };
 function setDrinkDefaultServings(id,s){window.setDrinkDefaultServings(id,s);}
 window.setShakeDrink=function(dk,idx,drinkId,servings){
@@ -1883,6 +1972,41 @@ window.openShakeDrinkPicker=function(dk,idx){
   renderApp();
 };
 function openShakeDrinkPicker(dk,idx){window.openShakeDrinkPicker(dk,idx);}
+window.openPowderAmountPicker=function(dk,idx){
+  const blocks=getEffectiveBlocks(dk)||[];
+  const b=blocks[idx];
+  if(!b||!POWDER_TYPES.has(b.type))return;
+  const scoops=b.scoops!=null?b.scoops:defaultPowderScoops(b.type);
+  window._pwPendingScoops=scoops;
+  modal={type:'powderLog',dk,idx};
+  renderApp();
+};
+function openPowderAmountPicker(dk,idx){window.openPowderAmountPicker(dk,idx);}
+window.nudgePowderPendingScoops=function(delta){
+  let sc=parseInt(window._pwPendingScoops,10);
+  if(isNaN(sc)||sc<1)sc=1;
+  window._pwPendingScoops=Math.max(1,sc+(delta|0));
+  renderApp();
+};
+function nudgePowderPendingScoops(delta){window.nudgePowderPendingScoops(delta);}
+window.logPowderAmount=function(dk,idx,andCheck){
+  const ref=_editableBlockRef(dk,idx);
+  const b=ref.arr&&ref.arr[ref.i];
+  if(!b||!POWDER_TYPES.has(b.type)){modal=null;renderApp();return;}
+  let sc=parseInt(window._pwPendingScoops,10);
+  if(isNaN(sc)||sc<1)sc=defaultPowderScoops(b.type);
+  b.scoops=sc;
+  if(!b.l||b.l===(BS[b.type]&&BS[b.type].l))b.l=(BS[b.type]&&BS[b.type].l)||b.type;
+  window._pwPendingScoops=null;
+  const ck=getDateKey(dk)+'-'+idx;
+  if(andCheck){
+    if(!checked[ck])toggleCheck(ck,dk,b.type);
+  }else if(checked[ck]){
+    toggleCheck(ck,dk,b.type);
+  }
+  modal=null;saveState();renderApp();
+};
+function logPowderAmount(a,b,c){window.logPowderAmount(a,b,c);}
 window.openSupplementManager=function(dk){
   const day=dk||(modal&&(modal.type==='hubSupps'||modal.type==='supplementManager'||modal.type==='editSupplementDose')&&modal.dk)||activeDay;
   modal={type:'supplementManager',dk:day};
@@ -1933,16 +2057,101 @@ function addProteinDrink(){window.addProteinDrink();}
 function deleteProteinDrink(id){window.deleteProteinDrink(id);}
 
 // ── SUPPLEMENT CHECKLIST ─────────────────────────────────────────────────────
-// A managed list of supplement names + a per-occurrence log of which were
-// actually taken. This is the raw material for supplement-vs-mood/metrics
+// A managed list of pills + powders with dose/count/timing + a per-occurrence
+// log of which were taken. Raw material for supplement-vs-mood/metrics
 // correlations later — knowing exactly WHAT was taken, not just that "some
 // supplement" was checked off.
-let supplementTypes=saved?.supplementTypes||asList(PD.supplementTypes,[
-  {id:'sp_creatine',name:'Creatine'},{id:'sp_multivitamin',name:'Multivitamin'},
+const SUPP_TIMING_OPTS=[
+  {id:'am',label:'AM'},
+  {id:'with_meal',label:'With meal'},
+  {id:'pre_workout',label:'Pre-workout'},
+  {id:'post_workout',label:'Post-workout'},
+  {id:'pm',label:'PM'},
+  {id:'before_sleep',label:'Before sleep'},
+];
+const SUPP_TIMING_ORDER=SUPP_TIMING_OPTS.map(t=>t.id);
+const SUPP_PILL_FORMS=['capsule','tablet','softgel'];
+function normalizeSupplement(sp){
+  if(!sp||typeof sp!=='object')return sp;
+  const category=sp.category==='powder'?'powder':'pill';
+  let form=sp.form;
+  if(category==='powder')form='scoop';
+  else if(!SUPP_PILL_FORMS.includes(form))form='capsule';
+  const timing=SUPP_TIMING_ORDER.includes(sp.timing)?sp.timing:null;
+  return{
+    ...sp,
+    category,
+    form,
+    timing,
+    doseAmount:sp.doseAmount!=null&&sp.doseAmount!==''?sp.doseAmount:null,
+    doseUnit:sp.doseUnit||null,
+    pillCount:Math.max(1,parseInt(sp.pillCount,10)||1),
+  };
+}
+function normalizeSupplementList(list){
+  return(Array.isArray(list)?list:[]).map(normalizeSupplement).filter(Boolean);
+}
+function supplementFormWord(supp,count){
+  const form=(supp&&supp.form)||(supp&&supp.category==='powder'?'scoop':'capsule');
+  const n=count==null?1:count;
+  if(form==='scoop')return n===1?'scoop':'scoops';
+  if(form==='tablet')return n===1?'tablet':'tablets';
+  if(form==='softgel')return n===1?'softgel':'softgels';
+  return n===1?'capsule':'capsules';
+}
+function supplementTimingLabel(timing){
+  const t=SUPP_TIMING_OPTS.find(o=>o.id===timing);
+  return t?t.label:'';
+}
+function formatSupplementMeta(supp,pillCount){
+  if(!supp)return'';
+  const count=pillCount!=null?pillCount:(supp.pillCount||1);
+  const parts=[];
+  const timing=supplementTimingLabel(supp.timing);
+  if(timing)parts.push(timing);
+  if(supp.doseAmount){
+    parts.push(`${count} ${supplementFormWord(supp,count)} × ${supp.doseAmount}${supp.doseUnit||''}`);
+  }else if(count>1||supp.form){
+    parts.push(`${count} ${supplementFormWord(supp,count)}`);
+  }
+  return parts.join(' · ');
+}
+function formatSupplementListMeta(supp){
+  if(!supp)return'';
+  const parts=[];
+  const count=supp.pillCount||1;
+  if(supp.doseAmount)parts.push(`${count}× ${supp.doseAmount}${supp.doseUnit||''}`);
+  else if(count>1)parts.push(`${count} ${supplementFormWord(supp,count)}`);
+  if(supp.form)parts.push(supp.form);
+  const timing=supplementTimingLabel(supp.timing);
+  if(timing)parts.push(timing);
+  return parts.join(' · ');
+}
+function sortSupplementsForDisplay(list){
+  return[...(list||[])].sort((a,b)=>{
+    const ca=a.category==='powder'?1:0;
+    const cb=b.category==='powder'?1:0;
+    if(ca!==cb)return ca-cb;
+    const ta=a.timing?SUPP_TIMING_ORDER.indexOf(a.timing):999;
+    const tb=b.timing?SUPP_TIMING_ORDER.indexOf(b.timing):999;
+    if(ta!==tb)return ta-tb;
+    return String(a.name||'').localeCompare(String(b.name||''));
+  });
+}
+function supplementsByCategory(list){
+  const sorted=sortSupplementsForDisplay(list);
+  return{
+    pills:sorted.filter(s=>s.category!=='powder'),
+    powders:sorted.filter(s=>s.category==='powder'),
+  };
+}
+let supplementTypes=normalizeSupplementList(saved?.supplementTypes||asList(PD.supplementTypes,[
+  {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop'},
+  {id:'sp_multivitamin',name:'Multivitamin'},
   {id:'sp_vitd',name:'Vitamin D'},{id:'sp_fishoil',name:'Fish Oil'},{id:'sp_magnesium',name:'Magnesium'},
-]);
+]));
 let supplementLog=saved?.supplementLog||{}; // {'YYYY-MM-DD-idx': [supplementId,...]}
-// Actual pill count taken per supplement per logging occasion — separate
+// Actual pill/scoop count taken per supplement per logging occasion — separate
 // from supplementLog (which only tracks checkbox on/off state) since a
 // dose can vary from the default (e.g. usually 1 pill, took 2 this time).
 // {'YYYY-MM-DD-idx': {supplementId: pillCount}}
@@ -2379,9 +2588,17 @@ function checkAllSupplements(dk,idx){window.checkAllSupplements(dk,idx);}
 // Builds the human-readable dose description used in the checklist and
 // the timeline entry alike, so both stay consistent with each other.
 function formatSupplementDoseDetail(supp,pillCount){
-  if(!supp.doseAmount)return pillCount>1?`Taken · ${pillCount} pills`:'Taken';
-  const total=Math.round(supp.doseAmount*pillCount*100)/100;
-  return`${pillCount} pill${pillCount!==1?'s':''} × ${supp.doseAmount}${supp.doseUnit||''} = ${total}${supp.doseUnit||''}`;
+  const count=pillCount!=null?pillCount:(supp.pillCount||1);
+  const word=supplementFormWord(supp,count);
+  const timing=supplementTimingLabel(supp.timing);
+  let detail;
+  if(!supp.doseAmount){
+    detail=count>1?`Taken · ${count} ${word}`:'Taken';
+  }else{
+    const total=Math.round(supp.doseAmount*count*100)/100;
+    detail=`${count} ${word} × ${supp.doseAmount}${supp.doseUnit||''} = ${total}${supp.doseUnit||''}`;
+  }
+  return timing?`${timing} · ${detail}`:detail;
 }
 // Adjusts the pill count for an ALREADY-checked supplement dose — updates
 // stock by the delta (not a flat -1/+1) and refreshes the timeline entry
@@ -2408,34 +2625,86 @@ window.addSupplementType=function(){
   if(!name){alert('Enter a supplement name');return;}
   if(supplementTypes.some(s=>s.name.toLowerCase()===name.toLowerCase())){showToast('Already in your list');return;}
   const id='sp_'+Date.now();
-  supplementTypes.push({id,name,doseAmount:null,doseUnit:null,pillCount:1});
-  // Also lands in the food database, tagged as a pill supplement, at zero
+  const entry=normalizeSupplement({id,name,category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,timing:null});
+  supplementTypes.push(entry);
+  // Also lands in the food database, tagged as a pill/powder supplement, at zero
   // macros — most pills/capsules have no meaningful caloric contribution,
   // but this lets them show up alongside everything else you track. Same
   // duplicate-name guard as protein drinks, so re-adding a name that
   // matches an existing food doesn't create a second entry.
   if(!mpFoods||!mpFoods.length)mpFoods=(MP_FOODS_DEFAULT||[]).map(f=>({...f}));
+  const foodCat=entry.category==='powder'?'powder':'pill';
   const existingFood=mpFoods.find(f=>f.name.toLowerCase()===name.toLowerCase());
   if(existingFood){
-    if(!existingFood.category)existingFood.category='pill';
+    if(!existingFood.category)existingFood.category=foodCat;
   }else{
-    mpFoods.push({id:'sp_food_'+id,name,serving:'1 serving',P:0,C:0,F:0,kcal:0,category:'pill',defaultSv:1,step:1});
+    mpFoods.push({id:'sp_food_'+id,name,serving:'1 serving',P:0,C:0,F:0,kcal:0,category:foodCat,defaultSv:1,step:1});
   }
   saveState();
-  renderApp();
+  // Open edit form right away so category / dose / timing can be set.
+  window.openEditSupplementDose(id);
 };
 window.openEditSupplementDose=function(id){
   const sp=supplementTypes.find(s=>s.id===id);
   if(!sp)return;
   const day=(modal&&modal.dk)||activeDay;
-  modal={type:'editSupplementDose',suppId:id,dk:day};renderApp();
+  const n=normalizeSupplement(sp);
+  modal={type:'editSupplementDose',suppId:id,dk:day,draft:{
+    category:n.category,form:n.form,timing:n.timing,
+    doseAmount:n.doseAmount,doseUnit:n.doseUnit,pillCount:n.pillCount,
+  }};
+  renderApp();
+};
+function readSupplementEditInputsIntoDraft(){
+  if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
+  const amt=document.getElementById('esd-amt');
+  const unit=document.getElementById('esd-unit');
+  const pills=document.getElementById('esd-pills');
+  if(amt){
+    const v=parseFloat(amt.value);
+    modal.draft.doseAmount=amt.value===''||isNaN(v)?null:v;
+  }
+  if(unit)modal.draft.doseUnit=(unit.value||'').trim()||null;
+  if(pills)modal.draft.pillCount=Math.max(1,parseInt(pills.value,10)||1);
+}
+window.setSupplementEditCategory=function(cat){
+  if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
+  readSupplementEditInputsIntoDraft();
+  modal.draft.category=cat==='powder'?'powder':'pill';
+  modal.draft.form=modal.draft.category==='powder'?'scoop':(SUPP_PILL_FORMS.includes(modal.draft.form)?modal.draft.form:'capsule');
+  renderApp();
+};
+window.setSupplementEditForm=function(form){
+  if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
+  readSupplementEditInputsIntoDraft();
+  if(modal.draft.category==='powder'){modal.draft.form='scoop';renderApp();return;}
+  if(SUPP_PILL_FORMS.includes(form))modal.draft.form=form;
+  renderApp();
+};
+window.setSupplementEditTiming=function(timing){
+  if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
+  readSupplementEditInputsIntoDraft();
+  modal.draft.timing=(modal.draft.timing===timing)?null:(SUPP_TIMING_ORDER.includes(timing)?timing:null);
+  renderApp();
 };
 window.saveSupplementDose=function(id){
   const sp=supplementTypes.find(s=>s.id===id);
   if(!sp)return;
+  const d=modal&&modal.draft?modal.draft:{};
+  const category=d.category||'pill';
+  sp.category=category==='powder'?'powder':'pill';
+  sp.form=sp.category==='powder'?'scoop':(SUPP_PILL_FORMS.includes(d.form)?d.form:'capsule');
   sp.doseAmount=parseFloat(document.getElementById('esd-amt')?.value)||null;
   sp.doseUnit=(document.getElementById('esd-unit')?.value||'').trim()||null;
   sp.pillCount=Math.max(1,parseInt(document.getElementById('esd-pills')?.value)||1);
+  sp.timing=SUPP_TIMING_ORDER.includes(d.timing)?d.timing:null;
+  Object.assign(sp,normalizeSupplement(sp));
+  // Keep linked food category in sync with pill vs powder.
+  const linkedId=findLinkedFoodId('sp_food_'+id,sp.name);
+  if(linkedId&&mpFoods){
+    const food=mpFoods.find(f=>f.id===linkedId);
+    if(food)food.category=sp.category==='powder'?'powder':'pill';
+  }
   saveState();
   modal={type:'supplementManager',dk:(modal&&modal.dk)||activeDay};
   renderApp();
@@ -2452,6 +2721,9 @@ window.deleteSupplementType=function(id){
 };
 function addSupplementType(){window.addSupplementType();}
 function deleteSupplementType(id){window.deleteSupplementType(id);}
+function setSupplementEditCategory(c){window.setSupplementEditCategory(c);}
+function setSupplementEditForm(f){window.setSupplementEditForm(f);}
+function setSupplementEditTiming(t){window.setSupplementEditTiming(t);}
 var schedWeekOffset=0; // 0=current week, -1=last week, +1=next week
 var fastState=safeParseLS('recomp_fast',null);
 var eatingState=safeParseLS('recomp_eating',null);
@@ -3202,7 +3474,7 @@ function getBlockFoodItems(b,dk,idx){
     if(!m.items)return items;
     const overrides=(mealServings[dk]&&mealServings[dk][b.ms])||{};
     m.items.forEach(item=>{
-      const food=MP_FOODS_DEFAULT.find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
+      const food=getActiveFoods().find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
       const servings=overrides[item.n]!==undefined?overrides[item.n]:(item.defaultSv||1);
       if(food){
         items.push({
@@ -3566,6 +3838,36 @@ function isGatedRepsPR(effW,heaviestW){
       delete pr.maxReps;delete pr.maxRepsWeight;delete pr.maxRepsDate;
     }
   });
+})();
+// ONE SIDE used to store effective load as typed×2. After dropping the
+// multiplier, halve stored PR weights for lifts that were logged per_side
+// so Beat targets match what you type again.
+let exercisePRsSideMigrated=!!saved?.exercisePRsSideMigrated;
+(function migrateExercisePRsSideMultiplier(){
+  if(exercisePRsSideMigrated)return;
+  const perSideNames=new Set();
+  Object.keys(exerciseLog||{}).forEach(d=>{
+    const sess=exerciseLog[d];
+    if(!sess||!sess.exercises)return;
+    sess.exercises.forEach(ex=>{
+      if(ex&&ex.weightMode==='per_side'&&ex.name)perSideNames.add(ex.name.toLowerCase());
+    });
+  });
+  Object.keys(exercisePRs||{}).forEach(name=>{
+    if(!perSideNames.has(name.toLowerCase()))return;
+    const pr=exercisePRs[name];
+    if(!pr)return;
+    const half=v=>{
+      if(typeof v!=='number'||!isFinite(v))return v;
+      return Math.round((v/2)*100)/100;
+    };
+    if(pr.maxWeight!=null)pr.maxWeight=half(pr.maxWeight);
+    if(pr.maxRepsWeight!=null)pr.maxRepsWeight=half(pr.maxRepsWeight);
+    if(pr.bestSetWeight!=null)pr.bestSetWeight=half(pr.bestSetWeight);
+    if(pr.est1RM!=null)pr.est1RM=half(pr.est1RM);
+  });
+  exercisePRsSideMigrated=true;
+  try{if(typeof saveState==='function')saveState();}catch(e){}
 })();
 let skipped=saved?.skipped||{};         // {dayKey-blockIdx: true}
 // Optional, non-blocking reason tag for WHY a block got skipped — the skip
@@ -3931,12 +4233,26 @@ let saunaStatsOpen=false;
 let tradingStatsOpen=false;
 
 // ─── MEAL PLANNER STATE ───────────────────────────────────────────────────────
+function inferFoodCategoryFromMeta(f){
+  if(!f)return'food';
+  if(f.category==='food'||f.category==='powder'||f.category==='pill')return f.category;
+  const id=String(f.id||'');
+  if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')return'powder';
+  if(id.startsWith('sp_food_'))return'pill';
+  const n=(f.name||'').toLowerCase();
+  if(typeof proteinDrinks!=='undefined'&&proteinDrinks&&proteinDrinks.some(d=>d&&d.name&&d.name.toLowerCase()===n))return'powder';
+  if(typeof supplementTypes!=='undefined'&&supplementTypes&&supplementTypes.some(s=>s&&s.name&&s.name.toLowerCase()===n))return'pill';
+  if(/\bdextrose\b/.test(n))return'powder';
+  if(/\bwhey\b/.test(n)||/\bcasein\b/.test(n)||(/protein/.test(n)&&/\b(powder|scoop|isolate|whey)\b/.test(n)))return'powder';
+  if(/\b(creatine|collagen|multivitamin|fish oil|magnesium|vitamin|ashwagandha|wellbutrin)\b/.test(n))return'pill';
+  return'food';
+}
 const MP_FOODS_DEFAULT=asList(PD.mealPlannerFoods,[
-  {id:'chicken', name:'Chicken breast', unit:'oz', unitPer:1, label:'oz', P:8, C:0, F:2, kcal:50},
-  {id:'rice', name:'White rice (cooked)', unit:'cup', unitPer:1, label:'cups', P:4, C:45, F:0, kcal:200},
-  {id:'protein', name:'Whey protein', unit:'scoop', unitPer:1, label:'scoops', P:24, C:2, F:1, kcal:120},
-  {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70},
-]);
+  {id:'chicken', name:'Chicken breast', unit:'oz', unitPer:1, label:'oz', P:8, C:0, F:2, kcal:50, category:'food'},
+  {id:'rice', name:'White rice (cooked)', unit:'cup', unitPer:1, label:'cups', P:4, C:45, F:0, kcal:200, category:'food'},
+  {id:'protein', name:'Whey protein', unit:'scoop', unitPer:1, label:'scoops', P:24, C:2, F:1, kcal:120, category:'powder'},
+  {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70, category:'powder'},
+]).map(f=>({...f,category:f.category||inferFoodCategoryFromMeta(f)}));
 // ── UI SETTINGS (Settings → Appearance) ─────────────────────────────────────
 // Stored separately from tracking data (recomp_ui) so a data reset never
 // nukes visual preferences, and vice versa.
@@ -4498,6 +4814,7 @@ function suggestFoodsForRemainingMacros(dk){
   const rem={P:Math.max(0,plan.P-prog.P),C:Math.max(0,plan.C-prog.C),F:Math.max(0,plan.F-prog.F),kcal:Math.max(0,plan.kcal-prog.kcal)};
   if(rem.P+rem.C+rem.F<5)return{rem,suggestions:[]};
   const foods=(mpFoods||[]).filter(f=>{
+    if(!isMealFood(f))return false;
     if(!foodIsAvailable(f))return false;
     return(f.P||0)+(f.C||0)+(f.F||0)>0;
   });
@@ -4736,7 +5053,7 @@ function updateHubFastCardDisplay(){
         goalEl.style.letterSpacing='0.03em';
         goalEl.style.marginLeft='auto';
         goalEl.style.flexShrink='0';
-        goalEl.textContent='/'+goalH+'h';
+        goalEl.textContent='/'+Math.round(goalH)+'h';
       }else{goalEl.style.display='none';goalEl.textContent='';}
     }
     if(modeEl)modeEl.textContent=fp.done?'done':(Math.round(remain?remPct:pct)+'%');
@@ -4768,7 +5085,7 @@ function updateHubFastCardDisplay(){
       goalEl.style.letterSpacing='0.03em';
       goalEl.style.marginLeft='auto';
       goalEl.style.flexShrink='0';
-      goalEl.textContent='/'+goalH+'h';
+      goalEl.textContent='/'+Math.round(goalH)+'h';
     }else{goalEl.style.display='none';goalEl.textContent='';}
   }
   if(modeEl){
@@ -4836,7 +5153,7 @@ function renderHubFastCard(){
     const goalH=fp.hours>0?fp.hours:(fastState&&fastState.hours)||0;
     const modeTxt=fp.done?'done':(Math.round(remain?remPct:pct)+'%');
     const goalHtml=!remain&&goalH>0
-      ?`<span id="hub-fast-goal" style="display:inline;margin-left:auto;font-size:12px;font-weight:800;letter-spacing:0.03em;color:${color};flex-shrink:0;line-height:1">/${goalH}h</span>`
+      ?`<span id="hub-fast-goal" style="display:inline;margin-left:auto;font-size:12px;font-weight:800;letter-spacing:0.03em;color:${color};flex-shrink:0;line-height:1">/${Math.round(goalH)}h</span>`
       :`<span id="hub-fast-goal" style="display:none"></span>`;
     return hubCard({label:'FASTING',color,tap:'openFastModal()',done:!!fp.done,body:
       `<div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;min-width:0;width:100%"><div id="hub-fast-hms" class="hub-v" style="color:${color}">${hms}</div>${goalHtml}</div>
@@ -4854,7 +5171,7 @@ function renderHubFastCard(){
     const modeTxt=ep.done?(remain?'ready':'done'):(Math.round(remain?remPct:pct)+'%');
     const barW=ep.done?(remain?0:100):(remain?remPct:pct);
     const goalHtml=!remain&&goalH>0
-      ?`<span id="hub-fast-goal" style="display:inline;margin-left:auto;font-size:12px;font-weight:800;letter-spacing:0.03em;color:${color};flex-shrink:0;line-height:1">/${goalH}h</span>`
+      ?`<span id="hub-fast-goal" style="display:inline;margin-left:auto;font-size:12px;font-weight:800;letter-spacing:0.03em;color:${color};flex-shrink:0;line-height:1">/${Math.round(goalH)}h</span>`
       :`<span id="hub-fast-goal" style="display:none"></span>`;
     return hubCard({label:'EATING WINDOW',color,tap:'openFastModal()',done:!!ep.done,body:
       `<div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;min-width:0;width:100%"><div id="hub-fast-hms" class="hub-v" style="color:${color}">${hms}</div>${goalHtml}</div>
@@ -5048,6 +5365,7 @@ function getHubScheduleItems(dk){
     if(b.hidden||_isProvisionalBlock(b))return false;
     if(b.type==='caffeine'&&((modules&&modules.caffeine===false)||(uiSettings.hubWidgets||[]).includes('caffeine')))return false;
     if(b.type==='trade'&&(noTradeDays[dateStr]||(modules&&modules.trading===false)))return false;
+    if(['drivework','work','drivehome','workend'].includes(b.type)&&(!_isJobEnabled()))return false;
     return true;
   }).sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
 }
@@ -5589,25 +5907,30 @@ function renderHubBoard(dk,flush){
       const bm=(bodyMetrics&&bodyMetrics[dateStr])||{};
       const w=bm.weight;
       const logged=w!=null&&!isNaN(w);
-      const prior=Object.entries(bodyMetrics||{})
-        .filter(([k,v])=>v&&v.weight!=null&&/^\d{4}-\d{2}-\d{2}$/.test(k)&&k<dateStr)
-        .sort((a,b)=>b[0].localeCompare(a[0]))[0];
-      const lastW=prior?prior[1].weight:null;
-      let wBody;
-      if(logged){
-        let deltaLine='';
-        if(lastW!=null){
-          const d=Number(w)-Number(lastW);
-          const sign=d>0?'+':'';
-          const dCol=Math.abs(d)<0.05?'var(--muted2)':(d>0?'#f97316':'#22c55e');
-          deltaLine=`<div class="hub-weight-delta" style="color:${dCol}">${sign}${d.toFixed(1)}</div>`;
-        }
-        wBody=`<div class="hub-weight-val" style="--hub-col:${wtCol}">${Number(w).toFixed(1)}</div><div class="hub-weight-unit">LBS</div>${deltaLine}`;
-      }else{
-        wBody=lastW!=null
-          ?`<div class="hub-empty-state" style="--hub-col:${wtCol}"><div class="hub-empty-last-val">${Number(lastW).toFixed(1)} lbs</div><div class="hub-empty-last-sub">Last logged</div></div>`
-          :hubEmptyState({ghost:'<span class="hub-empty-ghost-val">—</span><span class="hub-empty-ghost-unit">LBS</span>',title:'Log weight',color:wtCol});
+      const yParts=String(dateStr).split('-').map(Number);
+      const yDate=new Date(yParts[0],(yParts[1]||1)-1,yParts[2]||1);
+      yDate.setDate(yDate.getDate()-1);
+      const ydayStr=DATE_INPUT_FMT(yDate);
+      const yBm=(bodyMetrics&&bodyMetrics[ydayStr])||{};
+      const yW=yBm.weight;
+      const yLogged=yW!=null&&!isNaN(yW);
+      const cellVal=(val)=>`<div class="hub-weight-val" style="--hub-col:${wtCol}">${Number(val).toFixed(1)}</div><div class="hub-weight-unit">LBS</div>`;
+      const yCell=yLogged
+        ?cellVal(yW)
+        :`<div class="hub-weight-empty" style="--hub-col:${wtCol}">—</div>`;
+      let tExtra='';
+      if(logged&&yLogged){
+        const d=Number(w)-Number(yW);
+        const sign=d>0?'+':'';
+        const dCol=Math.abs(d)<0.05?'var(--muted2)':(d>0?'#f97316':'#22c55e');
+        tExtra=`<div class="hub-weight-delta" style="color:${dCol}">${sign}${d.toFixed(1)}</div>`;
+      }else if(!logged){
+        tExtra=`<div class="hub-weight-log" style="--hub-col:${wtCol}">Log</div>`;
       }
+      const tCell=logged
+        ?cellVal(w)+tExtra
+        :`<div class="hub-weight-empty" style="--hub-col:${wtCol}">—</div>${tExtra}`;
+      const wBody=`<div class="hub-weight-grid" style="--hub-col:${wtCol}"><div class="hub-weight-cell"><div class="hub-weight-lab">YESTERDAY</div>${yCell}</div><div class="hub-weight-cell"><div class="hub-weight-lab">TODAY</div>${tCell}</div></div>`;
       cards.push(hubCard({label:'WEIGHT',color:wtCol,tap:`openHubMetricsLog('weight','${dateStr}')`,done:logged,empty:!logged,body:wBody}));
     }
   });
@@ -5920,9 +6243,108 @@ function setConsistencyView(v){window.setConsistencyView(v);}
 let expandedJournal=null; // expanded check-in entry key
 let expandedDeepJournal=null; // expanded deep journal entry key
 let mpFoods=safeParseLS('mp_foods',MP_FOODS_DEFAULT);
+function getActiveFoods(){
+  return(mpFoods&&mpFoods.length)?mpFoods:MP_FOODS_DEFAULT;
+}
+function foodCategory(f){
+  return inferFoodCategoryFromMeta(f);
+}
+function isMealFood(f){
+  return foodCategory(f)==='food';
+}
+/** Foods only — never powders/pills. Use for meal log / meal plan / meal override pickers. */
+function getMealPickerFoods(){
+  return getActiveFoods().filter(isMealFood);
+}
+function ensureFoodCategories(){
+  if(!mpFoods||!mpFoods.length)return false;
+  let changed=false;
+  mpFoods.forEach(f=>{
+    if(!f)return;
+    const cat=inferFoodCategoryFromMeta(f);
+    // Force known powder/pill ids even if a stale row was saved as "food".
+    const id=String(f.id||'');
+    let next=cat;
+    if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')next='powder';
+    else if(id.startsWith('sp_food_'))next='pill';
+    else if(f.category==='food'||f.category==='powder'||f.category==='pill'){
+      // Keep explicit user category except when id proves otherwise above.
+      next=f.category;
+      if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')next='powder';
+      if(id.startsWith('sp_food_'))next='pill';
+    }
+    if(f.category!==next){f.category=next;changed=true;}
+  });
+  return changed;
+}
+// Friend-safe example + hardcoded fallback rows. These are not the user's
+// catalog — they must not linger in localStorage once a real profile foods
+// list is loaded (same ids like "chicken" would otherwise shadow Just Bare).
+const MP_PLACEHOLDER_FOOD_NAMES=new Set([
+  'Chicken breast',
+  'White rice (cooked)',
+  'Rolled oats (dry)',
+  'Whey protein',
+]);
+function reconcileMpFoodsWithProfile(){
+  const profileFoods=Array.isArray(PD.mealPlannerFoods)?PD.mealPlannerFoods:[];
+  if(!profileFoods.length)return false;
+  if(!mpFoods||!Array.isArray(mpFoods))mpFoods=[];
+  let changed=false;
+  const profileNames=new Set(profileFoods.map(f=>f&&f.name).filter(Boolean));
+
+  // Drop leftover example/fallback rows that are not in the live profile.
+  const kept=[];
+  mpFoods.forEach(f=>{
+    if(!f)return;
+    if(f.name&&MP_PLACEHOLDER_FOOD_NAMES.has(f.name)&&!profileNames.has(f.name)){
+      changed=true;
+      return;
+    }
+    kept.push(f);
+  });
+  mpFoods=kept;
+
+  // Upsert every profile food by id (preserve stock fields the user set).
+  // Profile mealPlannerFoods without category get inferred (protein/dextrose → powder).
+  profileFoods.forEach(pf=>{
+    if(!pf||!pf.id)return;
+    const withCat={...pf,category:pf.category||inferFoodCategoryFromMeta(pf)};
+    // Force powder for known powder product ids from the planner catalog.
+    if(pf.id==='protein'||pf.id==='dextrose')withCat.category='powder';
+    const profileCat=withCat.category;
+    const idx=mpFoods.findIndex(f=>f&&f.id===pf.id);
+    if(idx<0){
+      mpFoods.push(withCat);
+      changed=true;
+      return;
+    }
+    const prev=mpFoods[idx];
+    const next={
+      ...withCat,
+      stockQty:prev.stockQty,
+      refillQty:prev.refillQty,
+      inStock:prev.inStock,
+      category:profileCat,
+    };
+    if(prev.name!==next.name||prev.P!==next.P||prev.C!==next.C||prev.F!==next.F||prev.kcal!==next.kcal
+      ||prev.unit!==next.unit||prev.label!==next.label||prev.category!==next.category){
+      mpFoods[idx]=next;
+      changed=true;
+    }
+  });
+  return changed;
+}
+{
+  const merged=reconcileMpFoodsWithProfile();
+  const tagged=ensureFoodCategories();
+  if(merged||tagged){
+    try{localStorage.setItem('mp_foods',JSON.stringify(mpFoods));}catch(e){}
+  }
+}
 // ── MEAL PLAN (Food hub Edit tab): N slots with times + planned foods ──────────
 function resolveFoodForMealItem(item){
-  const foods=(mpFoods&&mpFoods.length)?mpFoods:MP_FOODS_DEFAULT;
+  const foods=getActiveFoods();
   if(item&&item.foodId){
     const byId=foods.find(f=>f.id===item.foodId);
     if(byId)return byId;
@@ -6001,15 +6423,60 @@ function recomputeDmDayTotals(day){
 function applyMealPlanToDM(){
   if(!mealPlan||!mealPlan.slots)return;
   const slots=mealPlan.slots;
+  const profileDm=(PD&&PD.mealMacrosTraining)||{};
+  const baseProfile=profileDm.CHEST||profileDm[Object.keys(profileDm)[0]]||null;
   Object.keys(DM).forEach(mt=>{
     const day=DM[mt];
     if(!day||typeof day!=='object')return;
-    Object.keys(day).forEach(k=>{if(/^m\d+$/.test(k))delete day[k];});
+    const profileDay=profileDm[mt]||null;
+    const prevMeals={};
+    Object.keys(day).forEach(k=>{
+      if(/^m\d+$/.test(k)){prevMeals[k]=day[k];delete day[k];}
+    });
     slots.forEach(slot=>{
-      const macros=computeSlotMacros(slot.items);
+      const profileSlot=profileDay&&profileDay[slot.id]?profileDay[slot.id]:null;
+      const baseSlot=baseProfile&&baseProfile[slot.id]?baseProfile[slot.id]:null;
+      const prevSlot=prevMeals[slot.id]||null;
+      const items=(slot.items||[]).map(it=>{
+        const out={n:it.n,a:it.a||'',defaultSv:it.defaultSv!=null?it.defaultSv:1,step:it.step||1,foodId:it.foodId||null};
+        // Keep per-type profile servings only when that type differs from the
+        // base (CHEST) profile — e.g. ABS bacon 6 / chicken 4 — so editor
+        // serving edits still apply to standard training days.
+        if(profileSlot&&profileSlot.items&&baseSlot&&baseSlot.items&&mt!=='CHEST'){
+          const match=profileSlot.items.find(p=>
+            (out.foodId&&p.foodId&&out.foodId===p.foodId)||
+            (out.n&&p.n&&(out.n===p.n||out.n.startsWith(p.n)||p.n.startsWith(out.n)))
+          );
+          const baseMatch=baseSlot.items.find(p=>
+            (out.foodId&&p.foodId&&out.foodId===p.foodId)||
+            (out.n&&p.n&&(out.n===p.n||out.n.startsWith(p.n)||p.n.startsWith(out.n)))
+          );
+          if(match&&baseMatch&&Number(match.defaultSv)!=null&&Number(match.defaultSv)!==Number(baseMatch.defaultSv!=null?baseMatch.defaultSv:1)){
+            out.defaultSv=match.defaultSv;
+            if(match.a&&!out.a)out.a=match.a;
+            if(match.step)out.step=match.step;
+          }
+        }
+        return out;
+      });
+      let macros=computeSlotMacros(items);
+      const unresolved=items.length>0&&macros.P===0&&macros.C===0&&macros.F===0&&macros.kcal===0;
+      if(unresolved){
+        const fb=profileSlot||prevSlot;
+        if(fb)macros={P:fb.P||0,C:fb.C||0,F:fb.F||0,kcal:fb.kcal||0};
+      }else if(profileSlot&&Array.isArray(profileSlot.items)&&profileSlot.items.length===items.length&&profileSlot.items.length>0){
+        const sameSet=profileSlot.items.every((p,i)=>{
+          const it=items[i];
+          return it&&p&&(it.n===p.n||(it.foodId&&p.foodId&&it.foodId===p.foodId))
+            &&Number(it.defaultSv)===Number(p.defaultSv!=null?p.defaultSv:1);
+        });
+        if(sameSet){
+          macros={P:profileSlot.P||0,C:profileSlot.C||0,F:profileSlot.F||0,kcal:profileSlot.kcal||0};
+        }
+      }
       day[slot.id]={
         P:macros.P,C:macros.C,F:macros.F,kcal:macros.kcal,
-        items:(slot.items||[]).map(it=>({n:it.n,a:it.a||'',defaultSv:it.defaultSv!=null?it.defaultSv:1,step:it.step||1,foodId:it.foodId||null})),
+        items,
       };
     });
     recomputeDmDayTotals(day);
@@ -6060,11 +6527,29 @@ function normalizeMealPlan(mp){
   return{count:slots.length,slots};
 }
 let mealPlan=normalizeMealPlan(saved&&saved.mealPlan);
-// Re-apply a saved plan into in-memory DM so meal cards/macros match Settings
-// after reload (DM itself is never persisted).
-if(saved&&saved.mealPlan){
-  try{applyMealPlanToDM();}catch(e){}
-}
+// Profile mealMacrosTraining is the boot source of truth for DM. Do not
+// re-apply a saved mealPlan into DM on load — that wiped per-type macros
+// (ABS vs CHEST) and could zero slots when food resolution failed.
+// Explicit SAVE MEAL PLAN still calls applyMealPlanToDM().
+(function repairCorruptMealPlan(){
+  if(!mealPlan||!mealPlan.slots||!mealPlan.slots.length)return;
+  const hasItems=mealPlan.slots.some(s=>s&&s.items&&s.items.length);
+  if(!hasItems)return;
+  const allZero=mealPlan.slots.every(s=>{
+    if(!s||!s.items||!s.items.length)return true;
+    const m=computeSlotMacros(s.items);
+    return m.P===0&&m.C===0&&m.F===0&&m.kcal===0;
+  });
+  if(!allZero)return;
+  const profileHasMacros=Object.keys(DM).some(mt=>{
+    if(mt==='DEFAULT')return false;
+    const day=DM[mt];
+    if(!day)return false;
+    return Object.keys(day).some(k=>/^m\d+$/.test(k)&&day[k]&&((day[k].kcal||0)>0||(day[k].items&&day[k].items.length)));
+  });
+  if(!profileHasMacros)return;
+  mealPlan=seedMealPlanFromExisting();
+})();
 
 // ─── DAILY SCHEDULES (Settings → Daily Schedule profiles) ─────────────────────
 function _nextDayKey(dk){
@@ -6074,6 +6559,81 @@ function _nextDayKey(dk){
 function _prevDayKey(dk){
   const i=DAYS.indexOf(dk);
   return i<0?'SUN':DAYS[(i+6)%7];
+}
+function _isJobEnabled(){
+  return!(modules&&modules.work===false);
+}
+function _shiftCrossesMidnight(shiftStart,shiftEnd){
+  const sm=parseTimeToMins(shiftStart),em=parseTimeToMins(shiftEnd);
+  if(sm==null||em==null)return false;
+  return em<=sm;
+}
+function _inferDriveMinFromPair(anchorT,driveT,fallback){
+  const am=parseTimeToMins(anchorT),dm=parseTimeToMins(driveT);
+  if(am==null||dm==null)return fallback!=null?fallback:null;
+  let g=am-dm;if(g<0)g+=1440;
+  return Math.max(5,Math.min(120,g));
+}
+function computeWorkTimeline(workNights){
+  if(!workNights)return null;
+  const shiftStart=workNights.shiftStart||'9:00 PM';
+  const shiftEnd=workNights.shiftEnd||'5:30 AM';
+  const sm=parseTimeToMins(shiftStart),em=parseTimeToMins(shiftEnd);
+  if(sm==null||em==null)return null;
+  let driveMin=workNights.driveMin!=null?Number(workNights.driveMin):null;
+  if(driveMin==null||!Number.isFinite(driveMin)){
+    driveMin=_inferDriveMinFromPair(shiftStart,workNights.driveToWork,null);
+    if(driveMin==null)driveMin=_inferDriveMinFromPair(shiftEnd,workNights.driveHome,null);
+    if(driveMin==null)driveMin=30;
+  }
+  driveMin=Math.max(5,Math.min(120,driveMin));
+  const driveToMins=sm-driveMin;
+  const driveHomeMins=em-driveMin;
+  const crossesMidnight=_shiftCrossesMidnight(shiftStart,shiftEnd);
+  return{
+    shiftStart:shiftStart,
+    shiftEnd:shiftEnd,
+    driveMin:driveMin,
+    driveToWork:minsToTime(driveToMins<0?driveToMins+1440:driveToMins),
+    driveHome:minsToTime(driveHomeMins<0?driveHomeMins+1440:driveHomeMins),
+    crossesMidnight:crossesMidnight,
+  };
+}
+function formatWorkTimelinePreview(workNights){
+  const tl=computeWorkTimeline(workNights);
+  if(!tl)return'—';
+  const place=tl.crossesMidnight?'Overnight → home next day':'Same day';
+  return`Drive in ${tl.driveToWork} · Shift ${tl.shiftStart}–${tl.shiftEnd} · Drive home ${tl.driveHome} · ${place}`;
+}
+function _writeWorkDerivedTimes(tl){
+  if(!dailySchedules||!dailySchedules.work)return;
+  const wn=dailySchedules.work.workNights||(dailySchedules.work.workNights={});
+  if(!tl)tl=computeWorkTimeline(wn);
+  if(!tl)return null;
+  wn.shiftStart=tl.shiftStart;
+  wn.shiftEnd=tl.shiftEnd;
+  wn.driveMin=tl.driveMin;
+  wn.driveToWork=tl.driveToWork;
+  wn.driveHome=tl.driveHome;
+  return tl;
+}
+function _refreshWorkDerivedAndCascade(prevWn,opts){
+  opts=opts||{};
+  if(!dailySchedules||!dailySchedules.work)return;
+  const wn=dailySchedules.work.workNights||{};
+  const prevTl=prevWn?computeWorkTimeline(prevWn):null;
+  const oldDriveTo=(prevTl&&prevTl.driveToWork)||(prevWn&&prevWn.driveToWork)||wn.driveToWork;
+  const oldDriveHome=(prevTl&&prevTl.driveHome)||(prevWn&&prevWn.driveHome)||wn.driveHome;
+  const tl=_writeWorkDerivedTimes();
+  if(!tl)return;
+  // Skip drive cascades when shift start/end already cascaded the same neighbors
+  if(opts.cascadeDrives===false)return;
+  if(oldDriveTo&&oldDriveTo!==tl.driveToWork){
+    applyCascadeToProfiles('work.workNights.driveToWork',oldDriveTo,tl.driveToWork);
+  }
+  if(oldDriveHome&&oldDriveHome!==tl.driveHome){
+    applyCascadeToProfiles('work.workNights.driveHome',oldDriveHome,tl.driveHome);
+  }
 }
 function _findBlockTime(type,preferDays){
   const order=preferDays&&preferDays.length?preferDays:DAYS;
@@ -6136,17 +6696,36 @@ function isAnchorEnabled(profile,key){
 function seedDailySchedulesFromSchedule(){
   const workNightDays=_daysWithType('drivework').length?_daysWithType('drivework'):_daysWithType('work');
   const nights=workNightDays.length?workNightDays.slice():['SUN','MON','TUE','WED','THU'];
-  const morningDays=nights.map(_nextDayKey);
   const dw=_findBlockTime('drivework',nights);
   const ws=_findBlockTime('work',nights);
-  const dh=_findBlockTime('drivehome',morningDays)||null;
-  const we=_findBlockTime('workend',morningDays);
-  // Infer drive-home ~30 min before shift end when block is missing
+  const shiftStartSeed=(ws&&ws.t)||'9:00 PM';
+  // Peek shift end from any day first so we know same-day vs overnight placement
+  const wePeek=_findBlockTime('workend',nights)||_findBlockTime('workend',nights.map(_nextDayKey))||_findBlockTime('workend');
+  const shiftEndSeed=(wePeek&&wePeek.t)||'5:30 AM';
+  const overnightSeed=_shiftCrossesMidnight(shiftStartSeed,shiftEndSeed);
+  const endDays=overnightSeed?nights.map(_nextDayKey):nights.slice();
+  const dh=_findBlockTime('drivehome',endDays)||_findBlockTime('drivehome')||null;
+  const we=_findBlockTime('workend',endDays)||wePeek;
+  // Infer drive-home ~driveMin before shift end when block is missing
   let driveHomeT=(dh&&dh.t)||'5:00 AM';
   if(!dh&&we&&we.t){
     const m=parseTimeToMins(we.t);
     if(m!=null)driveHomeT=minsToTime(m-30);
   }
+  const driveToWorkSeed=(dw&&dw.t)||'8:30 PM';
+  let driveMinSeed=_inferDriveMinFromPair(shiftStartSeed,driveToWorkSeed,null);
+  if(driveMinSeed==null)driveMinSeed=_inferDriveMinFromPair(shiftEndSeed,driveHomeT,null);
+  if(driveMinSeed==null)driveMinSeed=30;
+  const workTl=computeWorkTimeline({
+    shiftStart:shiftStartSeed,
+    shiftEnd:shiftEndSeed,
+    driveMin:driveMinSeed,
+    driveToWork:driveToWorkSeed,
+    driveHome:driveHomeT,
+  });
+  const driveToWorkFinal=(workTl&&workTl.driveToWork)||driveToWorkSeed;
+  const driveHomeFinal=(workTl&&workTl.driveHome)||driveHomeT;
+  const driveMinFinal=(workTl&&workTl.driveMin)||driveMinSeed;
   const sleepDays=_daysWithType('sleep');
   const wakeOnlyDays=DAYS.filter(dk=>{
     const day=schedule[dk];
@@ -6293,7 +6872,23 @@ function seedDailySchedulesFromSchedule(){
       enabled:_defaultAnchorEnabled(isOff),
     };
     if(!isOff)out.trade=(tr&&tr.t)||'6:35 AM';
+    out.morningOffsets=_seedMorningOffsetsFromTimes(wakeT,out,isOff);
     return out;
+  }
+  function _seedMorningOffsetsFromTimes(wakeT,times,isOff){
+    const defaults=isOff
+      ?{brushMorning:0,supps:5,journalMorning:75,deepJournal:85}
+      :{brushMorning:0,supps:5,journalMorning:50,deepJournal:60,trade:65};
+    const keys=isOff
+      ?['brushMorning','supps','journalMorning','deepJournal']
+      :['brushMorning','supps','journalMorning','deepJournal','trade'];
+    const offsets={};
+    keys.forEach(k=>{
+      const gap=_gapMins(wakeT,times[k]);
+      if(gap!=null&&gap>=0&&gap<=720)offsets[k]=gap;
+      else offsets[k]=defaults[k]!=null?defaults[k]:0;
+    });
+    return offsets;
   }
   function _seedGymShakes(preferDays,travelT,travelBackT){
     let pre=null,post=null;
@@ -6349,10 +6944,11 @@ function seedDailySchedulesFromSchedule(){
     work:{
       workNightDays:nights,
       workNights:{
-        driveToWork:(dw&&dw.t)||'8:30 PM',
-        shiftStart:(ws&&ws.t)||'9:00 PM',
-        driveHome:driveHomeT,
-        shiftEnd:(we&&we.t)||'5:30 AM',
+        shiftStart:shiftStartSeed,
+        shiftEnd:shiftEndSeed,
+        driveMin:driveMinFinal,
+        driveToWork:driveToWorkFinal,
+        driveHome:driveHomeFinal,
       },
     },
     sleep:{
@@ -6458,7 +7054,7 @@ function normalizeDailySchedules(raw){
       }
       plan={count:count,items:items};
     }
-    return{
+    const merged={
       caffeine:src.caffeine||fallback.caffeine,
       trade:src.trade||fallback.trade,
       brushMorning:src.brushMorning||fallback.brushMorning,
@@ -6473,7 +7069,29 @@ function normalizeDailySchedules(raw){
       shakes:plan,
       enabled:_mergeAnchorEnabled(src.enabled,isOff),
     };
+    merged.morningOffsets=_mergeMorningOffsets(src.morningOffsets,fallback.morningOffsets,merged,fallback._wakeAnchor,isOff);
+    return merged;
   };
+  function _mergeMorningOffsets(srcOff,fbOff,times,wakeAnchor,isOff){
+    const defaults=isOff
+      ?{brushMorning:0,supps:5,journalMorning:75,deepJournal:85}
+      :{brushMorning:0,supps:5,journalMorning:50,deepJournal:60,trade:65};
+    const keys=isOff
+      ?['brushMorning','supps','journalMorning','deepJournal']
+      :['brushMorning','supps','journalMorning','deepJournal','trade'];
+    const out={};
+    keys.forEach(k=>{
+      let v=srcOff&&srcOff[k]!=null?Number(srcOff[k]):NaN;
+      if(!Number.isFinite(v)&&fbOff&&fbOff[k]!=null)v=Number(fbOff[k]);
+      if(!Number.isFinite(v)&&wakeAnchor&&times[k]){
+        const am=parseTimeToMins(wakeAnchor),bm=parseTimeToMins(times[k]);
+        if(am!=null&&bm!=null){let d=bm-am;if(d<0)d+=1440;if(d>=0&&d<=720)v=d;}
+      }
+      if(!Number.isFinite(v))v=defaults[k]!=null?defaults[k]:0;
+      out[k]=Math.max(0,Math.min(720,v));
+    });
+    return out;
+  }
   function _migrateGymProfile(src,fallback){
     const workout=src.workout||fallback.workout;
     const wm=parseTimeToMins(workout);
@@ -6495,18 +7113,39 @@ function normalizeDailySchedules(raw){
       saunaMin:src.saunaMin!=null?Math.max(0,Math.min(120,Number(src.saunaMin)||15)):(fallback.saunaMin||15),
     };
   }
+  function _migrateWorkNights(src,fallback){
+    const shiftStart=src.shiftStart||fallback.shiftStart||'9:00 PM';
+    const shiftEnd=src.shiftEnd||fallback.shiftEnd||'5:30 AM';
+    let driveMin=src.driveMin!=null?Number(src.driveMin):null;
+    if(driveMin==null||!Number.isFinite(driveMin)){
+      driveMin=_inferDriveMinFromPair(shiftStart,src.driveToWork||fallback.driveToWork,null);
+      if(driveMin==null)driveMin=_inferDriveMinFromPair(shiftEnd,src.driveHome||fallback.driveHome,null);
+      if(driveMin==null)driveMin=fallback.driveMin||30;
+    }
+    driveMin=Math.max(5,Math.min(120,driveMin));
+    const tl=computeWorkTimeline({
+      shiftStart:shiftStart,
+      shiftEnd:shiftEnd,
+      driveMin:driveMin,
+      driveToWork:src.driveToWork||fallback.driveToWork,
+      driveHome:src.driveHome||fallback.driveHome,
+    });
+    return{
+      shiftStart:shiftStart,
+      shiftEnd:shiftEnd,
+      driveMin:(tl&&tl.driveMin)||driveMin,
+      driveToWork:(tl&&tl.driveToWork)||src.driveToWork||fallback.driveToWork,
+      driveHome:(tl&&tl.driveHome)||src.driveHome||fallback.driveHome,
+    };
+  }
   const wdProf=_migrateGymProfile(gw,seed.gym.weekday);
   const weProf=_migrateGymProfile(ge,seed.gym.weekend);
+  const workNightsNorm=_migrateWorkNights(wn,seed.work.workNights);
   return{
     cascadeNeighbors:raw.cascadeNeighbors!==false,
     work:{
       workNightDays:uniqDays(w.workNightDays).length?uniqDays(w.workNightDays):seed.work.workNightDays,
-      workNights:{
-        driveToWork:wn.driveToWork||seed.work.workNights.driveToWork,
-        shiftStart:wn.shiftStart||seed.work.workNights.shiftStart,
-        driveHome:wn.driveHome||seed.work.workNights.driveHome,
-        shiftEnd:wn.shiftEnd||seed.work.workNights.shiftEnd,
-      },
+      workNights:workNightsNorm,
     },
     sleep:{
       afterWorkDays:uniqDays(s.afterWorkDays).length?uniqDays(s.afterWorkDays):seed.sleep.afterWorkDays,
@@ -6536,9 +7175,12 @@ function _upsertSingletonBlock(blocks,type,opts){
   const t=opts.t;
   const tEnd=opts.tEnd;
   const label=opts.l;
-  let b=blocks.find(x=>x&&x.type===type);
+  const matches=blocks.filter(x=>x&&x.type===type);
+  let b=matches[0]||null;
+  // Hide duplicate singleton leftovers so only one can surface
+  for(let i=1;i<matches.length;i++)matches[i].hidden=true;
   if(!show){
-    if(b)b.hidden=true;
+    matches.forEach(x=>{x.hidden=true;});
     return;
   }
   if(b){
@@ -6556,20 +7198,34 @@ function _upsertSingletonBlock(blocks,type,opts){
 }
 function syncWorkScheduleToSchedule(){
   if(!dailySchedules||!dailySchedules.work)return;
-  const nights=new Set(dailySchedules.work.workNightDays||[]);
-  const times=dailySchedules.work.workNights||{};
-  const morningSet=new Set([...nights].map(_nextDayKey));
+  const jobOn=_isJobEnabled();
+  const nights=new Set(jobOn?(dailySchedules.work.workNightDays||[]):[]);
+  const times=dailySchedules.work.workNights||(dailySchedules.work.workNights={});
+  const tl=_writeWorkDerivedTimes(computeWorkTimeline(times))||computeWorkTimeline(times);
+  const overnight=tl?!!tl.crossesMidnight:_shiftCrossesMidnight(times.shiftStart,times.shiftEnd);
+  const endDays=new Set();
+  nights.forEach(dk=>{
+    if(overnight)endDays.add(_nextDayKey(dk));
+    else endDays.add(dk);
+  });
+  const driveMin=(tl&&tl.driveMin)||times.driveMin||30;
+  const driveToLbl='Drive to work · '+driveMin+' min';
+  const driveHomeLbl='Drive home from work · '+driveMin+' min';
+  const driveToT=(tl&&tl.driveToWork)||times.driveToWork||'8:30 PM';
+  const driveHomeT=(tl&&tl.driveHome)||times.driveHome||'5:00 AM';
+  const shiftStartT=(tl&&tl.shiftStart)||times.shiftStart||'9:00 PM';
+  const shiftEndT=(tl&&tl.shiftEnd)||times.shiftEnd||'5:30 AM';
   DAYS.forEach(dk=>{
     if(!schedule[dk])schedule[dk]={blocks:[]};
     if(!schedule[dk].blocks)schedule[dk].blocks=[];
     const blocks=schedule[dk].blocks;
-    const isNight=nights.has(dk);
-    const needsMorning=morningSet.has(dk);
-    schedule[dk].work=isNight;
-    _upsertSingletonBlock(blocks,'drivework',{show:isNight,t:times.driveToWork,l:'Drive to work · 30 min'});
-    _upsertSingletonBlock(blocks,'work',{show:isNight,t:times.shiftStart,l:'Shift start'});
-    _upsertSingletonBlock(blocks,'drivehome',{show:needsMorning,t:times.driveHome,l:'Drive home from work · 30 min'});
-    _upsertSingletonBlock(blocks,'workend',{show:needsMorning,t:times.shiftEnd,l:'Shift ends · Home'});
+    const showStart=nights.has(dk);
+    const showEnd=endDays.has(dk);
+    schedule[dk].work=showStart;
+    _upsertSingletonBlock(blocks,'drivework',{show:showStart,t:driveToT,l:driveToLbl});
+    _upsertSingletonBlock(blocks,'work',{show:showStart,t:shiftStartT,l:'Shift start'});
+    _upsertSingletonBlock(blocks,'drivehome',{show:showEnd,t:driveHomeT,l:driveHomeLbl});
+    _upsertSingletonBlock(blocks,'workend',{show:showEnd,t:shiftEndT,l:'Shift ends · Home'});
   });
 }
 function syncSleepScheduleToSchedule(){
@@ -7060,8 +7716,7 @@ function syncGymShakeTimesToSchedule(){
 }
 // ── Profile-first cascade (explicit links, one code path) ─────────────────────
 const CASCADE_LINKS={
-  'work.workNights.shiftEnd':['anchors.afterWork.supps','anchors.afterWork.brushMorning','anchors.afterWork.journalMorning','anchors.afterWork.deepJournal','anchors.afterWork.trade'],
-  'work.workNights.driveHome':['anchors.afterWork.supps','anchors.afterWork.brushMorning','anchors.afterWork.journalMorning','anchors.afterWork.deepJournal','anchors.afterWork.trade'],
+  // Morning habits follow day-start via morningOffsets (not delta links).
   'work.workNights.driveToWork':['anchors.afterWork.brushEvening','anchors.afterWork.journalEvening','anchors.off.brushEvening','anchors.off.journalEvening'],
   'work.workNights.shiftStart':['anchors.afterWork.brushEvening','anchors.afterWork.journalEvening','anchors.off.brushEvening','anchors.off.journalEvening'],
 };
@@ -7071,6 +7726,11 @@ const CASCADE_FIELD_LABELS={
   'anchors.afterWork.journalMorning':'Check-in AM','anchors.afterWork.journalEvening':'Check-in PM',
   'anchors.afterWork.deepJournal':'Journal','anchors.afterWork.trade':'Trading',
   'anchors.off.brushEvening':'Brush PM','anchors.off.journalEvening':'Check-in PM',
+};
+const MORNING_ANCHOR_KEYS=['brushMorning','supps','journalMorning','deepJournal','trade'];
+const DAY_START_CASCADE_PATHS={
+  'work.workNights.shiftEnd':'afterWork',
+  'sleep.off.wake':'off',
 };
 function _getProfileByPath(path){
   if(!dailySchedules||!path)return undefined;
@@ -7117,6 +7777,7 @@ function applyCascadeToProfiles(anchorPath,oldVal,newVal){
 // ── Sleep wake cascade: keep post-wake blocks after new wake ─────────────────
 const SLEEP_WAKE_PROTECTED_TYPES=new Set(['sleep','wake','drivework','work','drivehome','workend']);
 const SLEEP_WAKE_EVENING_ANCHOR_KEYS=['brushEvening','journalEvening','winddown','walk'];
+const DAY_START_CLAMP_TYPES=new Set(['journal','deepjournal','brush','supps','shake','meal','walk','winddown','trade','training','travel','travelback']);
 function _normalizeDeltaMin(delta){
   if(delta<-720)delta+=1440;
   if(delta>720)delta-=1440;
@@ -7158,47 +7819,271 @@ function _packBlocksAfterWake(items,wakeMins,gapAfterWake){
   });
   return moved;
 }
+function _getProfileDayStart(isOff){
+  if(!dailySchedules)return null;
+  if(isOff){
+    const of=(dailySchedules.sleep&&dailySchedules.sleep.off)||{};
+    if(of.t&&of.tEnd)return of.tEnd;
+    return of.wake||null;
+  }
+  return (dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.shiftEnd)||null;
+}
+function _timeFromDayStartOffset(dayStartT,offsetMin){
+  const wm=parseTimeToMins(dayStartT);
+  if(wm==null||offsetMin==null||!Number.isFinite(Number(offsetMin)))return null;
+  return minsToTime(wm+Number(offsetMin));
+}
+function _ensureMorningOffsets(profile,isOff){
+  if(!profile)return null;
+  if(profile.morningOffsets&&typeof profile.morningOffsets==='object')return profile.morningOffsets;
+  const defaults=isOff
+    ?{brushMorning:0,supps:5,journalMorning:75,deepJournal:85}
+    :{brushMorning:0,supps:5,journalMorning:50,deepJournal:60,trade:65};
+  const keys=isOff
+    ?['brushMorning','supps','journalMorning','deepJournal']
+    :['brushMorning','supps','journalMorning','deepJournal','trade'];
+  const dayStart=_getProfileDayStart(isOff);
+  const offsets={};
+  keys.forEach(k=>{
+    let v=defaults[k]!=null?defaults[k]:0;
+    if(dayStart&&profile[k]){
+      const am=parseTimeToMins(dayStart),bm=parseTimeToMins(profile[k]);
+      if(am!=null&&bm!=null){let d=bm-am;if(d<0)d+=1440;if(d>=0&&d<=720)v=d;}
+    }
+    offsets[k]=Math.max(0,Math.min(720,v));
+  });
+  profile.morningOffsets=offsets;
+  return offsets;
+}
+function _recomputeMorningAnchorsFromOffsets(profileKey){
+  if(!dailySchedules||!dailySchedules.anchors)return;
+  const keys=profileKey?[profileKey]:['afterWork','off'];
+  keys.forEach(pk=>{
+    const isOff=pk==='off';
+    const profile=dailySchedules.anchors[pk];
+    if(!profile)return;
+    const offsets=_ensureMorningOffsets(profile,isOff);
+    const dayStart=_getProfileDayStart(isOff);
+    if(!dayStart||!offsets)return;
+    Object.keys(offsets).forEach(k=>{
+      if(k==='trade'&&isOff)return;
+      const t=_timeFromDayStartOffset(dayStart,offsets[k]);
+      if(t)profile[k]=t;
+    });
+  });
+}
+function _updateMorningOffsetFromAbsolute(path){
+  if(!dailySchedules||!path)return;
+  const m=String(path).match(/^anchors\.(afterWork|off)\.(\w+)$/);
+  if(!m)return;
+  const profileKey=m[1],key=m[2];
+  if(MORNING_ANCHOR_KEYS.indexOf(key)<0)return;
+  const isOff=profileKey==='off';
+  const profile=dailySchedules.anchors[profileKey];
+  if(!profile)return;
+  const offsets=_ensureMorningOffsets(profile,isOff);
+  const dayStart=_getProfileDayStart(isOff);
+  if(!dayStart||!profile[key])return;
+  const am=parseTimeToMins(dayStart),bm=parseTimeToMins(profile[key]);
+  if(am==null||bm==null)return;
+  let d=bm-am;if(d<0)d+=1440;
+  offsets[key]=Math.max(0,Math.min(720,d));
+}
+function _shiftPostDayStartCluster(dayKeys,anchorPrefix,anchorProfile,oldWakeM,wakeDelta,movedLabels,opts){
+  if(!wakeDelta||oldWakeM==null)return;
+  opts=opts||{};
+  const skipMorningTypes=!!opts.skipMorningHabitTypes;
+  const gymPaths=new Set();
+  dayKeys.forEach(dk=>{
+    if(!dailySchedules.gym)return;
+    if((dailySchedules.gym.weekdayDays||[]).includes(dk))gymPaths.add('gym.weekday.workout');
+    if((dailySchedules.gym.weekendDays||[]).includes(dk))gymPaths.add('gym.weekend.workout');
+  });
+  gymPaths.forEach(p=>{
+    const m=parseTimeToMins(_getProfileByPath(p));
+    if(m!=null&&m>=oldWakeM&&_shiftProfileTime(p,wakeDelta))movedLabels.push('Workout');
+  });
+  SLEEP_WAKE_EVENING_ANCHOR_KEYS.forEach(key=>{
+    if(!anchorProfile)return;
+    const m=parseTimeToMins(anchorProfile[key]);
+    if(m!=null&&m>=oldWakeM&&_shiftProfileTime(anchorPrefix+'.'+key,wakeDelta)){
+      movedLabels.push(key==='brushEvening'?'Brush PM':key==='journalEvening'?'Check-in PM':key);
+    }
+  });
+  if(typeof mealPlan!=='undefined'&&mealPlan&&Array.isArray(mealPlan.slots)){
+    mealPlan.slots.forEach(slot=>{
+      const m=parseTimeToMins(slot.t);
+      if(m==null||m<oldWakeM)return;
+      slot.t=minsToTime(m+wakeDelta);
+      movedLabels.push(slot.name||slot.id||'Meal');
+    });
+  }
+  dayKeys.forEach(dk=>{
+    const blocks=schedule[dk]&&schedule[dk].blocks;
+    if(!blocks)return;
+    blocks.forEach(b=>{
+      if(!b||b.hidden||SLEEP_WAKE_PROTECTED_TYPES.has(b.type))return;
+      if(skipMorningTypes&&(b.type==='brush'||b.type==='supps'||b.type==='journal'||b.type==='deepjournal'||b.type==='trade')){
+        const m=parseTimeToMins(b.t);
+        if(m!=null&&m<oldWakeM+180)return;
+      }
+      const m=parseTimeToMins(b.t);
+      if(m==null||m<oldWakeM)return;
+      _shiftBlockTimeBy(b,wakeDelta);
+    });
+  });
+}
+function applyDayStartCascade(path,oldVal,newVal){
+  if(!dailySchedules)return[];
+  if(dailySchedules.cascadeNeighbors===false)return[];
+  const profileKind=DAY_START_CASCADE_PATHS[path];
+  if(!profileKind)return[];
+  const oldWakeM=parseTimeToMins(oldVal);
+  const newWakeM=parseTimeToMins(newVal);
+  if(oldWakeM==null||newWakeM==null||oldWakeM===newWakeM)return[];
+  const wakeDelta=_normalizeDeltaMin(newWakeM-oldWakeM);
+  if(!wakeDelta)return[];
+  const movedLabels=[];
+  let dayKeys,anchorPrefix,anchorProfile,profileKey;
+  if(profileKind==='afterWork'){
+    dayKeys=((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]).slice();
+    anchorPrefix='anchors.afterWork';
+    anchorProfile=dailySchedules.anchors&&dailySchedules.anchors.afterWork;
+    profileKey='afterWork';
+  }else{
+    dayKeys=((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]).slice();
+    anchorPrefix='anchors.off';
+    anchorProfile=dailySchedules.anchors&&dailySchedules.anchors.off;
+    profileKey='off';
+  }
+  _shiftPostDayStartCluster(dayKeys,anchorPrefix,anchorProfile,oldWakeM,wakeDelta,movedLabels,{skipMorningHabitTypes:true});
+  _recomputeMorningAnchorsFromOffsets(profileKey);
+  movedLabels.push('Morning habits');
+  window._lastCascadeSummary='Also moved post–day-start blocks '+(wakeDelta>0?'+':'')+wakeDelta+' min';
+  return movedLabels;
+}
+function applyWorkoutCascade(path,oldVal,newVal){
+  if(!dailySchedules||!dailySchedules.gym)return[];
+  if(dailySchedules.cascadeNeighbors===false)return[];
+  if(path!=='gym.weekday.workout'&&path!=='gym.weekend.workout')return[];
+  const oldM=parseTimeToMins(oldVal),newM=parseTimeToMins(newVal);
+  if(oldM==null||newM==null||oldM===newM)return[];
+  const delta=_normalizeDeltaMin(newM-oldM);
+  if(!delta)return[];
+  const isWd=path.indexOf('weekday')>=0;
+  const dayKeys=isWd
+    ?(dailySchedules.gym.weekdayDays||[]).slice()
+    :(dailySchedules.gym.weekendDays||[]).slice();
+  if(!dayKeys.length)return[];
+  // Approximate old home time from old workout + durations for post-home threshold.
+  const gymProf=isWd?dailySchedules.gym.weekday:dailySchedules.gym.weekend;
+  const driveMin=Math.max(5,Math.min(120,Number(gymProf&&gymProf.driveMin)||30));
+  const durationMin=Math.max(15,Math.min(180,Number(gymProf&&gymProf.durationMin)||45));
+  const cardioMin=Math.max(0,Math.min(120,Number(gymProf&&gymProf.cardioMin)||20));
+  const saunaMin=Math.max(0,Math.min(120,Number(gymProf&&gymProf.saunaMin)||15));
+  const oldHomeM=oldM+durationMin+cardioMin+saunaMin+driveMin;
+  const movedLabels=[];
+  const protectedTypes=new Set(['sleep','wake','drivework','work','drivehome','workend','travel','training','travelback']);
+  if(typeof mealPlan!=='undefined'&&mealPlan&&Array.isArray(mealPlan.slots)){
+    mealPlan.slots.forEach(slot=>{
+      const m=parseTimeToMins(slot.t);
+      if(m==null)return;
+      // Shift meals at/after old workout (typically post-gym meals)
+      if(m<oldM)return;
+      slot.t=minsToTime(m+delta);
+      movedLabels.push(slot.name||slot.id||'Meal');
+    });
+  }
+  dayKeys.forEach(dk=>{
+    const blocks=schedule[dk]&&schedule[dk].blocks;
+    if(!blocks)return;
+    const wakeT=_getWakeAnchorForDay(dk);
+    const wm=parseTimeToMins(wakeT);
+    blocks.forEach(b=>{
+      if(!b||b.hidden||protectedTypes.has(b.type))return;
+      if(b.type==='brush'||b.type==='supps'||b.type==='journal'||b.type==='deepjournal'||b.type==='trade'||b.type==='caffeine')return;
+      const m=parseTimeToMins(b.t);
+      if(m==null||m<oldM)return;
+      // Keep pre-gym morning evening? Only shift at/after old workout.
+      if(wm!=null&&m<wm)return;
+      _shiftBlockTimeBy(b,delta);
+    });
+  });
+  // Evening anchors after old home
+  const anchorKeys=['brushEvening','journalEvening','winddown','walk'];
+  dayKeys.forEach(dk=>{
+    const after=new Set((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]);
+    const off=new Set((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]);
+    const prefix=after.has(dk)?'anchors.afterWork':off.has(dk)?'anchors.off':null;
+    if(!prefix)return;
+    const profile=after.has(dk)?dailySchedules.anchors.afterWork:dailySchedules.anchors.off;
+    if(!profile)return;
+    anchorKeys.forEach(key=>{
+      const m=parseTimeToMins(profile[key]);
+      if(m==null||m<oldHomeM)return;
+      if(_shiftProfileTime(prefix+'.'+key,delta))movedLabels.push(key);
+    });
+  });
+  if(movedLabels.length||delta){
+    window._lastCascadeSummary='Also moved post-workout blocks '+(delta>0?'+':'')+delta+' min';
+  }
+  return movedLabels;
+}
+function _clampBlocksAfterDayStart(){
+  if(!dailySchedules||typeof DAYS==='undefined')return;
+  DAYS.forEach(dk=>{
+    const wakeT=_getWakeAnchorForDay(dk);
+    const wakeM=parseTimeToMins(wakeT);
+    if(wakeM==null)return;
+    const blocks=schedule[dk]&&schedule[dk].blocks;
+    if(!blocks)return;
+    const inBefore=[];
+    blocks.forEach(b=>{
+      if(!b||b.hidden||!b.t)return;
+      if(!DAY_START_CLAMP_TYPES.has(b.type))return;
+      const m=parseTimeToMins(b.t);
+      if(m==null)return;
+      // Before day-start on the clock (same calendar morning). Overnight caffeine exempt via type.
+      if(m<wakeM)inBefore.push({b:b,m:m});
+    });
+    if(!inBefore.length)return;
+    inBefore.sort((a,c)=>a.m-c.m||0);
+    _packBlocksAfterWake(inBefore,wakeM,0);
+    // Mirror meal times back to mealPlan
+    inBefore.forEach(item=>{
+      if(item.b.type==='meal'&&item.b.ms&&typeof mealPlan!=='undefined'&&mealPlan&&mealPlan.slots){
+        const slot=mealPlan.slots.find(s=>s&&s.id===item.b.ms);
+        if(slot)slot.t=item.b.t;
+      }
+    });
+  });
+}
 function applySleepWakeCascade(path,oldVal,newVal){
   if(!dailySchedules||!dailySchedules.sleep)return[];
+  // Day-start wake/shift-end handled by applyDayStartCascade
+  if(DAY_START_CASCADE_PATHS[path])return[];
   const sleepPaths={
     'sleep.afterWork.t':'afterWork',
     'sleep.afterWork.tEnd':'afterWork',
-    'sleep.off.wake':'off',
   };
   const profileKind=sleepPaths[path];
   if(!profileKind)return[];
 
   const sleep=dailySchedules.sleep;
   const aw=sleep.afterWork||{};
-  const of=sleep.off||{};
   let dayKeys,anchorPrefix,anchorProfile;
   let sleepStartStr,wakeStr,oldWakeStr,wakeChanged=false;
 
-  if(profileKind==='afterWork'){
-    dayKeys=(sleep.afterWorkDays||[]).slice();
-    anchorPrefix='anchors.afterWork';
-    anchorProfile=dailySchedules.anchors&&dailySchedules.anchors.afterWork;
-    sleepStartStr=aw.t;
-    wakeStr=aw.tEnd;
-    if(path==='sleep.afterWork.tEnd'){
-      oldWakeStr=oldVal;
-      wakeChanged=true;
-    }else{
-      oldWakeStr=wakeStr;
-    }
+  dayKeys=(sleep.afterWorkDays||[]).slice();
+  anchorPrefix='anchors.afterWork';
+  anchorProfile=dailySchedules.anchors&&dailySchedules.anchors.afterWork;
+  sleepStartStr=aw.t;
+  wakeStr=aw.tEnd;
+  if(path==='sleep.afterWork.tEnd'){
+    oldWakeStr=oldVal;
+    wakeChanged=true;
   }else{
-    dayKeys=(sleep.offDays||[]).slice();
-    anchorPrefix='anchors.off';
-    anchorProfile=dailySchedules.anchors&&dailySchedules.anchors.off;
-    sleepStartStr=(of.t&&of.tEnd)?of.t:null;
-    wakeStr=(of.t&&of.tEnd)?of.tEnd:(of.wake||newVal);
-    if(path==='sleep.off.wake'){
-      oldWakeStr=oldVal;
-      wakeChanged=true;
-      wakeStr=newVal;
-    }else{
-      oldWakeStr=wakeStr;
-    }
+    oldWakeStr=wakeStr;
   }
 
   const oldWakeM=parseTimeToMins(oldWakeStr);
@@ -7207,59 +8092,17 @@ function applySleepWakeCascade(path,oldVal,newVal){
   const movedLabels=[];
   let wakeDelta=0;
 
-  // 1) Wake delta: shift post-wake cluster (t >= old wake)
+  // 1) Nap-wake delta: shift post-nap cluster only (not morning / day-start habits)
   if(wakeChanged&&oldWakeM!=null&&newWakeM!=null&&oldWakeM!==newWakeM){
     wakeDelta=_normalizeDeltaMin(newWakeM-oldWakeM);
     if(wakeDelta){
-      const gymPaths=new Set();
-      dayKeys.forEach(dk=>{
-        if(!dailySchedules.gym)return;
-        if((dailySchedules.gym.weekdayDays||[]).includes(dk))gymPaths.add('gym.weekday.workout');
-        if((dailySchedules.gym.weekendDays||[]).includes(dk))gymPaths.add('gym.weekend.workout');
-      });
-      gymPaths.forEach(p=>{
-        const m=parseTimeToMins(_getProfileByPath(p));
-        if(m!=null&&m>=oldWakeM&&_shiftProfileTime(p,wakeDelta))movedLabels.push('Workout');
-      });
-      SLEEP_WAKE_EVENING_ANCHOR_KEYS.forEach(key=>{
-        if(!anchorProfile)return;
-        const m=parseTimeToMins(anchorProfile[key]);
-        if(m!=null&&m>=oldWakeM&&_shiftProfileTime(anchorPrefix+'.'+key,wakeDelta)){
-          movedLabels.push(key==='brushEvening'?'Brush PM':key==='journalEvening'?'Check-in PM':key);
-        }
-      });
-      if(typeof mealPlan!=='undefined'&&mealPlan&&Array.isArray(mealPlan.slots)){
-        mealPlan.slots.forEach(slot=>{
-          const m=parseTimeToMins(slot.t);
-          if(m==null||m<oldWakeM)return;
-          slot.t=minsToTime(m+wakeDelta);
-          movedLabels.push(slot.name||slot.id||'Meal');
-        });
-      }
-      dayKeys.forEach(dk=>{
-        const blocks=schedule[dk]&&schedule[dk].blocks;
-        if(!blocks)return;
-        blocks.forEach(b=>{
-          if(!b||b.hidden||SLEEP_WAKE_PROTECTED_TYPES.has(b.type))return;
-          const m=parseTimeToMins(b.t);
-          if(m==null||m<oldWakeM)return;
-          _shiftBlockTimeBy(b,wakeDelta);
-        });
-      });
+      _shiftPostDayStartCluster(dayKeys,anchorPrefix,anchorProfile,oldWakeM,wakeDelta,movedLabels);
     }
   }
 
   // 2) Sleep-window cleanup: pack anything still inside [sleepStart, wake) after wake
   let cleanupStartM=sleepStartM;
   let cleanupWakeM=newWakeM;
-  if(profileKind==='off'){
-    if(of.t&&of.tEnd){
-      cleanupStartM=parseTimeToMins(of.t);
-      cleanupWakeM=parseTimeToMins(of.tEnd);
-    }else{
-      cleanupStartM=null;
-    }
-  }
   if(cleanupStartM!=null&&cleanupWakeM!=null){
     dayKeys.forEach(dk=>{
       const blocks=schedule[dk]&&schedule[dk].blocks;
@@ -7354,7 +8197,7 @@ function applySleepWakeCascade(path,oldVal,newVal){
   if(wakeDelta||movedLabels.length){
     const deltaPart=wakeDelta?((wakeDelta>0?'+':'')+wakeDelta+' min'):'';
     window._lastCascadeSummary=deltaPart
-      ?('Also moved post-wake blocks '+deltaPart)
+      ?('Also moved post-sleep blocks '+deltaPart)
       :('Also moved: '+[...new Set(movedLabels)].join(', ')+' after wake');
   }
   return movedLabels;
@@ -7433,9 +8276,13 @@ function _getWakeAnchorForDay(dk){
     return (dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.shiftEnd)||null;
   }
   if(off.has(dk)){
-    return (dailySchedules.sleep&&dailySchedules.sleep.off&&dailySchedules.sleep.off.wake)||null;
+    const of=(dailySchedules.sleep&&dailySchedules.sleep.off)||{};
+    if(of.t&&of.tEnd)return of.tEnd;
+    return of.wake||null;
   }
-  return (dailySchedules.sleep&&dailySchedules.sleep.off&&dailySchedules.sleep.off.wake)
+  const ofFallback=(dailySchedules.sleep&&dailySchedules.sleep.off)||{};
+  if(ofFallback.t&&ofFallback.tEnd)return ofFallback.tEnd;
+  return ofFallback.wake
     ||(dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.shiftEnd)
     ||null;
 }
@@ -7515,6 +8362,7 @@ function _syncShakePlanToDay(dk,blocks,profile){
 }
 function syncAnchorsScheduleToSchedule(){
   if(!dailySchedules||!dailySchedules.anchors)return;
+  _recomputeMorningAnchorsFromOffsets();
   const after=new Set((dailySchedules.sleep&&dailySchedules.sleep.afterWorkDays)||[]);
   const off=new Set((dailySchedules.sleep&&dailySchedules.sleep.offDays)||[]);
   const aw=dailySchedules.anchors.afterWork||{};
@@ -7609,11 +8457,12 @@ function applyDailyScheduleChanges(opts){
     syncGymScheduleToSchedule();
     syncAnchorsScheduleToSchedule();
     syncGymShakeTimesToSchedule();
+    _clampBlocksAfterDayStart();
     saveState();
     showToast('Schedule updated',{onUndo:function(){window.undoDailyScheduleChange();}});
     if(window._lastCascadeSummary){
       const s=window._lastCascadeSummary;
-      setTimeout(function(){if(window._lastCascadeSummary===s)window._lastCascadeSummary='';},10000);
+      setTimeout(function(){if(window._lastCascadeSummary===s)window._lastCascadeSummary='';},3500);
     }
     renderApp();
   },150);
@@ -7627,18 +8476,22 @@ function syncDailySchedulesToSchedule(){
 }
 let dailySchedules=normalizeDailySchedules(saved&&saved.dailySchedules);
 let gymDayAdjust=saved?.gymDayAdjust||{};
-// Keep recurring gym blocks aligned with duration-based dailySchedules model.
+// Keep recurring work/gym blocks aligned with duration-based dailySchedules model.
 // Persist after the rest of the script finishes init — saveState touches
 // caches (e.g. _dsCache) that are declared later in this file.
 (function(){
+  if(typeof syncWorkScheduleToSchedule==='function')syncWorkScheduleToSchedule();
   if(typeof syncGymScheduleToSchedule==='function')syncGymScheduleToSchedule();
   if(typeof syncGymShakeTimesToSchedule==='function')syncGymShakeTimesToSchedule();
   setTimeout(function(){if(typeof saveState==='function')saveState();},0);
 })();
-// One-time: ensure drivehome exists on mornings that already have shift end
+// One-time: ensure drivehome exists on days that already have shift end (job on only)
 (function migrateDrivehomeBlocks(){
-  if(!schedule)return;
+  if(!schedule||!_isJobEnabled())return;
   let added=false;
+  const wn=dailySchedules&&dailySchedules.work&&dailySchedules.work.workNights;
+  const tl=wn?computeWorkTimeline(wn):null;
+  const driveMin=(tl&&tl.driveMin)||(wn&&wn.driveMin)||30;
   DAYS.forEach(dk=>{
     const blocks=schedule[dk]&&schedule[dk].blocks;
     if(!blocks)return;
@@ -7646,16 +8499,12 @@ let gymDayAdjust=saved?.gymDayAdjust||{};
     if(!we)return;
     if(blocks.some(b=>b&&b.type==='drivehome'))return;
     const m=parseTimeToMins(we.t);
-    const t=m!=null?minsToTime(m-30):(dailySchedules.work&&dailySchedules.work.workNights&&dailySchedules.work.workNights.driveHome)||'5:00 AM';
+    const t=m!=null?minsToTime(m-driveMin):(tl&&tl.driveHome)||(wn&&wn.driveHome)||'5:00 AM';
     // Push — never splice — so index-based checked/skipped keys stay stable.
-    blocks.push({t:t,l:'Drive home from work · 30 min',type:'drivehome'});
+    blocks.push({t:t,l:'Drive home from work · '+driveMin+' min',type:'drivehome'});
     added=true;
   });
-  if(added){
-    window._orphanNewBlocksNeedPersist=true;
-    try{flushState();}catch(e){}
-    window._orphanNewBlocksNeedPersist=false;
-  }
+  if(added&&typeof syncWorkScheduleToSchedule==='function')syncWorkScheduleToSchedule();
 })();
 
 // Backfills any protein drinks added before the food-database sync existed
@@ -7699,12 +8548,42 @@ let gymDayAdjust=saved?.gymDayAdjust||{};
     mpFoods.push({id:linkedId,name:s.name,serving:'1 serving',P:0,C:0,F:0,kcal:0,category:'pill',defaultSv:1,step:1});
   });
 })();
+if(ensureFoodCategories()){
+  try{localStorage.setItem('mp_foods',JSON.stringify(mpFoods));}catch(e){}
+}
 const MP_PRESETS_DEFAULT=asList(PD.mealPresets,[
   {name:'Post-gym Shake', items:[{id:'protein',sv:1},{id:'dextrose',sv:2}]},
   {name:'Chicken + Rice', items:[{id:'chicken',sv:6},{id:'rice',sv:1}]},
   {name:'Oats Bowl',      items:[{id:'oats',sv:1},{id:'protein',sv:1}]},
 ]);
 let mpPresets=safeParseLS('mp_presets',MP_PRESETS_DEFAULT);
+(function reconcileMpPresetsWithProfile(){
+  const profilePresets=Array.isArray(PD.mealPresets)?PD.mealPresets:[];
+  if(!profilePresets.length)return;
+  const PLACEHOLDER_PRESET_NAMES=new Set(['Chicken + Rice','Oats Bowl','Post-gym Shake']);
+  const profileNames=new Set(profilePresets.map(p=>p&&p.name).filter(Boolean));
+  if(!mpPresets||!Array.isArray(mpPresets))mpPresets=[];
+  let changed=false;
+  const kept=mpPresets.filter(p=>{
+    if(!p||!p.name)return false;
+    if(PLACEHOLDER_PRESET_NAMES.has(p.name)&&!profileNames.has(p.name)){changed=true;return false;}
+    return true;
+  });
+  profilePresets.forEach(pp=>{
+    if(!pp||!pp.name)return;
+    const idx=kept.findIndex(p=>p&&p.name===pp.name);
+    if(idx<0){kept.push(JSON.parse(JSON.stringify(pp)));changed=true;}
+    else{
+      const cur=JSON.stringify(kept[idx].items||[]);
+      const next=JSON.stringify(pp.items||[]);
+      if(cur!==next){kept[idx]=JSON.parse(JSON.stringify(pp));changed=true;}
+    }
+  });
+  if(changed){
+    mpPresets=kept;
+    try{localStorage.setItem('mp_presets',JSON.stringify(mpPresets));}catch(e){}
+  }
+})();
 function mpSave(){
   localStorage.setItem('mp_foods',JSON.stringify(mpFoods));
   localStorage.setItem('mp_presets',JSON.stringify(mpPresets));
@@ -7882,7 +8761,7 @@ function getMacroContrib(b,dk,idx){
       // Recalculate from actual food DB values with custom servings
       let P=0,C=0,F=0,kcal=0;
       m.items.forEach(item=>{
-        const food=MP_FOODS_DEFAULT.find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
+        const food=getActiveFoods().find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
         const servings=overrides[item.n]!==undefined?overrides[item.n]:(item.defaultSv||1);
         if(food){P+=food.P*servings;C+=food.C*servings;F+=food.F*servings;kcal+=food.kcal*servings;}
       });
@@ -8517,7 +9396,6 @@ window.jumpHabitGridToday=function(){window._habitGridAnchor=DATE_INPUT_FMT(new 
 window.showHabitGridSkipReason=function(key){
   const reason=skipReasons[key];
   if(!reason)return;
-  showToast('Skipped: '+findSkipReasonLabel(reason));
 };
 // Returns the list of date strings for week/multiweek/month views — year
 // is handled separately since it aggregates to monthly buckets instead.
@@ -9521,15 +10399,14 @@ function _blockDraftSnapshot(){
     ms:modal.draftMs||null,
     scoops:modal.draftScoops!=null?modal.draftScoops:null,
     subOn:!!modal.draftSubOn,
-    subType:modal.draftSubType||null,
-    subScoops:modal.draftSubScoops!=null?modal.draftSubScoops:null,
+    subs:_subsSnapshotKey(modal.draftSubs),
   };
 }
 function _blockDraftDirty(){
   if(!modal||modal.type!=='block'||!modal.baseline)return false;
   const now=_blockDraftSnapshot();
   const b=modal.baseline;
-  return now.type!==b.type||now.t!==b.t||now.l!==b.l||now.tEnd!==b.tEnd||now.showLabel!==b.showLabel||now.cardio!==b.cardio||now.ms!==b.ms||now.scoops!==b.scoops||now.subOn!==b.subOn||now.subType!==b.subType||now.subScoops!==b.subScoops;
+  return now.type!==b.type||now.t!==b.t||now.l!==b.l||now.tEnd!==b.tEnd||now.showLabel!==b.showLabel||now.cardio!==b.cardio||now.ms!==b.ms||now.scoops!==b.scoops||now.subOn!==b.subOn||now.subs!==b.subs;
 }
 function _applyDraftFieldsToBlock(b,{assignMealSlot}={}){
   const t=(modal.draftT||'').trim();
@@ -9547,14 +10424,7 @@ function _applyDraftFieldsToBlock(b,{assignMealSlot}={}){
   if(ty==='shake'){
     const sc=modal.draftScoops!=null?parseInt(modal.draftScoops,10):null;
     if(sc!=null&&!isNaN(sc)&&sc>0)b.scoops=sc;
-    if(modal.draftSubOn){
-      const st=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-      let ssc=modal.draftSubScoops!=null?parseInt(modal.draftSubScoops,10):defaultPowderScoops(st);
-      if(isNaN(ssc)||ssc<1)ssc=defaultPowderScoops(st);
-      b.sub=[{type:st,scoops:ssc,l:(BS[st]&&BS[st].l)||st}];
-    }else{
-      delete b.sub;
-    }
+    _applyDraftSubsToTarget(b);
   }else if(b.sub){
     delete b.sub;
   }
@@ -9609,12 +10479,7 @@ function _buildRepeatBlockForDay(dk){
     newBlock.idx=(used.length?Math.max.apply(null,used):0)+1;
     const sc=modal.draftScoops!=null?parseInt(modal.draftScoops,10):2;
     if(!isNaN(sc)&&sc>0)newBlock.scoops=sc;
-    if(modal.draftSubOn){
-      const st=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-      let ssc=modal.draftSubScoops!=null?parseInt(modal.draftSubScoops,10):defaultPowderScoops(st);
-      if(isNaN(ssc)||ssc<1)ssc=defaultPowderScoops(st);
-      newBlock.sub=[{type:st,scoops:ssc,l:(BS[st]&&BS[st].l)||st}];
-    }
+    _applyDraftSubsToTarget(newBlock);
   }
   if(POWDER_TYPES.has(ty)){
     let sc=modal.draftScoops!=null?parseInt(modal.draftScoops,10):defaultPowderScoops(ty);
@@ -9753,7 +10618,6 @@ function setupLongPress(el,dk,idx){
       if(b&&!ref.readonly&&b.t!==dragOverKey){
         b.t=dragOverKey; // display re-sorts; array order untouched
         if(navigator.vibrate)navigator.vibrate(30);
-        showToast('Moved to '+dragOverKey);
       }
     }
     dragging=false;dragSrcKey=null;dragOverKey=null;saveState();render();
@@ -10033,13 +10897,8 @@ window.toggleCheck=function(k,dk,blockType){
   const blkC=(getEffectiveBlocks(dk)||[])[bIdxC];
   // Meal timing capture — real wall-clock moment, not just the boolean.
   // Cleared on uncheck so an accidental tap doesn't leave stale data.
-  // Retrospective toast fires only on a genuinely new check (not uncheck),
-  // and only once the broken gap was long enough to be worth mentioning —
-  // same 4h Catabolic threshold as the live banner, so the two rules stay
-  // consistent with each other rather than using separate cutoffs.
   if(blkC&&isCaloricBlock(blkC)){
     if(!prev){
-      const priorTs=getLastMealTimestamp();
       checked[k]=true;
       mealTimeLog[k]=Date.now();
       // A real caloric event means you ate — an active fast should end
@@ -10048,14 +10907,6 @@ window.toggleCheck=function(k,dk,blockType){
       // common path — just checking off the block itself — never did.
       if(isFasting()&&DATE_INPUT_FMT(getDateForDay(dk))===DATE_INPUT_FMT(new Date())){
         endFast();
-      }
-      if(priorTs!==null){
-        const gapH=(mealTimeLog[k]-priorTs)/3600000;
-        if(gapH>=4){
-          const zone=getZoneForHours(gapH);
-          const h=Math.floor(gapH),m=Math.round((gapH-h)*60);
-          setTimeout(()=>showToast(`${h}h ${m}m since your last meal — you reached ${zone.label}`),200);
-        }
       }
     }else{
       delete mealTimeLog[k];
@@ -10322,8 +11173,7 @@ window.openBlockEdit=function(dk,idx){
   const b=_ref.arr[_ref.i]||{t:'',l:'',type:'misc'};
   const ty0=b.type||'misc';
   const scoops=b.scoops!=null?b.scoops:(POWDER_TYPES.has(ty0)?defaultPowderScoops(ty0):2);
-  const firstSub=(b.sub&&b.sub[0])||null;
-  const subType=firstSub?resolvePowderSubType(firstSub):'dextrose';
+  const draftSubs=_draftSubsFromBlock(b);
   modal={
     type:'block',dk,idx,
     isNew:false,
@@ -10337,9 +11187,8 @@ window.openBlockEdit=function(dk,idx){
     draftCardio:!!b.cardio,
     draftMs:b.ms||null,
     draftScoops:scoops,
-    draftSubOn:!!(b.sub&&b.sub.length),
-    draftSubType:subType,
-    draftSubScoops:firstSub&&firstSub.scoops!=null?firstSub.scoops:defaultPowderScoops(subType),
+    draftSubOn:draftSubs.length>0,
+    draftSubs:draftSubs,
     repeatDays:[dk],
     tplOpen:false,
     tplName:'',
@@ -10560,60 +11409,43 @@ window.toggleEditPowderSub=function(){
   if(!modal||modal.type!=='block')return;
   _captureBlockDraft();
   modal.draftSubOn=!modal.draftSubOn;
-  if(modal.draftSubOn){
-    if(!modal.draftSubType||!POWDER_TYPES.has(modal.draftSubType))modal.draftSubType='dextrose';
-    if(modal.draftSubScoops==null)modal.draftSubScoops=defaultPowderScoops(modal.draftSubType);
-  }
+  if(!Array.isArray(modal.draftSubs))modal.draftSubs=[];
   render();
 };
 function toggleEditPowderSub(){window.toggleEditPowderSub();}
-window.selectDraftSubType=function(type){
+window.toggleDraftSubType=function(type){
   if(!modal||modal.type!=='block')return;
   if(!POWDER_TYPES.has(type))return;
   _captureBlockDraft();
   modal.draftSubOn=true;
-  modal.draftSubType=type;
-  if(modal.draftSubScoops==null)modal.draftSubScoops=defaultPowderScoops(type);
+  if(!Array.isArray(modal.draftSubs))modal.draftSubs=[];
+  const i=modal.draftSubs.findIndex(s=>s&&s.type===type);
+  if(i>=0)modal.draftSubs.splice(i,1);
+  else modal.draftSubs.push({type,scoops:defaultPowderScoops(type),l:(BS[type]&&BS[type].l)||type});
+  modal.draftSubs=_normalizeDraftSubs(modal.draftSubs);
   render();
 };
-function selectDraftSubType(type){window.selectDraftSubType(type);}
-window.nudgeSubScoops=function(delta){
+function toggleDraftSubType(type){window.toggleDraftSubType(type);}
+window.nudgeDraftSubScoops=function(type,delta){
   if(!modal||modal.type!=='block')return;
-  let sc=modal.draftSubScoops!=null?parseInt(modal.draftSubScoops,10):defaultPowderScoops(modal.draftSubType||'dextrose');
-  if(isNaN(sc))sc=2;
+  if(!POWDER_TYPES.has(type))return;
+  if(!Array.isArray(modal.draftSubs))modal.draftSubs=[];
+  let entry=modal.draftSubs.find(s=>s&&s.type===type);
+  if(!entry){
+    entry={type,scoops:defaultPowderScoops(type),l:(BS[type]&&BS[type].l)||type};
+    modal.draftSubs.push(entry);
+    modal.draftSubOn=true;
+  }
+  let sc=parseInt(entry.scoops,10);
+  if(isNaN(sc))sc=defaultPowderScoops(type);
   sc=Math.max(1,sc+(delta|0));
-  modal.draftSubScoops=sc;
-  const el=document.getElementById('el-subscoops');
+  entry.scoops=sc;
+  modal.draftSubs=_normalizeDraftSubs(modal.draftSubs);
+  const el=document.getElementById('el-subscoops-'+type);
   if(el)el.textContent=String(sc);
   else render();
 };
-function nudgeSubScoops(delta){window.nudgeSubScoops(delta);}
-window.detachPowderSub=function(){
-  if(!modal||modal.type!=='block')return;
-  _captureBlockDraft();
-  const dk=modal.dk,idx=modal.idx;
-  const ref=_editableBlockRef(dk,idx);
-  const b=ref.arr[ref.i];
-  if(!b||b.type!=='shake')return;
-  const st=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-  let ssc=modal.draftSubScoops!=null?parseInt(modal.draftSubScoops,10):defaultPowderScoops(st);
-  if(isNaN(ssc)||ssc<1)ssc=defaultPowderScoops(st);
-  modal.draftSubOn=false;
-  _applyDraftFieldsToBlock(b,{assignMealSlot:true});
-  delete b.sub;
-  const powderBlock={
-    t:b.t||nowAsTimeStr(),
-    l:(BS[st]&&BS[st].l)||st,
-    type:st,
-    scoops:ssc,
-    id:'blk_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
-    custom:true,
-  };
-  ref.arr.splice(ref.i+1,0,powderBlock);
-  modal=null;saveState();render();
-  showToast('Detached '+(BS[st]&&BS[st].l||st)+' as own block');
-};
-function detachPowderSub(){window.detachPowderSub();}
+function nudgeDraftSubScoops(type,delta){window.nudgeDraftSubScoops(type,delta);}
 
 function _captureBlockDraft(){
   if(!modal||modal.type!=='block')return;
@@ -11068,12 +11900,7 @@ window.duplicateBlock=function(){
     newBlock.idx=(used.length?Math.max.apply(null,used):0)+1;
     const sc=modal.draftScoops!=null?parseInt(modal.draftScoops,10):2;
     if(!isNaN(sc)&&sc>0)newBlock.scoops=sc;
-    if(modal.draftSubOn){
-      const st=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-      let ssc=modal.draftSubScoops!=null?parseInt(modal.draftSubScoops,10):defaultPowderScoops(st);
-      if(isNaN(ssc)||ssc<1)ssc=defaultPowderScoops(st);
-      newBlock.sub=[{type:st,scoops:ssc,l:(BS[st]&&BS[st].l)||st}];
-    }
+    _applyDraftSubsToTarget(newBlock);
   }
   if(POWDER_TYPES.has(ty)){
     let sc=modal.draftScoops!=null?parseInt(modal.draftScoops,10):defaultPowderScoops(ty);
@@ -11089,7 +11916,6 @@ window.duplicateBlock=function(){
   }
   _addBlockToDay(dk,newBlock);
   modal=null;saveState();render();
-  showToast('Duplicated');
 };
 function duplicateBlock(){window.duplicateBlock();}
 
@@ -11226,9 +12052,8 @@ window.confirmSaveTemplate=function(){
     if(b.idx!=null)tpl.idx=b.idx;
     if(b.tot!=null)tpl.tot=b.tot;
     if(modal.draftSubOn){
-      const st=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-      const ssc=modal.draftSubScoops!=null?modal.draftSubScoops:defaultPowderScoops(st);
-      tpl.sub=[{type:st,scoops:ssc,l:(BS[st]&&BS[st].l)||st}];
+      const subs=_normalizeDraftSubs(modal.draftSubs);
+      if(subs.length)tpl.sub=subs;
     }
   }
   if(POWDER_TYPES.has(ty)){
@@ -11421,8 +12246,7 @@ window.addBlankBlock=function(dk){
     draftMs:null,
     draftScoops:2,
     draftSubOn:false,
-    draftSubType:'dextrose',
-    draftSubScoops:2,
+    draftSubs:[],
     repeatDays:[dk],
     tplOpen:false,
     tplName:'',
@@ -11545,7 +12369,7 @@ window.selectType=function(k){
   if(POWDER_TYPES.has(k)&&(modal.draftScoops==null||modal.draftScoops===''||prev!==k)){
     if(prev!==k||modal.draftScoops==null||modal.draftScoops==='')modal.draftScoops=defaultPowderScoops(k);
   }
-  if(k==='shake'&&!modal.draftSubType)modal.draftSubType='dextrose';
+  if(k==='shake'&&!Array.isArray(modal.draftSubs))modal.draftSubs=[];
   if(k!=='shake')modal.draftSubOn=false;
   modal.prevType=k;
   if(modal.isNew)modal.newStep='config';
@@ -11680,7 +12504,7 @@ window.openMealOverride=function(dk,mealKey){
     const seedItems=[];
     if(mp&&mp.items){
       mp.items.forEach(item=>{
-        const food=MP_FOODS_DEFAULT.find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
+        const food=getActiveFoods().find(f=>f.name===item.n||item.n.startsWith(f.name)||f.name.startsWith(item.n));
         const sv=savedSvs[item.n]!==undefined?savedSvs[item.n]:(item.defaultSv||1);
         if(food){
           seedItems.push({name:item.n,P:Math.round(food.P*sv*10)/10,C:Math.round(food.C*sv*10)/10,F:Math.round(food.F*sv*10)/10,kcal:Math.round(food.kcal*sv),qty:sv,unit:food.label||food.unit||'sv',_foodId:food.id,_basePer:{P:food.P,C:food.C,F:food.F,kcal:food.kcal}});
@@ -11703,7 +12527,7 @@ function setMealOverrideType(t){window.setMealOverrideType(t);}
 
 window.mealOverrideAddFood=function(foodId){
   if(!pendingMealOverride||!foodId)return;
-  const food=(mpFoods&&mpFoods.length?mpFoods:MP_FOODS_DEFAULT).find(f=>f.id===foodId);
+  const food=getMealPickerFoods().find(f=>f.id===foodId);
   if(!food)return;
   pendingMealOverride.items.push({name:food.name,P:food.P,C:food.C,F:food.F,kcal:food.kcal,qty:1,unit:food.label||food.unit||'serving',_foodId:food.id,_basePer:{P:food.P,C:food.C,F:food.F,kcal:food.kcal}});
   renderApp();
@@ -12101,7 +12925,7 @@ function buildExportState(keys){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,exercisePRsSideMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
     anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -12145,7 +12969,7 @@ window.exportData=function(){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseLog,exercisePRs,exercisePRsSideMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,modules,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,gymDayAdjust,
     anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -12439,7 +13263,6 @@ window.setWeightCompareDate=function(d){
     if(diff<closestDiff){closestDiff=diff;closest=k;}
   });
   window._weightCompareDate=closest;renderApp();
-  showToast(`No weight logged on ${DATE_SHORT_FMT(d)} — showing closest: ${DATE_SHORT_FMT(closest)}`);
 };
 function setWeightCompareDate(d){window.setWeightCompareDate(d);}
 window.openWeightCompareDatePicker=function(){
@@ -12843,12 +13666,23 @@ function renderModal(){
       typeExtras=_editToggleHtml('el-cardio','Include cardio',draftCardio,'#38bdf8');
     }else if(selType==='shake'){
       const draftSubOn=!!modal.draftSubOn;
-      const draftSubType=modal.draftSubType&&POWDER_TYPES.has(modal.draftSubType)?modal.draftSubType:'dextrose';
-      const draftSubScoops=modal.draftSubScoops!=null?modal.draftSubScoops:defaultPowderScoops(draftSubType);
-      const subChips=['dextrose','creatine','collagen'].map(pt=>{
-        const ps=BS[pt]||BS.misc;const on=draftSubOn&&draftSubType===pt;
-        return`<button type="button" onclick="selectDraftSubType('${pt}')" style="padding:5px 8px;border-radius:5px;border:1px solid ${on?ps.c:'var(--border2)'};background:${on?ps.bg:'var(--card2)'};color:${on?(ps.tc||ps.c):'var(--text3)'};font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer">${ps.l||pt}</button>`;
+      const draftSubs=_normalizeDraftSubs(modal.draftSubs);
+      const subOnSet=new Set(draftSubs.map(s=>s.type));
+      const subChips=POWDER_SUB_ORDER.map(pt=>{
+        const ps=BS[pt]||BS.misc;const on=draftSubOn&&subOnSet.has(pt);
+        return`<button type="button" onclick="toggleDraftSubType('${pt}')" style="padding:5px 8px;border-radius:5px;border:1px solid ${on?ps.c:'var(--border2)'};background:${on?ps.bg:'var(--card2)'};color:${on?(ps.tc||ps.c):'var(--text3)'};font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer">${ps.l||pt}</button>`;
       }).join('');
+      const subScoopRows=draftSubOn?draftSubs.map(s=>{
+        const ps=BS[s.type]||BS.misc;
+        return`<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:6px">
+        <span class="edit-toggle-lbl" style="color:${ps.tc||ps.c}">${ps.l||s.type} scoops</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button type="button" class="time-step-btn" onclick="nudgeDraftSubScoops('${s.type}',-1)">−</button>
+          <span id="el-subscoops-${s.type}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;min-width:16px;text-align:center">${s.scoops}</span>
+          <button type="button" class="time-step-btn" onclick="nudgeDraftSubScoops('${s.type}',1)">+</button>
+        </div>
+      </div>`;
+      }).join(''):'';
       typeExtras=`<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:6px">
         <span class="edit-toggle-lbl">Scoops</span>
         <div style="display:flex;align-items:center;gap:8px">
@@ -12858,21 +13692,12 @@ function renderModal(){
         </div>
       </div>
       <div class="edit-toggle" style="margin-top:6px">
-        <span class="edit-toggle-lbl">Powder sub-item</span>
+        <span class="edit-toggle-lbl">Powder sub-items</span>
         <button id="el-powdersub" class="edit-toggle-btn" data-on="${draftSubOn?'1':'0'}" onclick="toggleEditPowderSub()" style="background:${draftSubOn?'#f59e0b':'var(--border2)'}">
           <span style="left:${draftSubOn?'16px':'2px'}"></span>
         </button>
       </div>
-      ${draftSubOn?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${subChips}</div>
-      <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:6px">
-        <span class="edit-toggle-lbl">Sub scoops</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button type="button" class="time-step-btn" onclick="nudgeSubScoops(-1)">−</button>
-          <span id="el-subscoops" style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;min-width:16px;text-align:center">${draftSubScoops}</span>
-          <button type="button" class="time-step-btn" onclick="nudgeSubScoops(1)">+</button>
-        </div>
-      </div>
-      <button type="button" onclick="detachPowderSub()" style="margin-top:8px;width:100%;padding:8px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:0.3px">Detach to own block</button>`:''}`;
+      ${draftSubOn?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${subChips}</div>${subScoopRows}`:''}`;
     }else if(POWDER_TYPES.has(selType)){
       typeExtras=`<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:6px">
         <span class="edit-toggle-lbl">Scoops</span>
@@ -13214,22 +14039,28 @@ function renderModal(){
     const takenList=(supplementLog&&supplementLog[suppKey])||[];
     const planned=supplementTypes.length;
     const n=takenList.length;
-    const rows=supplementTypes.length?supplementTypes.map(sp=>{
+    const {pills,powders}=supplementsByCategory(supplementTypes);
+    const rowFor=sp=>{
       const isTaken=takenList.includes(sp.id);
       const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
       const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const meta=formatSupplementMeta(sp,takenCount);
+      const fewerLbl=sp.category==='powder'?'Fewer scoops':'Fewer '+supplementFormWord(sp,2);
+      const moreLbl=sp.category==='powder'?'More scoops':'More '+supplementFormWord(sp,2);
       return`<div class="list-chip list-chip--supps list-chip--check list-chip--static${isTaken?' is-done':''}">
-        <div class="list-chip-label">${nm}${sp.doseAmount?`<div class="list-chip-sub">${sp.doseAmount}${sp.doseUnit||''}/pill</div>`:''}</div>
+        <div class="list-chip-label">${nm}${meta?`<div class="list-chip-sub">${meta}</div>`:''}</div>
         <div class="list-chip-actions">
           ${isTaken?`<div style="display:flex;align-items:center;gap:3px;background:var(--card2);border-radius:5px;padding:1px 2px">
-            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',-1)" aria-label="Fewer pills" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
+            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',-1)" aria-label="${fewerLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
             <span style="font-size:8px;color:var(--text3);min-width:9px;text-align:center">${takenCount}</span>
-            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',1)" aria-label="More pills" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
+            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',1)" aria-label="${moreLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
           </div>`:''}
           <button class="chk" onclick="toggleSupplementTaken('${dk}',${si},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
         </div>
       </div>`;
-    }).join(''):`<div style="font-size:10px;color:var(--muted2);padding:16px 0;text-align:center">No supplements yet</div>`;
+    };
+    const section=(title,items)=>items.length?`<div style="font-size:8px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:8px 0 4px;font-family:'IBM Plex Mono',monospace">${title}</div>${items.map(rowFor).join('')}`:'';
+    const rows=planned?section('PILLS',pills)+section('POWDERS',powders):`<div style="font-size:10px;color:var(--muted2);padding:16px 0;text-align:center">No supplements yet</div>`;
     const allDone=planned>0&&n>=planned;
     return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal supp-modal">
       <div class="supp-modal-chrome">
@@ -14019,44 +14850,71 @@ function renderModal(){
   if(modal.type==='editSupplementDose'){
     const sp=supplementTypes.find(s=>s.id===modal.suppId);
     if(!sp)return'';
+    if(!modal.draft){
+      const n=normalizeSupplement(sp);
+      modal.draft={category:n.category,form:n.form,timing:n.timing,doseAmount:n.doseAmount,doseUnit:n.doseUnit,pillCount:n.pillCount};
+    }
+    const d=modal.draft;
     const backDk=modal.dk||activeDay;
     const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const isPowder=d.category==='powder';
+    const countLbl=isPowder?'SCOOPS':(d.form==='tablet'?'TABLETS':d.form==='softgel'?'SOFTGELS':'CAPSULES');
+    const unitPh=isPowder?'g':'mg';
+    const amtPh=isPowder?'5':'500';
+    const segBtn=(active,onclick,label)=>`<button type="button" onclick="${onclick}" style="flex:1;padding:8px 6px;border:none;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:0.4px;font-family:'IBM Plex Mono',monospace;background:${active?'#e879f9':'transparent'};color:${active?'var(--bg)':'var(--text2)'}">${label}</button>`;
+    const chip=(active,onclick,label)=>`<button type="button" onclick="${onclick}" style="padding:6px 10px;border-radius:999px;border:1px solid ${active?'#e879f9':'var(--border2)'};background:${active?'#e879f922':'var(--card2)'};color:${active?'#e879f9':'var(--text2)'};font-size:9px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.3px">${label}</button>`;
+    const formChips=isPowder
+      ?chip(true,`setSupplementEditForm('scoop')`,'scoop')
+      :SUPP_PILL_FORMS.map(f=>chip(d.form===f,`setSupplementEditForm('${f}')`,f)).join('');
+    const timingChips=SUPP_TIMING_OPTS.map(t=>chip(d.timing===t.id,`setSupplementEditTiming('${t.id}')`,t.label)).join('');
     return`<div class="modal-overlay" onclick="if(event.target===this)openSupplementManager('${backDk}')"><div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <button type="button" onclick="openSupplementManager('${backDk}')" aria-label="Back" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);background:var(--card2);color:#e879f9;font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0">←</button>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#e879f9">DOSE</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#e879f9">EDIT SUPP</div>
         <span style="width:36px"></span>
       </div>
-      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:16px">${nm}</div>
-      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.8fr;gap:8px;margin-bottom:16px">
-        <div><label class="lbl">AMOUNT</label><input id="esd-amt" class="inp" type="number" inputmode="decimal" value="${sp.doseAmount||''}" placeholder="500" style="margin-bottom:0"/></div>
-        <div><label class="lbl">UNIT</label><input id="esd-unit" class="inp" value="${sp.doseUnit||''}" placeholder="mg" style="margin-bottom:0"/></div>
-        <div><label class="lbl">PILLS</label><input id="esd-pills" class="inp" type="number" inputmode="numeric" value="${sp.pillCount||1}" style="margin-bottom:0"/></div>
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:14px">${nm}</div>
+      <label class="lbl">CATEGORY</label>
+      <div style="display:flex;gap:4px;padding:3px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;margin-bottom:14px">
+        ${segBtn(!isPowder,`setSupplementEditCategory('pill')`,'PILLS')}
+        ${segBtn(isPowder,`setSupplementEditCategory('powder')`,'POWDERS')}
       </div>
+      <label class="lbl">FORM</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">${formChips}</div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.9fr;gap:8px;margin-bottom:14px">
+        <div><label class="lbl">AMOUNT</label><input id="esd-amt" class="inp" type="number" inputmode="decimal" value="${d.doseAmount!=null?d.doseAmount:''}" placeholder="${amtPh}" style="margin-bottom:0"/></div>
+        <div><label class="lbl">UNIT</label><input id="esd-unit" class="inp" value="${d.doseUnit||''}" placeholder="${unitPh}" style="margin-bottom:0"/></div>
+        <div><label class="lbl">${countLbl}</label><input id="esd-pills" class="inp" type="number" inputmode="numeric" value="${d.pillCount||1}" style="margin-bottom:0"/></div>
+      </div>
+      <label class="lbl">TIMING</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">${timingChips}</div>
       <button class="mbtn" onclick="saveSupplementDose('${sp.id}')" style="background:#e879f9;color:var(--bg);width:100%">SAVE</button>
     </div></div>`;
   }
   if(modal.type==='supplementManager'){
     const n=supplementTypes.length;
     const backDk=modal.dk||activeDay;
-    const list=n?supplementTypes.map((sp,i)=>{
+    const {pills,powders}=supplementsByCategory(supplementTypes);
+    const chipRow=(sp,i)=>{
       const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const dose=sp.doseAmount?`${sp.pillCount||1}× ${sp.doseAmount}${sp.doseUnit||''}`:'';
+      const meta=formatSupplementListMeta(sp);
       return`<div class="list-chip list-chip--supps" style="--i:${i}">
         <button type="button" class="list-chip-main" onclick="openEditSupplementDose('${sp.id}')">
           <span class="list-chip-label">${nm}</span>
-          ${dose?`<span class="list-chip-meta">${dose}</span>`:''}
+          ${meta?`<span class="list-chip-meta">${meta}</span>`:''}
         </button>
         <button type="button" class="list-chip-x" onclick="deleteSupplementType('${sp.id}')" aria-label="Remove">✕</button>
       </div>`;
-    }).join(''):`<div style="padding:16px 0;text-align:center;font-size:11px;font-weight:700;color:var(--muted2)">No supplements yet</div>`;
+    };
+    const section=(title,items,startI)=>items.length?`<div style="margin-bottom:12px"><div style="font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--muted2);margin:4px 0 8px;font-family:'IBM Plex Mono',monospace">${title}</div><div class="list-chips">${items.map((sp,i)=>chipRow(sp,startI+i)).join('')}</div></div>`:'';
+    const list=n?section('PILLS',pills,0)+section('POWDERS',powders,pills.length):`<div style="padding:16px 0;text-align:center;font-size:11px;font-weight:700;color:var(--muted2)">No supplements yet</div>`;
     return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <button type="button" onclick="openHubSuppsLog('${backDk}')" aria-label="Back" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);background:var(--card2);color:#e879f9;font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0">←</button>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#e879f9">SUPPS LIST</div>
         <span style="width:36px"></span>
       </div>
-      <div class="list-chips">${list}</div>
+      ${list}
       <button type="button" id="sp-add-btn" class="list-chip list-chip--supps list-chip--add" style="--i:${n}" onclick="beginSuppCompose()">+ ADD</button>
       <div id="sp-compose" class="list-compose list-compose--supps" hidden>
         <input id="sp-name" class="list-compose-input" placeholder="e.g. Zinc" maxlength="60" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();addSupplementType()}"/>
@@ -14225,6 +15083,50 @@ function renderModal(){
       ${selDrink&&servings!==defServ?`<button type="button" class="shake-default" onclick="setDrinkDefaultServings('${selDrink.id}',${servings})">Save ${servings} scoop${servings!==1?'s':''} as default</button>`:''}
       <button type="button" class="shake-cta" onclick="logHubShake('${dk}',${idx},true)">${shakeLogged?'UPDATE LOG':'LOG SHAKE'}</button>
       ${shakeLogged?`<button type="button" class="shake-uncheck" onclick="logHubShake('${dk}',${idx},false)">Uncheck</button>`:''}
+    </div></div>`;
+  }
+  if(modal.type==='powderLog'){
+    const dk=modal.dk,idx=modal.idx;
+    const eff=(getEffectiveBlocks(dk)||[])[idx];
+    const pType=eff&&POWDER_TYPES.has(eff.type)?eff.type:'dextrose';
+    const ps=BS[pType]||BS.misc;
+    if(window._pwPendingScoops==null)window._pwPendingScoops=eff&&eff.scoops!=null?eff.scoops:defaultPowderScoops(pType);
+    const servings=Math.max(1,parseInt(window._pwPendingScoops,10)||defaultPowderScoops(pType));
+    const macros=powderMacroForScoops(pType,servings);
+    const powderLogged=!!checked[getDateKey(dk)+'-'+idx];
+    let amountLine='';
+    if(pType==='collagen')amountLine=`${macros.P}g protein`;
+    else if(pType==='dextrose')amountLine=`${macros.C}g carbs · ${macros.kcal} kcal`;
+    else amountLine='No macro calories';
+    const perScoop=pType==='collagen'?`${COLLAGEN_P_PER_SCOOP}g protein / scoop`
+      :(pType==='dextrose'?`${Math.round(((customMacros&&customMacros.dextroseCarbs)||72)/4)}g carbs / scoop`:'1 scoop serving');
+    const drinkStyle=`--shake:${ps.c};--shake-ink:${ps.tc||ps.c};--shake-wash:${ps.bg}`;
+    return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal shake-modal" style="${drinkStyle}">
+      <div class="shake-head">
+        <div>
+          <div class="shake-kicker">${(ps.l||pType).toUpperCase()}</div>
+          ${eff&&eff.t?`<div class="shake-sub">${eff.t}</div>`:''}
+        </div>
+        <button class="shake-x" onclick="closeModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="shake-drink" style="pointer-events:none">
+        <span class="shake-swatch" aria-hidden="true"></span>
+        <div class="shake-drink-body">
+          <div class="shake-drink-name">${ps.l||pType}</div>
+          <div class="shake-drink-meta">${perScoop}</div>
+        </div>
+      </div>
+      <div class="shake-step">
+        <button type="button" class="shake-step-btn" onclick="nudgePowderPendingScoops(-1)" aria-label="Fewer scoops">−</button>
+        <div class="shake-step-mid">
+          <div class="shake-step-num">${servings}</div>
+          <div class="shake-step-cap">SCOOPS</div>
+        </div>
+        <button type="button" class="shake-step-btn" onclick="nudgePowderPendingScoops(1)" aria-label="More scoops">+</button>
+      </div>
+      <div class="shake-prot">${amountLine}</div>
+      <button type="button" class="shake-cta" onclick="logPowderAmount('${dk}',${idx},true)">${powderLogged?'UPDATE LOG':'LOG '+(ps.l||pType).toUpperCase()}</button>
+      ${powderLogged?`<button type="button" class="shake-uncheck" onclick="logPowderAmount('${dk}',${idx},false)">Uncheck</button>`:''}
     </div></div>`;
   }
   if(modal.type==='sleeplog'){
@@ -14643,7 +15545,7 @@ function renderModal(){
         ${volumeStrip||''}
       </div>
       <div id="workout-exercises" style="margin-top:6px">
-        ${(existing.exercises&&existing.exercises.length?existing.exercises:[{sets:[{warmup:true}]}]).map((ex,i)=>renderWorkoutExerciseCard(ex,i,existing.exercises||[],muscleGroup)).join('')}
+        ${(existing.exercises&&existing.exercises.length?existing.exercises:[{sets:[{warmup:false}]}]).map((ex,i)=>renderWorkoutExerciseCard(ex,i,existing.exercises||[],muscleGroup)).join('')}
       </div>
       <button onclick="addWorkoutExerciseCard()" style="width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;margin-bottom:14px">+ ADD EXERCISE</button>
 
@@ -14977,7 +15879,7 @@ function renderModal(){
     if(!pendingMealOverride)return'';
     const po=pendingMealOverride;
     const isManual=po.type==='manual';
-    const foods=(mpFoods&&mpFoods.length?mpFoods:MP_FOODS_DEFAULT);
+    const foods=getMealPickerFoods();
     const typeTabs=`<div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border2);border-radius:8px;overflow:hidden">
       <button onclick="setMealOverrideType('items')" style="flex:1;padding:9px 4px;background:${!isManual?'#fb923c':'transparent'};border:none;color:${!isManual?'var(--bg)':'var(--text3)'};font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;cursor:pointer;letter-spacing:0.5px">FOODS</button>
       <button onclick="setMealOverrideType('manual')" style="flex:1;padding:9px 4px;background:${isManual?'#fb923c':'transparent'};border:none;border-left:1px solid var(--border2);color:${isManual?'var(--bg)':'var(--text3)'};font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;cursor:pointer;letter-spacing:0.5px">MANUAL</button>
@@ -15049,7 +15951,7 @@ function renderModal(){
   if(modal.type==='mealLogEntry'){
     const me=modal.entry||{};
     const isNew=!modal.entryId;
-    const foods=(mpFoods&&mpFoods.length?mpFoods:MP_FOODS_DEFAULT);
+    const foods=getMealPickerFoods();
     const foodPicker=`<select id="mle-foodpick" onchange="mealLogPickFood(this.value)" style="width:100%;padding:9px;background:var(--card2);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:10px;margin-bottom:10px">
       <option value="">Pick from food database…</option>
       ${foods.map(f=>`<option value="${f.id}">${f.name}</option>`).join('')}
@@ -15514,7 +16416,12 @@ function renderBlock(b,i,dk){
     const _pCol=isSkipped?'var(--text2)':isDone?'var(--text2)':s.tc;
     const _pDec=isDone||isSkipped?'line-through':'none';
     const _pDecCol=isSkipped?'var(--state-skip)':'color-mix(in srgb,var(--state-done) 50%,var(--text3))';
-    content=`<div style="display:flex;gap:8px;align-items:flex-start;opacity:${rowOp};transition:opacity 0.18s">${timeHtml('padding-top:6px')}<div class="block-card" style="background:${s.bg};border-color:${s.bd};${leftBar(s.c)}"><div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1;min-width:0"><span class="block-title" style="color:${_pCol};font-weight:600;text-decoration:${_pDec};text-decoration-color:${_pDecCol}">${_pTitle}</span><div style="font-size:8px;color:${isSkipped?'var(--state-skip)':s.c+'99'};margin-top:3px">${_psc} scoop${_psc===1?'':'s'}</div></div>${statusChip}${blockChkHtml(ck,dk,b.type,isDone,isSkipped,{style:'margin-top:1px'})}</div></div></div>`;
+    const _pm=powderMacroForScoops(b.type,_psc);
+    const _pBadge=b.type==='creatine'?'':(b.type==='collagen'?`${_pm.P}g`:(_pm.C?`${_pm.C}g`:''));
+    const _pOpenOn=isSkipped?'':`onclick="event.stopPropagation();openPowderAmountPicker('${dk}',${i})"`;
+    const _pCursor=isSkipped?'':'cursor:pointer;';
+    const _pBadgeHtml=_pBadge&&!isSkipped?`<span style="font-size:12px;font-weight:700;color:${s.c};flex-shrink:0;margin-top:1px;font-variant-numeric:tabular-nums;text-decoration:${_pDec};text-decoration-color:${_pDecCol}">${_pBadge}</span>`:'';
+    content=`<div style="display:flex;gap:8px;align-items:flex-start;opacity:${rowOp};transition:opacity 0.18s">${timeHtml('padding-top:6px')}<div class="block-card" style="background:${s.bg};border-color:${s.bd};${leftBar(s.c)}"><div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1;min-width:0"><span class="block-title" style="color:${_pCol};font-weight:600;text-decoration:${_pDec};text-decoration-color:${_pDecCol};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;${_pCursor}" ${_pOpenOn}>${_pTitle}</span><div style="font-size:8px;color:${isSkipped?'var(--state-skip)':s.c+'99'};margin-top:3px">${_psc} scoop${_psc===1?'':'s'}</div></div>${_pBadgeHtml}${statusChip}${blockChkHtml(ck,dk,b.type,isDone,isSkipped,{style:'margin-top:1px'})}</div></div></div>`;
   } else {
     // (Streak display is the left-gutter pill computed above.)
     // Trade rating buttons
@@ -15555,7 +16462,7 @@ function renderBlock(b,i,dk){
         const pendSvs=(pendingMealEdits[dk]&&pendingMealEdits[dk][b.ms])||{};
         const merged=Object.assign({},savedSvs,pendSvs);
         const hasPending=Object.keys(pendSvs).length>0;
-        const foods=MP_FOODS_DEFAULT;
+        const foods=getActiveFoods();
         const getFood=(name)=>{
           if(!name)return null;
           let f=foods.find(f=>f.name===name||f.id===name);
@@ -15694,25 +16601,31 @@ function renderBlock(b,i,dk){
     if(isSuppsBlock&&isEx){
       const suppKey=getSupplementLogKey(dk,i);
       const takenList=supplementLog[suppKey]||[];
-      supplementSection=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid ${s.bd}">
-        ${supplementTypes.length?supplementTypes.map(sp=>{
+      const {pills,powders}=supplementsByCategory(supplementTypes);
+      const rowFor=sp=>{
           const isTaken=takenList.includes(sp.id);
           const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
+          const meta=formatSupplementMeta(sp,isTaken?takenCount:sp.pillCount||1);
+          const fewerLbl=sp.category==='powder'?'Fewer scoops':'Fewer '+supplementFormWord(sp,2);
+          const moreLbl=sp.category==='powder'?'More scoops':'More '+supplementFormWord(sp,2);
           return`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-            <div>
+            <div style="min-width:0;padding-right:8px">
               <span style="font-size:9px;font-weight:600;color:${isTaken?'var(--text2)':'var(--muted)'};text-decoration:${isTaken?'line-through':'none'};text-decoration-color:var(--muted2)">${sp.name}</span>
-              ${sp.doseAmount?`<span style="font-size:7px;color:var(--muted2);margin-left:5px">${sp.doseAmount}${sp.doseUnit||''}/pill</span>`:''}
+              ${meta?`<div style="font-size:7px;color:var(--muted2);margin-top:1px">${meta}</div>`:''}
             </div>
-            <div style="display:flex;align-items:center;gap:5px">
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
               ${isTaken?`<div style="display:flex;align-items:center;gap:3px;background:var(--card2);border-radius:5px;padding:1px 2px">
-                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',-1)" aria-label="Fewer pills" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
+                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',-1)" aria-label="${fewerLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
                 <span style="font-size:8px;color:var(--text3);min-width:9px;text-align:center">${takenCount}</span>
-                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',1)" aria-label="More pills" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
+                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',1)" aria-label="${moreLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
               </div>`:''}
               <button class="chk" onclick="event.stopPropagation();toggleSupplementTaken('${dk}',${i},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
             </div>
           </div>`;
-        }).join(''):'<div style="font-size:8px;color:var(--muted);padding:4px 0">No supplements added yet</div>'}
+      };
+      const section=(title,items)=>items.length?`<div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:6px 0 2px;font-family:'IBM Plex Mono',monospace">${title}</div>${items.map(rowFor).join('')}`:'';
+      supplementSection=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid ${s.bd}">
+        ${supplementTypes.length?section('PILLS',pills)+section('POWDERS',powders):'<div style="font-size:8px;color:var(--muted);padding:4px 0">No supplements added yet</div>'}
         <button onclick="event.stopPropagation();openSupplementManager('${dk}')" style="margin-top:6px;font-size:7px;color:var(--muted2);background:none;border:1px solid var(--border2);border-radius:4px;padding:3px 9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px">+ MANAGE LIST</button>
       </div>`;
     }
@@ -15733,15 +16646,16 @@ function renderBlock(b,i,dk){
     const listExtra=isEx?(mealSection+supplementSection+(isShake?shakeDexHtml:'')):'';
     const listTitle=isShake?(getShakeDrink(dk,i).name||b.l||s.l):(isMeal?mealDisplayTitle(dk,b):(b.l||s.l));
     const shakeProt=isShake&&!isSkipped?(()=>{const d=getShakeDrink(dk,i);const sc=getShakeServings(dk,i,b.scoops||1);const col=getDrinkColor(d);return`<span style="font-size:11px;font-weight:700;color:${col.c};flex-shrink:0;font-variant-numeric:tabular-nums">${Math.round(sc*d.P)}g</span>`;})():'';
-    const journalOpenOn=isSkipped?'':(isShake?`onclick="event.stopPropagation();openShakeDrinkPicker('${dk}',${i})"`:isJournal?`onclick="openJournal('${dk}','${journalSessionOfBlock(b)}')"`:isDeepJournal?`onclick="openDeepJournal('${dk}')"`:'');
-    const journalCursor=(!isSkipped&&(isShake||isJournal||isDeepJournal))?'cursor:pointer;':'';
-    return`<div class="${rowCls}" data-swipe="${swKey}" data-didx="${dk}||${i}" style="padding:2px 0;border-bottom:${!isLast?'1px solid var(--card)':'none'};position:relative">${editReveal}${nowPip}<div class="block-inner" style="opacity:${rowOp}"><div class="block-slim">${timeHtml('padding-top:0')}<div class="block-card" style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:transparent;border-color:transparent;${leftBar(s.c)}"><span class="block-title" style="flex:1;${journalCursor}${titleStateStyle||`color:var(--text);`}white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ${journalOpenOn}>${listTitle}</span>${listExpand?`<button class="block-expand" onclick="event.stopPropagation();toggleExpand('${exk}')">${isEx?'▲':'▼'}</button>`:''}${shakeProt}${statusChipSlim}${blockChkHtml(ck,dk,b.type,isDone,isSkipped)}</div></div>${listExtra}</div></div>`;
+    const powderAmt=isPowder&&!isSkipped?(()=>{const sc=b.scoops!=null?b.scoops:defaultPowderScoops(b.type);const m=powderMacroForScoops(b.type,sc);const txt=b.type==='collagen'?`${m.P}g`:(b.type==='dextrose'&&m.C?`${m.C}g`:'');return txt?`<span style="font-size:11px;font-weight:700;color:${s.c};flex-shrink:0;font-variant-numeric:tabular-nums">${txt}</span>`:'';})():'';
+    const journalOpenOn=isSkipped?'':(isShake?`onclick="event.stopPropagation();openShakeDrinkPicker('${dk}',${i})"`:isPowder?`onclick="event.stopPropagation();openPowderAmountPicker('${dk}',${i})"`:isJournal?`onclick="openJournal('${dk}','${journalSessionOfBlock(b)}')"`:isDeepJournal?`onclick="openDeepJournal('${dk}')"`:'');
+    const journalCursor=(!isSkipped&&(isShake||isPowder||isJournal||isDeepJournal))?'cursor:pointer;':'';
+    return`<div class="${rowCls}" data-swipe="${swKey}" data-didx="${dk}||${i}" style="padding:2px 0;border-bottom:${!isLast?'1px solid var(--card)':'none'};position:relative">${editReveal}${nowPip}<div class="block-inner" style="opacity:${rowOp}"><div class="block-slim">${timeHtml('padding-top:0')}<div class="block-card" style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:transparent;border-color:transparent;${leftBar(s.c)}"><span class="block-title" style="flex:1;${journalCursor}${titleStateStyle||`color:var(--text);`}white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ${journalOpenOn}>${listTitle}</span>${listExpand?`<button class="block-expand" onclick="event.stopPropagation();toggleExpand('${exk}')">${isEx?'▲':'▼'}</button>`:''}${shakeProt}${powderAmt}${statusChipSlim}${blockChkHtml(ck,dk,b.type,isDone,isSkipped)}</div></div>${listExtra}</div></div>`;
   }
 
   // Done rows collapse to a single line until expanded (card view)
   if(isDone&&!isEx&&!isTraining&&!isSleep){
-    const journalOpenOn=isShake?`onclick="event.stopPropagation();openShakeDrinkPicker('${dk}',${i})"`:isJournal?`onclick="openJournal('${dk}','${journalSessionOfBlock(b)}')"`:isDeepJournal?`onclick="openDeepJournal('${dk}')"`:'';
-    const journalCursor=(isShake||isJournal||isDeepJournal)?'cursor:pointer;':'';
+    const journalOpenOn=isShake?`onclick="event.stopPropagation();openShakeDrinkPicker('${dk}',${i})"`:isPowder?`onclick="event.stopPropagation();openPowderAmountPicker('${dk}',${i})"`:isJournal?`onclick="openJournal('${dk}','${journalSessionOfBlock(b)}')"`:isDeepJournal?`onclick="openDeepJournal('${dk}')"`:'';
+    const journalCursor=(isShake||isPowder||isJournal||isDeepJournal)?'cursor:pointer;':'';
     const doneTitle=isShake?(getShakeDrink(dk,i).name||b.l||s.l):(isMeal?mealDisplayTitle(dk,b):(b.l||s.l));
     return`<div class="${rowCls}" data-swipe="${swKey}" data-didx="${dk}||${i}" style="padding:2px 0;border-bottom:${!isLast?'1px solid var(--card)':'none'};position:relative">${editReveal}${nowPip}<div class="block-inner" style="opacity:${rowOp}"><div class="block-slim">${timeHtml('padding-top:0')}<div class="block-card" style="display:flex;align-items:center;gap:6px;background:${s.bg};border-color:${s.bd};${leftBar(s.c)}"><span class="block-title" style="flex:1;${journalCursor}${titleStateStyle}white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ${journalOpenOn}>${doneTitle}</span>${hasSecondary?`<button class="block-expand" onclick="event.stopPropagation();toggleExpand('${exk}')">▼</button>`:''}${blockChkHtml(ck,dk,b.type,isDone,isSkipped)}</div></div></div></div>`;
   }
@@ -18868,6 +19782,81 @@ window.resetWorkoutSplit=function(){
   renderApp();
 };
 
+function settingsExerciseRowName(el){
+  const row=el&&el.closest?el.closest('.settings-ex-row'):null;
+  if(!row)return'';
+  try{return decodeURIComponent(row.getAttribute('data-ex')||'');}catch(e){return row.getAttribute('data-ex')||'';}
+}
+window.settingsRenameExercise=function(el){
+  const row=el&&el.closest?el.closest('.settings-ex-row'):null;
+  if(!row)return;
+  const oldName=settingsExerciseRowName(el);
+  const input=row.querySelector('.settings-ex-name');
+  const newName=(input&&input.value||'').trim();
+  if(!newName){showToast('Enter a name');if(input)input.focus();return;}
+  if(newName===oldName)return;
+  if(!renameExerciseEverywhere(oldName,newName)){
+    showToast('Name already exists');
+    if(input){input.value=oldName;input.focus();}
+    return;
+  }
+  saveState();
+  renderApp();
+};
+window.settingsMoveExercise=function(sel){
+  const oldName=settingsExerciseRowName(sel);
+  const cat=(sel&&sel.value||'').toUpperCase();
+  if(!oldName||!cat)return;
+  if(!moveExerciseCategory(oldName,cat)){showToast('Could not move');return;}
+  saveState();
+  showToast('Moved to '+(WORKOUT_TYPE_LABELS[cat]||cat));
+  renderApp();
+};
+window.settingsDeleteExercise=function(el){
+  const name=settingsExerciseRowName(el);
+  if(!name)return;
+  const tracked=exerciseHasHistory(name);
+  const msg=tracked
+    ?`Remove "${name}" from the library?\n\nLogged history and PRs stay — only the list entry is removed.`
+    :`Remove unused exercise "${name}"?`;
+  if(!confirm(msg))return;
+  deleteExerciseFromLibrary(name);
+  saveState();
+  showToast('Removed from library');
+  renderApp();
+};
+window.settingsAddExercise=function(cat,inputOrBtn){
+  let input=inputOrBtn;
+  if(input&&input.tagName!=='INPUT')input=input.previousElementSibling||input;
+  if(!input||input.tagName!=='INPUT'){
+    // called with category + this from ADD button where previousElementSibling is the input
+    input=arguments[1];
+  }
+  const name=((input&&input.value)||'').trim();
+  if(!name){showToast('Enter a name');if(input)input.focus();return;}
+  if(getExerciseBodyPart(name)){showToast('Already in library');return;}
+  addExerciseToLibrary(name,cat);
+  // Ensure it lands in the requested category even if name matched elsewhere
+  moveExerciseCategory(name,cat);
+  saveState();
+  renderApp();
+};
+window.settingsPurgeUnusedExercises=function(){
+  const unused=listLibraryExercisesWithMeta().filter(e=>!e.tracked);
+  if(!unused.length){showToast('No unused exercises');return;}
+  if(!confirm(`Remove ${unused.length} unused exercise${unused.length!==1?'s':''} from the library?\n\nTracked lifts (with sets or PRs) are kept.`))return;
+  const n=removeUnusedExercisesFromLibrary();
+  cleanNameOnlyExerciseLogStubs();
+  saveState();
+  showToast(n?`Removed ${n} unused`:'Nothing to remove');
+  renderApp();
+};
+function settingsRenameExercise(el){window.settingsRenameExercise(el);}
+function settingsMoveExercise(sel){window.settingsMoveExercise(sel);}
+function settingsDeleteExercise(el){window.settingsDeleteExercise(el);}
+function settingsAddExercise(cat,input){window.settingsAddExercise(cat,input);}
+function settingsPurgeUnusedExercises(){window.settingsPurgeUnusedExercises();}
+
 // ── INSIGHTS TAB: all cross-data correlations in one dedicated, scannable
 // place, separate from the LOG tab (mood trend + entries + reflections).
 // Each card leads with one big, plain-English headline instead of just a
@@ -20097,7 +21086,7 @@ function renderMealsPage(){
 
 function renderMealPlanEditor(){
   const mp=mealPlan||seedMealPlanFromExisting();
-  const foodOpts=((mpFoods&&mpFoods.length)?mpFoods:MP_FOODS_DEFAULT).map(f=>`<option value="${f.id}">${f.name}</option>`).join('');
+  const foodOpts=getMealPickerFoods().map(f=>`<option value="${f.id}">${f.name}</option>`).join('');
   return`<div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
       <div class="settings-card-title" style="color:#fb923c;margin-bottom:10px">MEALS PER DAY</div>
@@ -20149,7 +21138,8 @@ function renderMealPlanEditor(){
       </div>`;
     }).join('')}
     <button onclick="saveMealPlan()" class="settings-save-btn" style="background:#fb923c;color:var(--bg)">SAVE MEAL PLAN</button>
-    <div style="font-size:8px;color:var(--muted);text-align:center;margin-top:8px">Save to apply meal changes to your schedule</div>
+    <button type="button" onclick="resetMealPlanFromProfile()" style="width:100%;margin-top:8px;padding:12px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:1px">RESET FROM PROFILE</button>
+    <div style="font-size:8px;color:var(--muted);text-align:center;margin-top:8px">Save to apply meal changes · Reset restores personal mealMacrosTraining</div>
   </div>`;
 }
 
@@ -20402,7 +21392,8 @@ function render(){
       &&!(b.type==='trade'&&(noTradeDays[_activeDateStr]||(modules&&modules.trading===false)))
       // Caffeine lives in the hub when that widget is on — keep it out of the
       // timeline AND the day progress total (otherwise you get 19/20 forever).
-      &&!(b.type==='caffeine'&&((modules&&modules.caffeine===false)||(uiSettings.hubWidgets||[]).includes('caffeine'))))
+      &&!(b.type==='caffeine'&&((modules&&modules.caffeine===false)||(uiSettings.hubWidgets||[]).includes('caffeine')))
+      &&!(['drivework','work','drivehome','workend'].includes(b.type)&&(!_isJobEnabled())))
     .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
   const dayPartOf=mins=>mins<12*60?'MORNING':mins<17*60?'AFTERNOON':'EVENING';
   const dayPartRank={MORNING:0,AFTERNOON:1,EVENING:2};
@@ -20631,7 +21622,7 @@ function renderOnboardingWizard(){
           → Change anytime in Settings
         </div>
       </div>
-      <button onclick="modules.fasting=false;modules.phases=false;modules.caffeine=false;modules.trading=false;onboardingStep=1;renderApp();" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1.5px">GET STARTED</button>
+      <button onclick="modules.fasting=false;modules.phases=false;modules.caffeine=false;modules.trading=false;modules.work=false;onboardingStep=1;renderApp();" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1.5px">GET STARTED</button>
     `;
   }else if(step===1){
     const MODULE_DEFS=[
@@ -20639,6 +21630,7 @@ function renderOnboardingWizard(){
       ['phases','Phases','Cut/bulk cycles'],
       ['caffeine','Caffeine','Schedule block + log'],
       ['trading','Trading','Tab + journal'],
+      ['work','Job','Shift and commute'],
     ];
     body=`
       <div style="margin-bottom:16px">
@@ -20901,20 +21893,40 @@ function getExerciseOptionsForMuscleGroup(muscleGroup){
   if(exerciseLibrary[raw])return exerciseLibrary[raw];
   return Object.values(exerciseLibrary).flat();
 }
+// Resolve which exerciseLibrary bucket a new name should land in.
+// Prefer an existing body-part mapping; for combined day labels
+// ("CHEST + TRICEPS") use the first real bucket, never invent CHESTBACK.
+function resolveLibraryBucket(muscleGroup,name){
+  if(Array.isArray(exerciseLibrary))return null;
+  const existing=typeof getExerciseBodyPart==='function'?getExerciseBodyPart(name):null;
+  if(existing&&exerciseLibrary[existing])return existing;
+  const raw=(muscleGroup||'').toUpperCase().trim();
+  if(raw&&exerciseLibrary[raw])return raw;
+  const parts=raw.split(/\s*\+\s*/).flatMap(p=>{
+    const t=p.trim().replace(/\s+/g,'');
+    if(!t)return[];
+    if(t==='CHESTBACK'||t==='CHEST+BACK')return['CHEST','BACK'];
+    if(t==='SHOULDERS+ARMS'||t==='SHOULDERSARMS')return['SHOULDERS','ARMS'];
+    return[t];
+  });
+  for(let i=0;i<parts.length;i++){
+    if(exerciseLibrary[parts[i]])return parts[i];
+  }
+  return'CHEST';
+}
 // Adds a newly-typed exercise to the correct muscle-group bucket so it's
 // remembered there next time — same dedup logic as tradeSymbols/tradeFirms.
+// Only call with a finished/confirmed name (never mid-keystroke drafts).
 function addExerciseToLibrary(name,muscleGroup){
-  if(!name)return;
+  const n=(name||'').trim();
+  if(!n)return;
   if(Array.isArray(exerciseLibrary)){
-    if(!exerciseLibrary.some(n=>n.toLowerCase()===name.toLowerCase()))exerciseLibrary.push(name);
+    if(!exerciseLibrary.some(x=>x.toLowerCase()===n.toLowerCase()))exerciseLibrary.push(n);
     return;
   }
-  const mg=(muscleGroup||'').toUpperCase();
-  // CHESTBACK isn't a real bucket to save into — put it wherever it isn't
-  // already known, defaulting to Chest, so it's still findable next time.
-  const bucket=exerciseLibrary[mg]?mg:'CHEST';
+  const bucket=resolveLibraryBucket(muscleGroup,n);
   if(!exerciseLibrary[bucket])exerciseLibrary[bucket]=[];
-  if(!exerciseLibrary[bucket].some(n=>n.toLowerCase()===name.toLowerCase()))exerciseLibrary[bucket].push(name);
+  if(!exerciseLibrary[bucket].some(x=>x.toLowerCase()===n.toLowerCase()))exerciseLibrary[bucket].push(n);
 }
 function getLastSessionForMuscleGroup(muscleGroup,excludeDateStr){
   if(!muscleGroup)return null;
@@ -21084,15 +22096,19 @@ function renderDropdownField(fieldClass,currentValue,options,placeholder){
   const isKnown=currentValue&&options.some(o=>o.toLowerCase()===currentValue.toLowerCase());
   const inNewMode=!!(currentValue&&!isKnown);
   const isSymbol=fieldClass==='tec-symbol';
+  const isWexName=fieldClass.indexOf('wex-name-')===0;
+  // Exercise names require ✓ confirm before joining the library — typing
+  // alone must not persist partial strings (unlike trade symbols).
   return`<div class="${fieldClass}-wrap" style="flex:1;position:relative">
     <select class="inp ${fieldClass}-select" style="display:${inNewMode?'none':'block'};margin-bottom:0" onchange="tecDropdownChange(this,'${fieldClass}')">
       <option value="">${placeholder}</option>
       ${options.map(o=>`<option value="${o.replace(/"/g,'&quot;')}" ${currentValue&&currentValue.toLowerCase()===o.toLowerCase()?'selected':''}>${o}</option>`).join('')}
       <option value="__addnew__" ${inNewMode?'selected':''}>+ Add New</option>
     </select>
-    <div class="${fieldClass}-newrow" style="display:${inNewMode?'flex':'none'};gap:4px">
-      <input class="inp ${fieldClass}-new" placeholder="New ${placeholder.toLowerCase()}" value="${inNewMode?currentValue.replace(/"/g,'&quot;'):''}" style="flex:1;margin-bottom:0${isSymbol?';text-transform:uppercase':''}" oninput="${isSymbol?'this.value=this.value.toUpperCase();':''}tecDropdownNewInput(this,'${fieldClass}')" ${fieldClass.indexOf('wex-name-')===0?'onblur="refreshWorkoutSupersetChips()"':''}/>
-      <button onclick="tecDropdownBack(this,'${fieldClass}')" aria-label="Back to list" style="background:var(--card);border:1px solid var(--border2);border-radius:5px;color:var(--muted);width:26px;flex-shrink:0;cursor:pointer;font-size:10px">‹</button>
+    <div class="${fieldClass}-newrow" style="display:${inNewMode?'flex':'none'};gap:4px;align-items:stretch">
+      <input class="inp ${fieldClass}-new" placeholder="New ${placeholder.toLowerCase()}" value="${inNewMode?(currentValue||'').replace(/"/g,'&quot;'):''}" style="flex:1;margin-bottom:0${isSymbol?';text-transform:uppercase':''}" oninput="${isSymbol?'this.value=this.value.toUpperCase();':''}tecDropdownNewInput(this,'${fieldClass}')" ${isWexName?'onkeydown="if(event.key===\'Enter\'){event.preventDefault();tecDropdownConfirmNew(this.closest(\'.'+fieldClass+'-wrap\').querySelector(\'[data-confirm-new]\'),\''+fieldClass+'\')}"':''}/>
+      ${isWexName?`<button type="button" data-confirm-new onclick="tecDropdownConfirmNew(this,'${fieldClass}')" aria-label="Confirm" style="background:var(--accent);border:none;border-radius:5px;color:var(--bg);width:28px;flex-shrink:0;cursor:pointer;font-size:11px;font-weight:700">✓</button>`:''}
+      <button type="button" onclick="tecDropdownBack(this,'${fieldClass}')" aria-label="Back to list" style="background:var(--card);border:1px solid var(--border2);border-radius:5px;color:var(--muted);width:26px;flex-shrink:0;cursor:pointer;font-size:10px">‹</button>
     </div>
   </div>`;
 }
@@ -21110,8 +22126,9 @@ window.tecDropdownChange=function(select,fieldClass){
   if(fieldClass==='tec-symbol')tecSymbolValueChanged(wrap.closest('.trade-entry-card'));
   if(fieldClass.indexOf('wex-name-')===0){
     if(select.value==='__addnew__'){
+      // Draft mode only — do not autosave or touch the library yet.
       refreshWorkoutVolumeStrip();
-      scheduleWorkoutAutosave();
+      syncWorkoutExercisePRTarget(wrap.closest('.workout-ex-card'));
     }else{
       const states=readAllWorkoutExercisesState();
       states.forEach(s=>{s.weightMode=resolveWorkoutWeightMode(s.name,s.weightMode);});
@@ -21125,6 +22142,8 @@ window.tecDropdownBack=function(btn,fieldClass){
   if(!wrap)return;
   const select=wrap.querySelector(`.${fieldClass}-select`);
   const newrow=wrap.querySelector(`.${fieldClass}-newrow`);
+  const input=wrap.querySelector(`.${fieldClass}-new`);
+  if(input)input.value='';
   select.value='';
   select.style.display='block';
   newrow.style.display='none';
@@ -21139,27 +22158,60 @@ function tecDropdownBack(btn,fieldClass){window.tecDropdownBack(btn,fieldClass);
 window.tecDropdownNewInput=function(input,fieldClass){
   if(fieldClass==='tec-symbol')tecSymbolValueChanged(input.closest('.trade-entry-card'));
   if(fieldClass.indexOf('wex-name-')===0){
+    // Live PR/volume UI only — never autosave mid-typing (that was writing
+    // partial names like "B","Be","Ben" into the library).
     syncWorkoutExercisePRTarget(input.closest('.workout-ex-card'));
     refreshWorkoutVolumeStrip();
-    scheduleWorkoutAutosave();
   }
 };
 function tecDropdownNewInput(input,fieldClass){window.tecDropdownNewInput(input,fieldClass);}
+// Commit a finished exercise name from "+ Add New" — one library entry, then
+// switch the card out of draft mode so subsequent autosaves persist it.
+window.tecDropdownConfirmNew=function(btn,fieldClass){
+  if(!fieldClass||fieldClass.indexOf('wex-name-')!==0)return;
+  const wrap=btn&&btn.closest?btn.closest(`.${fieldClass}-wrap`):null;
+  if(!wrap)return;
+  const input=wrap.querySelector(`.${fieldClass}-new`);
+  const name=(input&&input.value||'').trim();
+  if(!name){if(input)input.focus();return;}
+  const card=wrap.closest('.workout-ex-card');
+  if(!card)return;
+  const idx=parseInt(card.dataset.exidx,10);
+  const mg=modal&&modal.type==='workout'?modal.muscleGroup:'';
+  addExerciseToLibrary(name,mg);
+  const states=readAllWorkoutExercisesState();
+  if(!states[idx])return;
+  states[idx].name=name;
+  states[idx].nameDraft=false;
+  states[idx].weightMode=resolveWorkoutWeightMode(name,states[idx].weightMode);
+  rerenderWorkoutExercises(states);
+};
+function tecDropdownConfirmNew(btn,fieldClass){window.tecDropdownConfirmNew(btn,fieldClass);}
+// True when the exercise name dropdown is still in "+ Add New" draft mode
+// (select hidden / value __addnew__) — typed text is not yet committed.
+function isWorkoutNameDraft(card,fieldClass){
+  const select=card&&card.querySelector(`.${fieldClass}-select`);
+  if(!select)return false;
+  if(select.value==='__addnew__')return true;
+  const newrow=card.querySelector(`.${fieldClass}-newrow`);
+  return !!(newrow&&newrow.style.display==='flex'&&select.style.display==='none');
+}
 // Reads the EFFECTIVE current value of a dropdown field — whichever of
 // the select or the "add new" input is actually active right now.
 function getDropdownFieldValue(card,fieldClass){
   const select=card&&card.querySelector(`.${fieldClass}-select`);
   if(!select)return'';
-  if(select.value==='__addnew__'){
+  if(select.value==='__addnew__'||(select.style.display==='none')){
     const input=card.querySelector(`.${fieldClass}-new`);
     return input?input.value.trim():'';
   }
   return select.value.trim();
 }
 // Working-set helpers: a working set is a filled main set that is not
-// marked warmup. Warmups are excluded from the 8+ body-part volume goal.
-// First two sets of a new exercise default to warmup (toggleable).
-const WORKOUT_WORKING_SET_GOAL=8;
+// marked warmup. Warmups are excluded from the 12+ body-part volume goal.
+// New sets default to working (Warm off) — toggle Warm manually for the
+// occasional first 1–2 warmups.
+const WORKOUT_WORKING_SET_GOAL=12;
 function getExerciseBodyPart(name){
   if(!name||Array.isArray(exerciseLibrary))return null;
   const lower=name.toLowerCase();
@@ -21168,6 +22220,149 @@ function getExerciseBodyPart(name){
   }
   return null;
 }
+// True if this exercise name has any logged sets (weight/reps) or a PR entry.
+function exerciseHasHistory(name){
+  const lower=(name||'').toLowerCase().trim();
+  if(!lower)return false;
+  if(Object.keys(exercisePRs||{}).some(k=>k.toLowerCase()===lower))return true;
+  return Object.keys(exerciseLog||{}).some(d=>{
+    const sess=exerciseLog[d];
+    if(!sess||!sess.exercises)return false;
+    return sess.exercises.some(ex=>{
+      if(!ex||(ex.name||'').toLowerCase()!==lower)return false;
+      return(ex.sets||[]).some(s=>s&&(s.weight!=null||s.reps!=null));
+    });
+  });
+}
+function listLibraryExercisesWithMeta(){
+  const out=[];
+  if(Array.isArray(exerciseLibrary)){
+    exerciseLibrary.forEach(name=>{
+      if(!name)return;
+      out.push({name,category:'OTHER',tracked:exerciseHasHistory(name)});
+    });
+    return out;
+  }
+  const cats=typeof WORKOUT_TYPES!=='undefined'?WORKOUT_TYPES:Object.keys(exerciseLibrary);
+  const seenCat=new Set();
+  cats.forEach(cat=>{
+    seenCat.add(cat);
+    (exerciseLibrary[cat]||[]).forEach(name=>{
+      if(!name)return;
+      out.push({name,category:cat,tracked:exerciseHasHistory(name)});
+    });
+  });
+  Object.keys(exerciseLibrary).forEach(cat=>{
+    if(seenCat.has(cat))return;
+    (exerciseLibrary[cat]||[]).forEach(name=>{
+      if(!name)return;
+      out.push({name,category:cat,tracked:exerciseHasHistory(name)});
+    });
+  });
+  return out;
+}
+// Strip name-only stubs (no filled sets) left by the old mid-typing autosave.
+function cleanNameOnlyExerciseLogStubs(){
+  let cleanedSessions=0;
+  Object.keys(exerciseLog||{}).forEach(d=>{
+    const sess=exerciseLog[d];
+    if(!sess||!Array.isArray(sess.exercises))return;
+    const before=sess.exercises.length;
+    sess.exercises=sess.exercises.filter(ex=>{
+      if(!ex)return false;
+      return(ex.sets||[]).some(s=>s&&(s.weight!=null||s.reps!=null));
+    });
+    if(sess.exercises.length!==before)cleanedSessions++;
+    if(!sess.exercises.length)delete exerciseLog[d];
+  });
+  return cleanedSessions;
+}
+function removeUnusedExercisesFromLibrary(){
+  let removed=0;
+  if(Array.isArray(exerciseLibrary)){
+    const next=exerciseLibrary.filter(n=>exerciseHasHistory(n));
+    removed=exerciseLibrary.length-next.length;
+    exerciseLibrary=next;
+    return removed;
+  }
+  Object.keys(exerciseLibrary).forEach(cat=>{
+    const list=exerciseLibrary[cat]||[];
+    const next=list.filter(n=>exerciseHasHistory(n));
+    removed+=list.length-next.length;
+    exerciseLibrary[cat]=next;
+  });
+  return removed;
+}
+function purgeOrphanExerciseNames(){
+  const cleanedSessions=cleanNameOnlyExerciseLogStubs();
+  const removedLib=removeUnusedExercisesFromLibrary();
+  return{removedLib,cleanedSessions};
+}
+function renameExerciseEverywhere(oldName,newName){
+  const from=(oldName||'').trim();
+  const to=(newName||'').trim();
+  if(!from||!to)return false;
+  const fromLower=from.toLowerCase();
+  const toLower=to.toLowerCase();
+  if(fromLower!==toLower){
+    const nameTaken=!!getExerciseBodyPart(to)||Object.keys(exercisePRs||{}).some(k=>k.toLowerCase()===toLower);
+    if(nameTaken)return false;
+  }else if(from===to)return false;
+  if(!Array.isArray(exerciseLibrary)){
+    Object.keys(exerciseLibrary).forEach(cat=>{
+      exerciseLibrary[cat]=(exerciseLibrary[cat]||[]).map(n=>n.toLowerCase()===fromLower?to:n);
+    });
+  }else{
+    exerciseLibrary=exerciseLibrary.map(n=>n.toLowerCase()===fromLower?to:n);
+  }
+  Object.keys(exerciseLog||{}).forEach(d=>{
+    (exerciseLog[d].exercises||[]).forEach(ex=>{
+      if(ex&&(ex.name||'').toLowerCase()===fromLower)ex.name=to;
+    });
+  });
+  const prKey=Object.keys(exercisePRs||{}).find(k=>k.toLowerCase()===fromLower);
+  if(prKey&&prKey!==to){
+    if(!exercisePRs[to])exercisePRs[to]=exercisePRs[prKey];
+    delete exercisePRs[prKey];
+  }
+  return true;
+}
+function moveExerciseCategory(name,newCat){
+  const n=(name||'').trim();
+  const cat=(newCat||'').toUpperCase().trim();
+  if(!n||!cat||Array.isArray(exerciseLibrary))return false;
+  if(!exerciseLibrary[cat])exerciseLibrary[cat]=[];
+  const lower=n.toLowerCase();
+  Object.keys(exerciseLibrary).forEach(c=>{
+    exerciseLibrary[c]=(exerciseLibrary[c]||[]).filter(x=>x.toLowerCase()!==lower);
+  });
+  if(!exerciseLibrary[cat].some(x=>x.toLowerCase()===lower))exerciseLibrary[cat].push(n);
+  return true;
+}
+function deleteExerciseFromLibrary(name){
+  const lower=(name||'').toLowerCase().trim();
+  if(!lower)return false;
+  if(Array.isArray(exerciseLibrary)){
+    const before=exerciseLibrary.length;
+    exerciseLibrary=exerciseLibrary.filter(n=>n.toLowerCase()!==lower);
+    return exerciseLibrary.length!==before;
+  }
+  let removed=false;
+  Object.keys(exerciseLibrary).forEach(cat=>{
+    const list=exerciseLibrary[cat]||[];
+    const next=list.filter(n=>n.toLowerCase()!==lower);
+    if(next.length!==list.length)removed=true;
+    exerciseLibrary[cat]=next;
+  });
+  return removed;
+}
+// One-time cleanup of name-only stubs from the old mid-typing autosave bug.
+(function cleanExerciseLogNameStubsOnce(){
+  try{
+    const n=cleanNameOnlyExerciseLogStubs();
+    if(n>0&&typeof saveState==='function')saveState();
+  }catch(e){}
+})();
 function getWorkoutVolumeBodyParts(muscleGroup,dk){
   if(dk&&typeof getTrainingTypesForDay==='function'){
     const types=getTrainingTypesForDay(dk);
@@ -21201,17 +22396,20 @@ function renderWorkoutVolumeStrip(muscleGroup,dk,exercises){
   if(!parts.length)return'';
   const counts=countWorkingSetsByBodyPart(exercises);
   const goal=WORKOUT_WORKING_SET_GOAL;
-  return`<div id="workout-volume-strip" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end">
-    ${parts.map(bp=>{
-      const n=counts[bp]||0;
-      const done=n>=goal;
-      const pct=Math.min(100,Math.round((n/goal)*100));
-      return`<div data-bp="${bp}" style="display:flex;align-items:center;gap:6px;min-width:0">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:0.8px;color:${done?'#bef264':'var(--muted)'};font-weight:700;flex-shrink:0">${bp}</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:${done?'#bef264':'var(--text3)'};font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${n}<span style="color:var(--muted2);font-weight:400">/${goal}</span></span>
-        <span style="display:block;width:36px;height:3px;border-radius:2px;background:var(--border2);overflow:hidden;flex-shrink:0" aria-hidden="true"><span style="display:block;height:100%;width:${pct}%;border-radius:2px;background:${done?'#bef264':'var(--text3)'};transition:width 0.2s ease"></span></span>
-      </div>`;
-    }).join('')}
+  return`<div id="workout-volume-strip" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end">
+      ${parts.map(bp=>{
+        const n=counts[bp]||0;
+        const done=n>=goal;
+        const pct=Math.min(100,Math.round((n/goal)*100));
+        return`<div data-bp="${bp}" style="display:flex;align-items:center;gap:6px;min-width:0">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:0.8px;color:${done?'#bef264':'var(--muted)'};font-weight:700;flex-shrink:0">${bp}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:${done?'#bef264':'var(--text3)'};font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${n}<span style="color:var(--muted2);font-weight:400">/${goal}</span></span>
+          <span style="display:block;width:36px;height:3px;border-radius:2px;background:var(--border2);overflow:hidden;flex-shrink:0" aria-hidden="true"><span style="display:block;height:100%;width:${pct}%;border-radius:2px;background:${done?'#bef264':'var(--text3)'};transition:width 0.2s ease"></span></span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:6px;color:var(--muted2);letter-spacing:0.4px;line-height:1.3;text-align:right">Working sets (not warmups) · aim for ${goal}+ per part</div>
   </div>`;
 }
 function refreshWorkoutVolumeStrip(){
@@ -21238,12 +22436,15 @@ function buildWorkoutExercisesFromDom(){
     else if(groupOf[i]==null&&groupOf[j]!=null)groupOf[i]=groupOf[j];
   });
   return rawStates.map((s,i)=>{
+    // Unconfirmed "+ Add New" drafts never persist (name or sets).
+    if(s.nameDraft)return null;
+    const persistName=(s.name||'').trim();
     const cleanSets=(s.sets||[]).filter(set=>set.weight!=null||set.reps!=null).map(set=>({
       weight:set.weight,reps:set.reps,warmup:!!set.warmup,
       dropsets:(set.dropsets||[]).filter(d=>d.weight!=null||d.reps!=null),
     }));
-    return{name:s.name,weightMode:resolveWorkoutWeightMode(s.name,s.weightMode||'total'),supersetGroup:groupOf[i],sets:cleanSets};
-  }).filter(ex=>ex.name||ex.sets.length);
+    return{name:persistName,weightMode:resolveWorkoutWeightMode(persistName,s.weightMode||'total'),supersetGroup:groupOf[i],sets:cleanSets};
+  }).filter(ex=>ex&&(ex.name||ex.sets.length));
 }
 function writeWorkoutLogFromDom(finalize){
   if(!modal||modal.type!=='workout')return null;
@@ -21341,15 +22542,13 @@ function formatPRTargetForWeightMode(lp,weightMode){
     return{label:formatSetLabel(eff,reps),chip:'BODYWEIGHT'};
   }
   if(mode==='per_side'){
-    const perSide=eff/2;
-    // Avoid long floats like 92.5000000001 from odd effective loads.
-    const shown=Math.round(perSide*100)/100;
-    return{label:formatSetLabel(shown,reps),chip:'PER SIDE'};
+    // ONE SIDE: typed weight IS the load — no ×2. Chip clarifies logging style.
+    return{label:formatSetLabel(eff,reps),chip:'ONE SIDE'};
   }
   return{label:formatSetLabel(eff,reps),chip:'TOTAL'};
 }
 // Thin "beat this" line — one weight×reps target in the card's current
-// weight mode, with a TOTAL / PER SIDE / BODYWEIGHT chip. Tappable → history.
+// weight mode, with a TOTAL / ONE SIDE / BODYWEIGHT chip. Tappable → history.
 function renderWorkoutExercisePRTarget(name,weightMode){
   if(!name){
     return`<div class="wex-pr-target is-empty">
@@ -21450,7 +22649,7 @@ function syncWorkoutExercisePRTarget(card){
 // One exercise card: name dropdown as the title, thin Beat line,
 // Options panel for weight type / supersets, then a labeled set table.
 function renderWorkoutExerciseCard(ex,idx,allExercises,muscleGroup){
-  const sets=ex.sets&&ex.sets.length?ex.sets:[{warmup:true}];
+  const sets=ex.sets&&ex.sets.length?ex.sets:[{warmup:false}];
   const otherNames=(allExercises||[]).map((e,i)=>({name:e.name,i})).filter(o=>o.i!==idx&&o.name);
   const linkedIdx=ex.supersetGroup!=null?(allExercises||[]).findIndex((e,i)=>i!==idx&&e.supersetGroup===ex.supersetGroup):-1;
   const exerciseOptions=getExerciseOptionsForMuscleGroup(muscleGroup);
@@ -21470,7 +22669,7 @@ function renderWorkoutExerciseCard(ex,idx,allExercises,muscleGroup){
       <div class="wex-opt-lbl">WEIGHT TYPE</div>
       <div class="wex-weightmode-row">
         ${wmBtn('total','TOTAL')}
-        ${wmBtn('per_side','PER SIDE ×2')}
+        ${wmBtn('per_side','ONE SIDE')}
       </div>
     </div>`;
   const ssBlock=otherNames.length?`<div class="wex-opt-block"${isBWExercise?'':' style="margin-top:4px"'}>
@@ -21605,7 +22804,9 @@ function renderTradeEntryCard(t,idx){
 // Trading feature's card handling.
 function readWorkoutExerciseCardState(cardEl){
   const idx=parseInt(cardEl.dataset.exidx);
-  const name=getDropdownFieldValue(cardEl,'wex-name-'+idx);
+  const fieldClass='wex-name-'+idx;
+  const nameDraft=isWorkoutNameDraft(cardEl,fieldClass);
+  const name=getDropdownFieldValue(cardEl,fieldClass);
   const weightMode=resolveWorkoutWeightMode(name,cardEl.dataset.weightmode||'total');
   const linkedChip=cardEl.querySelector('.wex-superset-chip.selected-link');
   const supersetTarget=linkedChip?parseInt(linkedChip.dataset.target):null;
@@ -21622,7 +22823,7 @@ function readWorkoutExerciseCardState(cardEl){
     });
     return{weight:wRaw?parseFloat(wRaw):null,reps:rRaw?parseInt(rRaw):null,warmup,dropsets};
   });
-  return{name,weightMode,supersetTarget,sets};
+  return{name,nameDraft,weightMode,supersetTarget,sets};
 }
 // Reads EVERY exercise card's live state — the basis for any operation
 // that changes exercise-level indexing (add/remove exercise), since the
@@ -21665,7 +22866,7 @@ function rerenderWorkoutExercises(states){
 }
 window.addWorkoutExerciseCard=function(){
   const states=readAllWorkoutExercisesState();
-  states.push({name:'',supersetTarget:null,sets:[{warmup:true}]});
+  states.push({name:'',supersetTarget:null,sets:[{warmup:false}]});
   rerenderWorkoutExercises(states);
 };
 function addWorkoutExerciseCard(){window.addWorkoutExerciseCard();}
@@ -21754,7 +22955,7 @@ window.addWorkoutSet=function(btn){
   const card=btn.closest('.workout-ex-card');
   const state=readWorkoutExerciseCardState(card);
   const isBW=card.dataset.weightmode==='bodyweight';
-  state.sets.push({warmup:state.sets.length<2});
+  state.sets.push({warmup:false});
   card.querySelector('.wex-sets').innerHTML=state.sets.map((s,si)=>renderWorkoutSetRow(s,si,isBW)).join('');
   refreshWorkoutVolumeStrip();
   refreshWorkoutExercisePRCues();
@@ -21898,12 +23099,32 @@ window.updateTradeTotalDisplay=function(){
 };
 function updateTradeTotalDisplay(){window.updateTradeTotalDisplay();}
 window.saveWorkoutLog=function(){
-  // DONE: finalize PRs/timeline/library. Does NOT mark the schedule workout
-  // finished — weight/reps already autosave as you type.
+  // DONE: finalize PRs/timeline/library and mark the schedule workout done
+  // (same "logged = done" pattern as cardio/sauna). Weight/reps already
+  // autosave as you type — only DONE auto-checks -w (not mid-session autosave).
   if(!modal||modal.type!=='workout')return;
   if(_workoutAutosaveTimer){clearTimeout(_workoutAutosaveTimer);_workoutAutosaveTimer=null;}
+  const dk=modal.dk;
   const result=writeWorkoutLogFromDom(true);
   if(!result)return;
+  const blocks=getEffectiveBlocks(dk)||[];
+  const trainIdx=blocks.findIndex(b=>b&&b.type==='training');
+  if(trainIdx>=0){
+    const wk=`${getDateKey(dk)}-${trainIdx}-w`;
+    if(!checked[wk]){
+      checked[wk]=true;
+      // Mirror toggleCheckSub streak/adherence for -w; skip timeline —
+      // writeWorkoutLogFromDom already logged the detailed workout entry.
+      if(!skipped[wk]&&!skipped[`${getDateKey(dk)}-${trainIdx}`]&&!isWorkoutRestDay(dk)){
+        updateStreakForDate('training',DATE_INPUT_FMT(getDateForDay(dk)),true);
+        const wiW=getWeekIdxForDay(dk);
+        if(!consistency[wiW])consistency[wiW]={total:0,done:0};
+        consistency[wiW].done++;
+        consistency[wiW].total++;
+      }
+    }
+    onGymActivityChecked(dk);
+  }
   saveState();
   modal=null;
   render();
@@ -22278,6 +23499,7 @@ window.saveFood=function(){
     const newId='custom_'+Date.now();
     mpFoods.push({id:newId,name,serving,P,C:C_,F,kcal,category,stockQty,refillQty,defaultSv:1,step:1});
   }
+  mpSave();
   saveState();modal=null;renderApp();
 };
 function saveFood(){window.saveFood();}
@@ -22288,7 +23510,7 @@ window.deleteFood=function(idOrIdx){
   if(idx<0||idx==null)return;
   const f=mpFoods[idx];
   if(!confirm('Delete'+(f&&f.name?' "'+f.name+'"':' this food')+' from your food database?'))return;
-  mpFoods.splice(idx,1);saveState();modal=null;renderApp();
+  mpFoods.splice(idx,1);mpSave();saveState();modal=null;renderApp();
 };
 function deleteFood(idx){window.deleteFood(idx);}
 
@@ -22297,7 +23519,7 @@ window.toggleFoodStock=function(idOrIdx){
   let idx=typeof idOrIdx==='number'?idOrIdx:mpFoods.findIndex(f=>f.id===idOrIdx);
   if(idx<0||idx==null)return;
   mpFoods[idx].inStock=mpFoods[idx].inStock===false; // flips: undefined/true -> false, false -> true
-  saveState();renderApp();
+  mpSave();saveState();renderApp();
 };
 function toggleFoodStock(idx){window.toggleFoodStock(idx);}
 window.refillFood=function(idOrIdx){
@@ -22308,7 +23530,7 @@ window.refillFood=function(idOrIdx){
   if(f.refillQty==null)return;
   f.stockQty=f.refillQty;
   if(f.inStock===false)f.inStock=true; // a refill implicitly means it's back in stock
-  saveState();renderApp();
+  mpSave();saveState();renderApp();
   showToast(`${f.name} refilled to ${f.refillQty}`);
 };
 function refillFood(idx){window.refillFood(idx);}
@@ -22605,7 +23827,6 @@ window.setPhotoCompareDate=function(d){
   window._photoCompareDate=closest;
   window._photoCmpMode='date';
   renderApp();
-  showToast('No photos on '+DATE_SHORT_FMT(d)+' — showing closest: '+DATE_SHORT_FMT(closest));
 };
 window.setPhotoCmpMode=function(m){
   // Migrate legacy anchor modes from the old pill set.
@@ -22715,8 +23936,9 @@ function suggestMealSwap(mealKey,dk){
   const fitsUnderCap=(p,c,f,kcal)=>p<=capP+0.5&&c<=capC+0.5&&f<=capF+0.5&&kcal<=capKcal+1;
 
   // When inventory tracking is on, only foods marked available; when off,
-  // the whole catalog is fair game (catalog-only mode).
-  const foods=(mpFoods||MP_FOODS_DEFAULT).filter(foodIsAvailable);
+  // the whole catalog is fair game (catalog-only mode). Meal swaps never
+  // include powders/pills — those belong to shake/supplement flows.
+  const foods=getMealPickerFoods().filter(foodIsAvailable);
   if(!foods.length)return[];
 
   const utilization=(p,c,f)=>(capP>0?p/capP:0)*0.5+(capC>0?c/capC:0)*0.3+(capF>0?f/capF:0)*0.2;
@@ -23069,16 +24291,17 @@ function getMostRecentBodyWeight(){
 // Resolves what a set's weight ACTUALLY means for strength tracking —
 // exercise.weightMode distinguishes three real, different things that all
 // just look like "a number" otherwise:
-//  - 'total' (default): the number entered IS the full load.
-//  - 'per_side': dumbbells/plate-loaded machines where you log what's on
-//    ONE side/hand — the real load is double that.
+//  - 'total' (default): the number entered IS the full load (both sides /
+//    bar / stack as shown).
+//  - 'per_side' (ONE SIDE): unilateral / iso logging — typed weight IS the
+//    load (no ×2). Chip is for clarity only.
 //  - 'bodyweight': no plate weight at all — uses your current logged body
 //    weight instead of anything typed into the set.
 function getEffectiveSetWeight(exercise,set){
   if(!exercise)return set&&set.weight||0;
   if(exercise.weightMode==='bodyweight')return getMostRecentBodyWeight()||0;
   const raw=(set&&set.weight)||0;
-  return exercise.weightMode==='per_side'?raw*2:raw;
+  return raw;
 }
 // Total volume for one exercise entry — sum of EFFECTIVE weight×reps
 // across all working sets AND any dropsets attached to them (a dropset is
@@ -24500,8 +25723,7 @@ window.mealPlanUpdateSlot=function(idx,field,val){
 function mealPlanUpdateSlot(i,f,v){window.mealPlanUpdateSlot(i,f,v);}
 window.mealPlanAddFood=function(slotIdx,foodId){
   if(!mealPlan||!mealPlan.slots[slotIdx])return;
-  const foods=(mpFoods&&mpFoods.length)?mpFoods:MP_FOODS_DEFAULT;
-  const food=foods.find(f=>f.id===foodId);
+  const food=getMealPickerFoods().find(f=>f.id===foodId);
   if(!food)return;
   mealPlan.slots[slotIdx].items.push({
     n:food.name,a:food.unit||food.serving||'1 serving',defaultSv:food.defaultSv!=null?food.defaultSv:1,step:food.step||1,foodId:food.id
@@ -24523,6 +25745,30 @@ window.mealPlanSetFoodSv=function(slotIdx,foodIdx,delta){
   renderApp();
 };
 function mealPlanSetFoodSv(i,j,d){window.mealPlanSetFoodSv(i,j,d);}
+window.resetMealPlanFromProfile=function(){
+  const profileDm=(PD&&PD.mealMacrosTraining)||{};
+  Object.keys(DM).forEach(mt=>{
+    if(mt==='DEFAULT')return;
+    const day=DM[mt];
+    if(!day||typeof day!=='object')return;
+    Object.keys(day).forEach(k=>{if(/^m\d+$/.test(k))delete day[k];});
+    const src=profileDm[mt];
+    if(!src)return;
+    Object.keys(src).forEach(k=>{
+      if(!/^m\d+$/.test(k)||!src[k])return;
+      day[k]=JSON.parse(JSON.stringify(src[k]));
+    });
+    if(src.dextrose)day.dextrose=JSON.parse(JSON.stringify(src.dextrose));
+    if(src.totalShakes!=null)day.totalShakes=src.totalShakes;
+    recomputeDmDayTotals(day);
+  });
+  mealPlan=seedMealPlanFromExisting();
+  syncMealPlanToSchedule();
+  saveState();
+  showToast('Meal plan reset from profile');
+  renderApp();
+};
+function resetMealPlanFromProfile(){window.resetMealPlanFromProfile();}
 window.saveMealPlan=function(){
   // Capture names from inputs before apply (avoid losing unsaved keystrokes).
   // Meal times are set via the shared wheel onto mealPlan.slots[i].t already.
@@ -24562,9 +25808,16 @@ window.openDailySchedTimePicker=function(path,title){
         c=c[parts[i]];
       }
       const prevVal=c[key];
+      const isWorkShift=path==='work.workNights.shiftStart'||path==='work.workNights.shiftEnd';
+      const prevWn=isWorkShift&&dailySchedules.work&&dailySchedules.work.workNights
+        ?Object.assign({},dailySchedules.work.workNights):null;
       c[key]=str;
       applyCascadeToProfiles(path,prevVal,str);
+      applyDayStartCascade(path,prevVal,str);
       applySleepWakeCascade(path,prevVal,str);
+      applyWorkoutCascade(path,prevVal,str);
+      _updateMorningOffsetFromAbsolute(path);
+      if(prevWn)_refreshWorkDerivedAndCascade(prevWn,{cascadeDrives:false});
       applyDailyScheduleChanges({skipSnapshot:true});
     },
   });
@@ -24638,6 +25891,34 @@ window.nudgeGymField=function(profile,field,delta){
 function nudgeGymField(profile,field,delta){window.nudgeGymField(profile,field,delta);}
 window.nudgeGymDuration=function(profile,delta){window.nudgeGymField(profile,'durationMin',delta);};
 function nudgeGymDuration(profile,delta){window.nudgeGymDuration(profile,delta);}
+
+window.nudgeWorkField=function(field,delta){
+  if(!dailySchedules||!dailySchedules.work)return;
+  snapshotDailySchedUndo();
+  const wn=dailySchedules.work.workNights||(dailySchedules.work.workNights={});
+  const prevWn=Object.assign({},wn);
+  const limits={driveMin:[5,120,30]};
+  const lim=limits[field]||[5,120,30];
+  wn[field]=Math.max(lim[0],Math.min(lim[1],(Number(wn[field])||lim[2])+delta));
+  _refreshWorkDerivedAndCascade(prevWn);
+  applyDailyScheduleChanges({skipSnapshot:true});
+};
+function nudgeWorkField(field,delta){window.nudgeWorkField(field,delta);}
+
+window.toggleJobModule=function(){
+  if(!modules)modules={};
+  snapshotDailySchedUndo();
+  const prevOn=modules.work!==false;
+  modules.work=!prevOn;
+  syncWorkScheduleToSchedule();
+  saveState();
+  showToast(modules.work!==false?'Job on':'Job off',{onUndo:function(){
+    modules.work=prevOn;
+    window.undoDailyScheduleChange();
+  }});
+  renderApp();
+};
+function toggleJobModule(){window.toggleJobModule();}
 
 window.nudgeAnchorShakeOffset=function(profile,field,delta){
   // Legacy path — prefer nudgeAnchorShakeItemTiming
@@ -24841,6 +26122,9 @@ window.setSettingsTab=function(t){window.setSettingsView(t);};
 window.toggleModule=function(key){
   if(!modules)modules={};
   modules[key]=!modules[key];
+  if(key==='work'){
+    syncWorkScheduleToSchedule();
+  }
   saveState();renderApp();
 };
 function toggleModule(key){window.toggleModule(key);}
@@ -24850,6 +26134,7 @@ function setSettingsView(v){window.setSettingsView(v);}
 const SETTINGS_SECTIONS={
   phase:{label:'PHASE',hubLabel:'Phase',color:'#6366f1',sub:'Name and dates'},
   split:{label:'TRAINING SPLIT',hubLabel:'Training Split',color:'#a3e635',sub:'Lift by day'},
+  exercises:{label:'EXERCISES',hubLabel:'Exercises',color:'#bef264',sub:'Library & categories'},
   daily:{label:'DAILY SCHEDULE',hubLabel:'Daily Schedule',color:'#f87171',sub:'Work, sleep, gym, meals'},
   'daily-work':{label:'WORK',hubLabel:'Work',color:'#f87171',sub:'Shift and commute'},
   'daily-sleep':{label:'SLEEP',hubLabel:'Sleep',color:'#818cf8',sub:'Sleep and wake'},
@@ -25068,10 +26353,21 @@ function renderSettingsPage(){
       <button type="button" class="settings-step-btn" onclick="nudgeGymField('${profile}','${field}',5)">+</button>
     </div>
   </div>`;
+  const workDriveMin=workNightsTimes.driveMin!=null?workNightsTimes.driveMin:30;
+  const workMinNudgeRow=`<div class="settings-field-row">
+    <label>Drive duration</label>
+    <div class="settings-field-controls">
+      <button type="button" class="settings-step-btn" onclick="nudgeWorkField('driveMin',-5)">−</button>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);min-width:52px;text-align:center">${workDriveMin} min</span>
+      <button type="button" class="settings-step-btn" onclick="nudgeWorkField('driveMin',5)">+</button>
+    </div>
+  </div>`;
+  const jobOn=_isJobEnabled();
   if(view==='hub'){
     const scheduleRows=[
       settingsHubRow('daily'),
       settingsHubRow('split'),
+      settingsHubRow('exercises'),
       settingsHubRow('macros'),
       !(modules&&modules.phases===false)?settingsHubRow('phase',phaseActive?`Day ${elapsed} of ${totalDays} · ${pct}%`:'No active phase'):'',
     ].filter(Boolean).join('');
@@ -25106,7 +26402,7 @@ function renderSettingsPage(){
     </div>
     <div class="settings-card" style="margin-top:10px">
       ${settingsToggle('Cascade neighbors','Shift linked blocks when times move',ds.cascadeNeighbors!==false,'toggleDailyCascade()')}
-      <div class="settings-hint" style="margin-top:8px;margin-bottom:0">Undo ~10s from toast.</div>
+      <div class="settings-hint" style="margin-top:8px;margin-bottom:0">Undo ~3.5s from toast.</div>
       ${cascadeSummary?`<div class="daily-cascade-note">${cascadeSummary}</div>`:''}
     </div>
   `;
@@ -25114,16 +26410,20 @@ function renderSettingsPage(){
   const ACC_WORK='#f87171',ACC_SLEEP='#818cf8',ACC_GYM='#94a3b8',ACC_ANCH='#2dd4bf',ACC_MEAL='#fb923c';
   const dailyWorkSection=`
     ${renderDailyCascadeNote()}
-    ${dailySectionCard('WORK NIGHTS','Days with a shift',dayChipRow(workNightDaysList,dk=>`toggleDailyWorkNight('${dk}')`),ACC_WORK)}
-    ${dailySectionCard('TIMES','',`
-      ${dailySubCat('EVENING',ACC_WORK)}
-      ${timePickRow('Drive to work','work.workNights.driveToWork',workNightsTimes.driveToWork,'DRIVE TO WORK')}
-      ${timePickRow('Shift start','work.workNights.shiftStart',workNightsTimes.shiftStart,'SHIFT START')}
-      ${dailySubCat('NEXT MORNING',ACC_WORK)}
-      ${timePickRow('Drive home from work','work.workNights.driveHome',workNightsTimes.driveHome,'DRIVE HOME')}
-      ${timePickRow('Shift end','work.workNights.shiftEnd',workNightsTimes.shiftEnd,'SHIFT END')}
-      <div class="settings-hint" style="margin-top:10px;margin-bottom:0">Home + end = next morning</div>
-    `,ACC_WORK)}
+    <div class="settings-card" style="margin-bottom:10px">
+      ${settingsToggle('Job','Show shift and commute blocks',jobOn,'toggleJobModule()')}
+    </div>
+    <div style="opacity:${jobOn?'1':'0.45'};pointer-events:${jobOn?'auto':'none'}">
+      ${dailySectionCard('SHIFT DAYS','Days with a shift',dayChipRow(workNightDaysList,dk=>`toggleDailyWorkNight('${dk}')`),ACC_WORK)}
+      ${dailySectionCard('TIMES','Start · end · day start',`
+        ${dailySubCat('SHIFT',ACC_WORK)}
+        ${timePickRow('Shift start','work.workNights.shiftStart',workNightsTimes.shiftStart,'SHIFT START')}
+        ${timePickRow('Shift end · day start','work.workNights.shiftEnd',workNightsTimes.shiftEnd,'DAY START')}
+        ${workMinNudgeRow}
+        <div class="settings-hint" style="margin-top:10px;margin-bottom:0">Day start = shift end. Morning habits stay relative to it.</div>
+        <div class="settings-hint" style="margin-top:6px;margin-bottom:0">Preview: ${formatWorkTimelinePreview(workNightsTimes)}</div>
+      `,ACC_WORK)}
+    </div>
   `;
 
   const dailySleepSection=`
@@ -25133,13 +26433,15 @@ function renderSettingsPage(){
       ${dayChipRow(sleepAfterDays,dk=>`toggleDailySleepProfile('${dk}','after')`)}
       ${dailySubCat('TIMES',ACC_SLEEP)}
       ${timePickRow('Sleep start','sleep.afterWork.t',sleepAw.t,'SLEEP START')}
-      ${timePickRow('Sleep end / wake','sleep.afterWork.tEnd',sleepAw.tEnd,'SLEEP END')}
+      ${timePickRow('Sleep end / nap wake','sleep.afterWork.tEnd',sleepAw.tEnd,'NAP WAKE')}
+      <div class="settings-hint" style="margin-top:8px;margin-bottom:0">Morning day start is Shift end (Work), not nap wake.</div>
     `,ACC_SLEEP)}
-    ${dailySectionCard('OFF DAY','Off-day wake',`
+    ${dailySectionCard('OFF DAY','Off-day wake · day start',`
       ${dailySubCat('DAYS',ACC_SLEEP)}
       ${dayChipRow(sleepOffDays,dk=>`toggleDailySleepProfile('${dk}','off')`)}
       ${dailySubCat('TIMES',ACC_SLEEP)}
-      ${timePickRow('Wake up','sleep.off.wake',sleepOff.wake,'WAKE UP')}
+      ${timePickRow('Wake up · day start','sleep.off.wake',sleepOff.wake,'DAY START')}
+      <div class="settings-hint" style="margin-top:8px;margin-bottom:0">Morning habits stay relative to wake.</div>
     `,ACC_SLEEP)}
   `;
 
@@ -25233,11 +26535,11 @@ function renderSettingsPage(){
   const anchorsDaysHtml=`<div class="settings-chip-row" style="flex-wrap:wrap;margin-bottom:4px">${DAYS.map(dk=>`
     <span class="settings-chip${(anchorsDays||[]).includes(dk)?' active':''}" style="cursor:default;opacity:${(anchorsDays||[]).includes(dk)?'1':'0.35'}">${dk}</span>`).join('')}</div>`;
   const morningHint=anchorsIsWork
-    ?'After shift end'
-    :'After waking';
+    ?'Relative to shift end (day start)'
+    :'Relative to wake (day start)';
   const dailyAnchorsSection=`
     ${renderDailyCascadeNote()}
-    <div class="settings-hint" style="margin-bottom:10px">Work = after shift · Off = wake</div>
+    <div class="settings-hint" style="margin-bottom:10px">Work day start = shift end · Off day start = wake</div>
     <div class="toggle-pill" style="margin-bottom:12px">
       <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('afterWork')" style="background:${anchorsProfile==='afterWork'?'var(--accent-bg)':'transparent'};color:${anchorsProfile==='afterWork'?'var(--accent)':'var(--muted)'};border:${anchorsProfile==='afterWork'?'1px solid var(--accent-border)':'1px solid transparent'}">Work nights</button>
       <button type="button" class="toggle-opt" onclick="setAnchorsEditProfile('off')" style="background:${anchorsProfile==='off'?'var(--accent-bg)':'transparent'};color:${anchorsProfile==='off'?'var(--accent)':'var(--muted)'};border:${anchorsProfile==='off'?'1px solid var(--accent-border)':'1px solid transparent'}">Off days</button>
@@ -25333,6 +26635,61 @@ function renderSettingsPage(){
     </div>
     <button class="settings-save-btn" onclick="saveWorkoutSplit()" style="background:#a3e635;color:var(--bg)">SAVE SPLIT</button>
     <button type="button" class="settings-link-btn" onclick="resetWorkoutSplit()">Reset to default split</button>
+  `;
+
+  const exMeta=typeof listLibraryExercisesWithMeta==='function'?listLibraryExercisesWithMeta():[];
+  const unusedCount=exMeta.filter(e=>!e.tracked).length;
+  const trackedCount=exMeta.filter(e=>e.tracked).length;
+  const exCats=(typeof WORKOUT_TYPES!=='undefined'?WORKOUT_TYPES:[]).filter(cat=>{
+    if(cat==='TRICEPS'||cat==='BICEPS'||cat==='SHOULDERS'){
+      return(exerciseLibrary[cat]||[]).length>0;
+    }
+    return true;
+  });
+  // Include any non-empty stray buckets
+  if(!Array.isArray(exerciseLibrary)){
+    Object.keys(exerciseLibrary).forEach(cat=>{
+      if(!exCats.includes(cat)&&(exerciseLibrary[cat]||[]).length)exCats.push(cat);
+    });
+  }
+  const exercisesSection=`
+    <div class="settings-card" style="margin-bottom:10px">
+      <div class="settings-card-title">LIBRARY</div>
+      <div class="settings-hint" style="margin-bottom:8px">${trackedCount} tracked · ${unusedCount} unused</div>
+      <div style="font-size:8px;color:var(--muted2);line-height:1.4;margin-bottom:10px">Tracked = has logged sets or a PR. Delete removes from the list only — history stays.</div>
+      ${unusedCount?`<button type="button" class="settings-link-btn" onclick="settingsPurgeUnusedExercises()" style="margin:0">Remove ${unusedCount} unused</button>`:''}
+    </div>
+    ${exCats.map(cat=>{
+      const items=exMeta.filter(e=>e.category===cat);
+      if(!items.length&&(cat==='TRICEPS'||cat==='BICEPS'||cat==='SHOULDERS'))return'';
+      const label=WORKOUT_TYPE_LABELS[cat]||cat;
+      return`<div class="settings-card" style="margin-bottom:10px;padding-top:10px;padding-bottom:6px">
+        <div class="settings-card-title" style="color:#bef264">${label.toUpperCase()}</div>
+        ${items.length?items.map(ex=>{
+          const safe=encodeURIComponent(ex.name);
+          const badge=ex.tracked
+            ?`<span style="font-size:6px;letter-spacing:0.6px;color:#bef264;font-weight:700;flex-shrink:0">TRACKED</span>`
+            :`<span style="font-size:6px;letter-spacing:0.6px;color:var(--muted2);font-weight:700;flex-shrink:0">UNUSED</span>`;
+          return`<div class="settings-ex-row" data-ex="${safe}" style="padding:8px 0;border-bottom:1px solid var(--border2)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <input class="inp settings-ex-name" value="${ex.name.replace(/"/g,'&quot;')}" style="flex:1;margin-bottom:0;font-size:10px;padding:6px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();settingsRenameExercise(this)}"/>
+              ${badge}
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select class="inp settings-ex-cat" style="flex:1;margin-bottom:0;font-size:9px;padding:5px 6px" onchange="settingsMoveExercise(this)">
+                ${WORKOUT_TYPES.map(c=>`<option value="${c}" ${c===ex.category?'selected':''}>${WORKOUT_TYPE_LABELS[c]||c}</option>`).join('')}
+              </select>
+              <button type="button" onclick="settingsRenameExercise(this)" style="font-size:7px;letter-spacing:0.5px;padding:6px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--card2);color:var(--text3);cursor:pointer;font-family:'IBM Plex Mono',monospace;flex-shrink:0">RENAME</button>
+              <button type="button" onclick="settingsDeleteExercise(this)" style="font-size:7px;letter-spacing:0.5px;padding:6px 8px;border-radius:6px;border:1px solid #3d0a0a;background:#1a0505;color:#f87171;cursor:pointer;font-family:'IBM Plex Mono',monospace;flex-shrink:0">DEL</button>
+            </div>
+          </div>`;
+        }).join(''):`<div style="font-size:8px;color:var(--muted2);padding:6px 0 10px">No exercises</div>`}
+        <div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px">
+          <input class="inp settings-ex-add" placeholder="+ Add to ${label}" style="flex:1;margin-bottom:0;font-size:9px;padding:6px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();settingsAddExercise('${cat}',this)}"/>
+          <button type="button" onclick="settingsAddExercise('${cat}',this.previousElementSibling)" style="font-size:7px;letter-spacing:0.5px;padding:6px 10px;border-radius:6px;border:none;background:#bef264;color:#0a0a0a;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-weight:700;flex-shrink:0">ADD</button>
+        </div>
+      </div>`;
+    }).filter(Boolean).join('')}
   `;
 
   const notificationsSection=`
@@ -25447,6 +26804,7 @@ function renderSettingsPage(){
     ['phases','Phases','Phase progress'],
     ['caffeine','Caffeine','Intake log'],
     ['trading','Trading','Trade log'],
+    ['work','Job','Shift and commute'],
   ];
   const mods=modules||{};
   const modulesSection=`
@@ -25523,6 +26881,7 @@ function renderSettingsPage(){
   const sectionMap={
     phase:phaseSection,
     split:splitSection,
+    exercises:exercisesSection,
     daily:dailyHubSection,
     'daily-work':dailyWorkSection,
     'daily-sleep':dailySleepSection,

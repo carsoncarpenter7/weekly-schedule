@@ -12,7 +12,9 @@
 //   tradeFirms            — prop firm names for trading log
 //   proteinDrinks         — default shake products (per scoop macros)
 //   drinkColorFixed       — optional map of drink id → palette index for stable accents
-//   supplementTypes       — default supplement checklist
+//   supplementTypes       — checklist: pills + powders
+//                             {id,name,category:'pill'|'powder',form:'capsule'|'tablet'|'softgel'|'scoop',
+//                              doseAmount,doseUnit,pillCount,timing:'am'|'pm'|'with_meal'|'before_sleep'|'pre_workout'|'post_workout'|null}
 //   exerciseLibrary       — default lifts per muscle group
 window.__PERSONAL__ = window.__PERSONAL__ || {};
 window.__PERSONAL__.profile = {
@@ -22,11 +24,11 @@ window.__PERSONAL__.profile = {
   mealMacrosTraining: null,
   soccerSchedule: {},
   mealPlannerFoods: [
-    {id:'chicken', name:'Chicken breast', unit:'oz', unitPer:1, label:'oz', P:8, C:0, F:2, kcal:50},
-    {id:'rice', name:'White rice (cooked)', unit:'cup', unitPer:1, label:'cups', P:4, C:45, F:0, kcal:200},
-    {id:'oats', name:'Rolled oats (dry)', unit:'cup', unitPer:1, label:'cups', P:10, C:54, F:5, kcal:300},
-    {id:'protein', name:'Whey protein', unit:'scoop', unitPer:1, label:'scoops', P:24, C:2, F:1, kcal:120},
-    {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70},
+    {id:'chicken', name:'Chicken breast', unit:'oz', unitPer:1, label:'oz', P:8, C:0, F:2, kcal:50, category:'food'},
+    {id:'rice', name:'White rice (cooked)', unit:'cup', unitPer:1, label:'cups', P:4, C:45, F:0, kcal:200, category:'food'},
+    {id:'oats', name:'Rolled oats (dry)', unit:'cup', unitPer:1, label:'cups', P:10, C:54, F:5, kcal:300, category:'food'},
+    {id:'protein', name:'Whey protein', unit:'scoop', unitPer:1, label:'scoops', P:24, C:2, F:1, kcal:120, category:'powder'},
+    {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70, category:'powder'},
   ],
   mealPresets: [
     {name:'Post-gym Shake', items:[{id:'protein',sv:1},{id:'dextrose',sv:2}]},
@@ -41,8 +43,11 @@ window.__PERSONAL__.profile = {
   ],
   drinkColorFixed: {},
   supplementTypes: [
-    {id:'sp_creatine',name:'Creatine'},{id:'sp_multivitamin',name:'Multivitamin'},
-    {id:'sp_vitd',name:'Vitamin D'},{id:'sp_fishoil',name:'Fish Oil'},{id:'sp_magnesium',name:'Magnesium'},
+    {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
+    {id:'sp_multivitamin',name:'Multivitamin',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
+    {id:'sp_vitd',name:'Vitamin D',category:'pill',form:'softgel',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
+    {id:'sp_fishoil',name:'Fish Oil',category:'pill',form:'softgel',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
+    {id:'sp_magnesium',name:'Magnesium',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
   ],
   exerciseLibrary: {
     CHEST:['Bench Press','Incline Dumbbell Press','Cable Fly','Push-Ups'],

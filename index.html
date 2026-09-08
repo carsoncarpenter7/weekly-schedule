@@ -2824,9 +2824,9 @@ function getWeekAvgTarget(){
   }).filter(Boolean);
   const targets=types.map(mt=>{
     if(typeof getMacroTargetForDayType==='function')return getMacroTargetForDayType(mt);
-    const base=DM[mt]||DM.CHEST;
+    const base=typeof getDmBase==='function'?getDmBase(mt):(DM[mt]||DM.CHEST||DM.DEFAULT||{});
     const ovr=(customMacros&&customMacros.dm&&customMacros.dm[mt])||{};
-    return{P:ovr.P||base.P,C:ovr.C||base.C,F:ovr.F||base.F,kcal:ovr.kcal||base.kcal};
+    return{P:ovr.P||base.P||0,C:ovr.C||base.C||0,F:ovr.F||base.F||0,kcal:ovr.kcal||base.kcal||0};
   });
   const n=targets.length||1;
   return{
@@ -8263,13 +8263,19 @@ function computeHabitGridData(dateStrList){
   });
   return slots;
 }
+// Resolve a DM day entry. Personal mealMacrosTraining may be absent (example
+// profile / gitignored deploy) — only DEFAULT is guaranteed. Unknown types
+// (TRICEPS/BICEPS/SHOULDERS) also miss CHEST when training macros aren't loaded.
+function getDmBase(mt){
+  return (mt&&DM[mt])||DM.CHEST||DM.DEFAULT||{P:0,C:0,F:0,kcal:0};
+}
 // Same base+override target lookup pattern already used by getWeekAvgTarget
 // — pulled out as its own helper since the macro composite needs it for
 // an arbitrary day-type, not just averaged across the whole week.
 function getMacroTargetForDayType(mt){
-  const base=DM[mt]||DM.CHEST;
+  const base=getDmBase(mt);
   const ovr=(customMacros&&customMacros.dm&&customMacros.dm[mt])||{};
-  return{P:ovr.P||base.P,C:ovr.C||base.C,F:ovr.F||base.F,kcal:ovr.kcal||base.kcal};
+  return{P:ovr.P||base.P||0,C:ovr.C||base.C||0,F:ovr.F||base.F||0,kcal:ovr.kcal||base.kcal||0};
 }
 // Overall/composite rows — derived from the same per-slot data the
 // individual task rows already show, so these can never quietly disagree
@@ -19772,7 +19778,7 @@ function renderFoodHubPlanView(){
   if(!window._mpDay)window._mpDay=activeDay;
   const selDay=window._mpDay;
   const mt=getTrainingTypeForDay(selDay)||'CHEST';
-  const dayMeals=DM[mt]||DM.CHEST;
+  const dayMeals=typeof getDmBase==='function'?getDmBase(mt):(DM[mt]||DM.CHEST||DM.DEFAULT||{});
   const dayTgt=computeFullPlannedMacros(selDay);
   const logged=getDisplayMacros(selDay)||{P:0,C:0,F:0,kcal:0};
   const trainLbl=(typeof formatSplitLabel==='function'?formatSplitLabel(getTrainingTypesForDay(selDay)||[]):'')||mt;
@@ -24795,7 +24801,10 @@ window.saveSettings=function(){
   }
   WORKOUT_TYPES.forEach(function(mt){
     var p=gn('dm-'+mt+'-P'),cc=gn('dm-'+mt+'-C'),f=gn('dm-'+mt+'-F'),k=gn('dm-'+mt+'-kcal');
-    if(p>0||cc>0){customMacros.dm[mt]={P:p||DM[mt].P,C:cc||DM[mt].C,F:f||DM[mt].F,kcal:k||DM[mt].kcal};}
+    if(p>0||cc>0){
+      var base=typeof getDmBase==='function'?getDmBase(mt):(DM[mt]||DM.CHEST||DM.DEFAULT||{});
+      customMacros.dm[mt]={P:p||base.P||0,C:cc||base.C||0,F:f||base.F||0,kcal:k||base.kcal||0};
+    }
   });
   saveState();
   window._settingsDateDraft=null;

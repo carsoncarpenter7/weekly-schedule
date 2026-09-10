@@ -7,6 +7,7 @@
   }
   load('personal/historical-seeds.example.js');
   load('personal/personal-profile.example.js');
+  load('personal/personal-profile.prod.js');
   load('personal/historical-seeds.js');
   load('personal/personal-profile.js');
   load('personal/debug-backup.js');

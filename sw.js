@@ -5,7 +5,7 @@
 // updated the cache silently "for next time" — which never actually
 // arrived, since next time did the same thing. The cache now exists purely
 // as an offline fallback, not a stale-serving mechanism.
-const CACHE = 'recomp-shell-v84'; // bumped — stronger skipped strike, readable titles
+const CACHE = 'recomp-shell-v106'; // bumped — hub permanent pins + chrono + logging
 const SHELL = [
   './', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './personal/load-personal.js',

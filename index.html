@@ -134,7 +134,7 @@ html.fs-s .app{zoom:0.92}html.fs-l .app{zoom:1.08}
 .hub-weight-grid .hub-weight-val{font-size:18px;letter-spacing:0.8px}
 .hub-weight-grid .hub-weight-unit{margin-top:1px}
 .hub-weight-empty{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.8px;line-height:0.95;color:color-mix(in srgb,var(--hub-col,#7dd3fc) 35%,var(--muted2));font-weight:400}
-.hub-weight-log{font-size:9px;font-weight:700;letter-spacing:0.2px;color:var(--hub-col,#7dd3fc);line-height:1.2}
+.hub-weight-log{font-size:14px;font-weight:700;letter-spacing:0.4px;color:var(--hub-col,#7dd3fc);line-height:1.1;font-family:'Bebas Neue',sans-serif}
 .hub-shake-prog{display:flex;align-items:center;gap:5px;margin-top:4px;min-width:0}
 .hub-shake-prog-label{font-size:8px;font-weight:700;color:var(--muted2);font-variant-numeric:tabular-nums;flex-shrink:0;letter-spacing:0.2px}
 .hub-shake-prog-track{flex:1;height:4px;border-radius:2px;background:var(--border2);overflow:hidden;min-width:0}
@@ -349,7 +349,7 @@ html.reduce-motion .gym-anabolic-ctrl.is-running{animation:none}
 .chk.chk-pulse{animation:chkPulse 0.28s ease}
 @keyframes chkPulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 html.reduce-motion .chk.chk-pulse{animation:none}
-.qa-sheet{max-height:70vh}
+.qa-sheet{max-height:min(70dvh,100%)}
 .celeb-overlay{position:fixed;inset:0;z-index:4000;pointer-events:none;display:flex;align-items:center;justify-content:center;animation:celebFade 2.4s ease forwards}
 @keyframes celebFade{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0}}
 .celeb-burst{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--accent);text-shadow:0 0 40px color-mix(in srgb,var(--accent) 50%,transparent);animation:celebPop 0.55s cubic-bezier(.2,1.4,.3,1)}
@@ -370,7 +370,7 @@ button:focus{outline:none}
 .chk.is-done{border-color:var(--state-done);background:color-mix(in srgb,var(--state-done) 18%,transparent)}
 .chk.is-skipped{border-color:var(--state-skip);border-style:dashed;background:color-mix(in srgb,var(--state-skip-deep) 55%,transparent);opacity:0.9}
 .modal-overlay{position:fixed;inset:0;background:#000d;z-index:1000;display:flex;align-items:flex-end;justify-content:center;overflow-y:auto;overscroll-behavior:contain}
-.modal{background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:96vh;overflow-y:auto;overscroll-behavior:contain;padding:20px;padding-bottom:calc(env(safe-area-inset-bottom) + 20px);animation:sheetUp 0.24s cubic-bezier(.2,.8,.2,1);-webkit-overflow-scrolling:touch}
+.modal{background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:min(96dvh,100%);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;padding:20px;padding-bottom:calc(env(safe-area-inset-bottom) + 20px);animation:sheetUp 0.24s cubic-bezier(.2,.8,.2,1);-webkit-overflow-scrolling:touch}
 /* Workout exercise cards — set-first, progressive disclosure */
 .workout-ex-card{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:8px}
 .wex-card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -453,7 +453,7 @@ button:focus{outline:none}
 .wvol-bar>span{display:block;height:100%;border-radius:3px;background:var(--text3);transition:width 0.2s ease}
 .wvol-row.is-hit .wvol-bar>span{background:var(--state-done)}
 /* Hub widget sheets: standard open height (fasting baseline) */
-.modal.hub-sheet{min-height:min(500px,88vh);display:flex;flex-direction:column}
+.modal.hub-sheet{max-height:min(88dvh,100%);display:flex;flex-direction:column}
 .hub-sheet-body{flex:1;display:flex;flex-direction:column;min-height:0}
 .hub-sheet-foot{margin-top:auto;padding-top:8px}
 /* History sheet: fixed chrome + scrollable list (no sticky bleed above title) */
@@ -462,16 +462,16 @@ button:focus{outline:none}
 .hist-modal-chrome{flex-shrink:0;background:var(--card);padding-bottom:8px}
 .hist-modal-grabber{width:36px;height:4px;border-radius:2px;background:var(--border3);margin:0 auto 14px}
 .hist-modal-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(env(safe-area-inset-bottom) + 20px)}
-/* Supps checklist sheet: grow with content up to 85vh, then list-only scroll */
-.modal.supp-modal{display:flex;flex-direction:column;overflow:hidden;overflow-x:hidden;max-height:85vh;min-height:0;padding-top:12px;padding-bottom:0}
+/* Supps checklist sheet: grow with content up to 85dvh, then list-only scroll */
+.modal.supp-modal{display:flex;flex-direction:column;overflow:hidden;overflow-x:hidden;max-height:min(85dvh,100%);min-height:0;padding-top:12px;padding-bottom:0}
 .modal.supp-modal::before{display:none}
 .supp-modal-chrome{flex-shrink:0;background:var(--card)}
 .supp-modal-list{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:8px 0 10px}
 .supp-modal-list .chk::after{inset:-8px 0}
 .supp-modal-foot{flex-shrink:0;padding-bottom:calc(env(safe-area-inset-bottom) + 20px);background:var(--card)}
 /* TODONT slip counter sheet */
-.modal.todon-modal{max-height:88vh;min-height:min(500px,88vh)}
-.todon-modal .supp-modal-list{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:4px 0 0;overflow:hidden}
+.modal.todon-modal{max-height:min(88dvh,100%)}
+.todon-modal .supp-modal-list{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:4px 0 0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .todon-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
 .todon-icon-btn{width:36px;height:36px;border:none;border-radius:10px;background:transparent;color:#f87171;font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;opacity:0.72}
 .todon-streak{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 10px;border-radius:999px;border:1px solid var(--border2);background:var(--card2);color:#fb923c;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.3px}
@@ -665,7 +665,7 @@ html.theme-light .modal.sauna-modal{--act-ink:#db2777}
 .act-cta{width:100%;padding:14px;background:var(--act);border:1px solid var(--act);border-radius:10px;color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.5px}
 .act-cta:active{opacity:0.9}
 /* LOG WORKOUT sheet — lime (matches gym accent) */
-.modal.workout-modal{--wko:#bef264;--wko-ink:#d9f99d;--wko-wash:color-mix(in srgb,#bef264 10%,var(--card2));--wko-line:color-mix(in srgb,#bef264 28%,var(--border2));display:flex;flex-direction:column;max-height:88vh;padding-bottom:0;overflow:hidden}
+.modal.workout-modal{--wko:#bef264;--wko-ink:#d9f99d;--wko-wash:color-mix(in srgb,#bef264 10%,var(--card2));--wko-line:color-mix(in srgb,#bef264 28%,var(--border2));display:flex;flex-direction:column;max-height:min(88dvh,100%);padding-bottom:0;overflow:hidden}
 html.theme-light .modal.workout-modal{--wko-ink:#65a30d}
 .wko-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-shrink:0}
 .wko-kicker{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--wko);line-height:1}
@@ -677,7 +677,7 @@ html.theme-light .modal.workout-modal{--wko-ink:#65a30d}
 .wko-cta{width:100%;padding:14px;background:var(--wko);border:none;border-radius:10px;color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.5px;-webkit-appearance:none;appearance:none}
 .wko-cta:active{opacity:0.9}
 /* Check-in / journal sheet — purple (morning/evening) */
-.modal.journal-modal{--jnl:#a78bfa;--jnl-ink:#c4b5fd;--jnl-wash:color-mix(in srgb,#a78bfa 10%,var(--card2));--jnl-line:color-mix(in srgb,#a78bfa 28%,var(--border2));display:flex;flex-direction:column;max-height:88vh;padding-bottom:0;overflow:hidden}
+.modal.journal-modal{--jnl:#a78bfa;--jnl-ink:#c4b5fd;--jnl-wash:color-mix(in srgb,#a78bfa 10%,var(--card2));--jnl-line:color-mix(in srgb,#a78bfa 28%,var(--border2));display:flex;flex-direction:column;max-height:min(88dvh,100%);padding-bottom:0;overflow:hidden}
 html.theme-light .modal.journal-modal{--jnl-ink:#7c3aed}
 .modal.journal-modal.stream-modal{--jnl:#8b5cf6;--jnl-ink:#c4b5fd;--jnl-wash:color-mix(in srgb,#8b5cf6 10%,var(--card2));--jnl-line:color-mix(in srgb,#8b5cf6 28%,var(--border2))}
 html.theme-light .modal.journal-modal.stream-modal{--jnl-ink:#6d28d9}
@@ -725,7 +725,7 @@ html.theme-light .modal.journal-modal.stream-modal{--jnl-ink:#6d28d9}
 .jnl-cta-quiet{flex:0 0 auto;padding:14px 16px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer}
 .jnl-cta-quiet:active{opacity:0.85}
 /* Trading session sheet — rose */
-.modal.trade-modal{--trd:#fb7185;--trd-ink:#fda4af;--trd-wash:color-mix(in srgb,#fb7185 10%,var(--card2));--trd-line:color-mix(in srgb,#fb7185 28%,var(--border2));display:flex;flex-direction:column;max-height:88vh;padding-bottom:0;overflow:hidden}
+.modal.trade-modal{--trd:#fb7185;--trd-ink:#fda4af;--trd-wash:color-mix(in srgb,#fb7185 10%,var(--card2));--trd-line:color-mix(in srgb,#fb7185 28%,var(--border2));display:flex;flex-direction:column;max-height:min(88dvh,100%);padding-bottom:0;overflow:hidden}
 html.theme-light .modal.trade-modal{--trd-ink:#e11d48}
 .trd-m-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-shrink:0}
 .trd-m-kicker{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--trd);line-height:1}
@@ -815,19 +815,19 @@ html.theme-light .modal.trade-modal{--trd-ink:#e11d48}
 @keyframes sheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media (max-width:640px){
   .modal-overlay{align-items:flex-end;padding:0}
-  .modal{max-width:100%;max-height:88vh;border-radius:18px 18px 0 0;border-left:none;border-right:none;border-bottom:none;animation:sheetIn 0.28s cubic-bezier(.32,.72,0,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .modal{max-width:100%;max-height:min(88dvh,100%);border-radius:18px 18px 0 0;border-left:none;border-right:none;border-bottom:none;animation:sheetIn 0.28s cubic-bezier(.32,.72,0,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
   .modal::before{content:'';display:block;width:36px;height:4px;border-radius:2px;background:var(--border3);margin:-6px auto 14px}
   .modal.hist-modal{padding-bottom:0}
   .modal.hist-modal::before{display:none}
-  .modal.supp-modal{padding-bottom:0;max-height:85vh}
-  .modal.supp-modal.todon-modal{max-height:88vh;min-height:min(500px,88vh)}
+  .modal.supp-modal{padding-bottom:0;max-height:min(85dvh,100%)}
+  .modal.supp-modal.todon-modal{max-height:min(88dvh,100%)}
   .modal.supp-modal::before{display:none}
   .modal.caf-modal{padding-bottom:0}
   .modal.caf-modal::before{display:none}
-  .modal.journal-modal,.modal.trade-modal{padding-bottom:0;max-height:90vh}
+  .modal.journal-modal,.modal.trade-modal{padding-bottom:0;max-height:min(90dvh,100%)}
   .modal.journal-modal::before,.modal.trade-modal::before{display:none}
   .menu-overlay{padding:14px}
-  .menu-drawer{max-height:90vh}
+  .menu-drawer{max-height:min(90dvh,100%)}
 }
 /* ── TOUCH TARGETS: expand hit areas on small controls without changing
    their visual size (≈44px minimum) ── */
@@ -1317,7 +1317,7 @@ html.reduce-motion .skip-toast,html.reduce-motion .skip-toast-scrim,html.reduce-
 .journal-entry{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
 .journal-entry:hover{border-color:var(--muted2)}
 .menu-overlay{position:fixed;inset:0;z-index:200;background:#000000cc;backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
-.menu-drawer{position:relative;width:100%;max-width:480px;max-height:96vh;background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:20px 20px 0 0;z-index:201;display:flex;flex-direction:column;padding:0;overflow-y:auto;box-shadow:0 -8px 40px -8px #000c;animation:sheetUp 0.24s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
+.menu-drawer{position:relative;width:100%;max-width:480px;max-height:min(96dvh,100%);background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:20px 20px 0 0;z-index:201;display:flex;flex-direction:column;padding:0;overflow-x:hidden;overflow-y:auto;box-sizing:border-box;box-shadow:0 -8px 40px -8px #000c;animation:sheetUp 0.24s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
 .menu-head{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 14px 12px;border-bottom:1px solid var(--border2)}
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 12px}
 .menu-tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;text-align:left;transition:transform 0.1s,border-color 0.12s,background 0.12s}
@@ -1400,7 +1400,7 @@ html{box-sizing:border-box}
 .tl-empty-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text2);letter-spacing:1.5px;margin-bottom:6px;line-height:1}
 html.theme-light .tl-card{box-shadow:0 2px 10px color-mix(in srgb,#000 6%,transparent)}
 /* ── Timeline event detail sheet ───────────────────────────────────────── */
-.modal.tld-modal{display:flex;flex-direction:column;max-height:88vh;padding:0;overflow:hidden;--tld-col:var(--accent);--tld-ink:var(--accent);--tld-wash:color-mix(in srgb,var(--tld-col) 10%,var(--card));--tld-line:color-mix(in srgb,var(--tld-col) 28%,var(--border2))}
+.modal.tld-modal{display:flex;flex-direction:column;max-height:min(88dvh,100%);padding:0;overflow:hidden;--tld-col:var(--accent);--tld-ink:var(--accent);--tld-wash:color-mix(in srgb,var(--tld-col) 10%,var(--card));--tld-line:color-mix(in srgb,var(--tld-col) 28%,var(--border2))}
 .modal.tld-modal::before{margin:10px auto 0}
 .tld-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px 12px;background:linear-gradient(180deg,var(--tld-wash),transparent);border-bottom:1px solid var(--tld-line);flex-shrink:0}
 .tld-head-main{display:flex;align-items:flex-start;gap:10px;min-width:0}
@@ -5268,13 +5268,25 @@ function inferFoodCategoryFromMeta(f){
   if(f.category==='food'||f.category==='powder'||f.category==='pill')return f.category;
   const id=String(f.id||'');
   if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')return'powder';
-  if(id.startsWith('sp_food_'))return'pill';
+  // Linked supplement food: use the checklist item's powder/pill, not always pill.
+  if(id.startsWith('sp_food_')){
+    const suppId=id.slice('sp_food_'.length);
+    if(typeof supplementTypes!=='undefined'&&supplementTypes){
+      const sp=supplementTypes.find(s=>s&&s.id===suppId);
+      if(sp)return sp.category==='powder'?'powder':'pill';
+    }
+    return'pill';
+  }
   const n=(f.name||'').toLowerCase();
   if(typeof proteinDrinks!=='undefined'&&proteinDrinks&&proteinDrinks.some(d=>d&&d.name&&d.name.toLowerCase()===n))return'powder';
-  if(typeof supplementTypes!=='undefined'&&supplementTypes&&supplementTypes.some(s=>s&&s.name&&s.name.toLowerCase()===n))return'pill';
+  if(typeof supplementTypes!=='undefined'&&supplementTypes){
+    const spByName=supplementTypes.find(s=>s&&s.name&&s.name.toLowerCase()===n);
+    if(spByName)return spByName.category==='powder'?'powder':'pill';
+  }
   if(/\bdextrose\b/.test(n))return'powder';
+  if(/\bcreatine\b/.test(n)||/\bcollagen\b/.test(n))return'powder';
   if(/\bwhey\b/.test(n)||/\bcasein\b/.test(n)||(/protein/.test(n)&&/\b(powder|scoop|isolate|whey)\b/.test(n)))return'powder';
-  if(/\b(creatine|collagen|multivitamin|fish oil|magnesium|vitamin|ashwagandha|wellbutrin)\b/.test(n))return'pill';
+  if(/\b(multivitamin|fish oil|magnesium|vitamin|ashwagandha|wellbutrin)\b/.test(n))return'pill';
   return'food';
 }
 const MP_FOODS_DEFAULT=asList(PD.mealPlannerFoods,[
@@ -5305,6 +5317,7 @@ const UI_DEFAULTS={
   strengthTab:'workouts',
   inventoryTracking:true,
   showFoodEditTab:false,
+  mealBlockLabelMode:'nameFood', // name | nameFood | foods — schedule meal timeblock titles
   showQuickActions:false,
   todonView:'focus',
 };
@@ -5334,6 +5347,7 @@ var uiSettings=Object.assign({},UI_DEFAULTS,safeParseLS('recomp_ui',{})||{});
   if(!['workouts','cardio','sauna'].includes(uiSettings.strengthTab))uiSettings.strengthTab=UI_DEFAULTS.strengthTab;
   if(typeof uiSettings.inventoryTracking!=='boolean')uiSettings.inventoryTracking=true;
   if(typeof uiSettings.showFoodEditTab!=='boolean')uiSettings.showFoodEditTab=false;
+  if(!['name','nameFood','foods'].includes(uiSettings.mealBlockLabelMode))uiSettings.mealBlockLabelMode='nameFood';
   if(typeof uiSettings.showQuickActions!=='boolean')uiSettings.showQuickActions=false;
   if(uiSettings.todonView!=='multi')uiSettings.todonView='focus';
   // Schedule always first in nav and never hidden
@@ -5607,7 +5621,7 @@ window.closeQuickActions=function(){quickActionsOpen=false;quickActionsPhotoPick
 function resolveQuickActionShake(dk){
   const blocks=(typeof getEffectiveBlocks==='function'?getEffectiveBlocks(dk):((schedule[dk]&&schedule[dk].blocks)||[]))||[];
   const shakes=blocks.map((b,i)=>({b,i})).filter(({b})=>!b.hidden&&b.type==='shake')
-    .sort((a,z)=>(typeof parseTimeToMins==='function'?parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t):0)||a.i-z.i);
+    .sort(compareScheduleEntries);
   if(!shakes.length)return null;
   let next=null;
   shakes.forEach(x=>{
@@ -6638,7 +6652,7 @@ function getHubScheduleItems(dk){
     if(b.type==='trade'&&(noTradeDays[dateStr]||(modules&&modules.trading===false)))return false;
     if(['drivework','work','drivehome','workend'].includes(b.type)&&(!_isJobEnabled()))return false;
     return true;
-  }).sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+  }).sort(compareScheduleEntries);
 }
 function getOverdueScheduleBlocks(dk){
   const now=new Date();
@@ -6770,13 +6784,47 @@ function getDayMealBlocks(dk){
   return ((typeof getEffectiveBlocks==='function'?getEffectiveBlocks(dk):(schedule[dk]&&schedule[dk].blocks)||[])||[])
     .map((b,i)=>({b,i}))
     .filter(({b})=>!b.hidden&&!_isProvisionalBlock(b)&&MEAL_T.has(b.type))
-    .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+    .sort(compareScheduleEntries);
 }
 function getDayShakeBlocks(dk){
   return ((typeof getEffectiveBlocks==='function'?getEffectiveBlocks(dk):(schedule[dk]&&schedule[dk].blocks)||[])||[])
     .map((b,i)=>({b,i}))
     .filter(({b})=>!b.hidden&&!_isProvisionalBlock(b)&&b.type==='shake')
-    .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+    .sort(compareScheduleEntries);
+}
+/** Meal slot number from ms (m1→1); non-meals sort after tied meals. */
+function mealSlotSortKey(b){
+  if(!b||b.ms==null)return 999;
+  const m=String(b.ms).match(/^m(\d+)$/i);
+  return m?parseInt(m[1],10):999;
+}
+/** Sort {b,i} entries: clock time, then meal slot m1→m2→m3, then array index. */
+function compareScheduleEntries(a,z){
+  const ta=typeof parseTimeToMins==='function'?parseTimeToMins(a.b&&a.b.t):null;
+  const tz=typeof parseTimeToMins==='function'?parseTimeToMins(z.b&&z.b.t):null;
+  const d=(ta==null?0:ta)-(tz==null?0:tz);
+  if(d)return d;
+  const ma=mealSlotSortKey(a.b),mz=mealSlotSortKey(z.b);
+  if(ma!==mz)return ma-mz;
+  return (a.i||0)-(z.i||0);
+}
+/** Ensure Meal 1 time ≤ Meal 2 ≤ Meal 3… by bumping later slots forward +15m when inverted. */
+function normalizeMealBlockTimes(blocks){
+  if(!Array.isArray(blocks))return;
+  const meals=blocks.filter(b=>b&&!b.hidden&&b.type==='meal'&&b.ms&&/^m\d+$/.test(String(b.ms)))
+    .map(b=>({b,n:mealSlotSortKey(b)}))
+    .sort((a,z)=>a.n-z.n);
+  let prevMins=null;
+  meals.forEach(({b})=>{
+    let m=parseTimeToMins(b.t);
+    if(m==null)return;
+    if(prevMins!=null&&m<=prevMins){
+      m=prevMins+15;
+      b.t=minsToTime(m);
+      m=parseTimeToMins(b.t);
+    }
+    prevMins=m;
+  });
 }
 function hubMealBlocksLive(dk){
   return (typeof getDayMealBlocks==='function'?getDayMealBlocks(dk):[]).filter(x=>!hubIsPausedByFast(dk,x.i));
@@ -7293,12 +7341,10 @@ function renderHubBoard(dk,flush){
         const sign=d>0?'+':'';
         const dCol=Math.abs(d)<0.05?'var(--muted2)':(d>0?'#f97316':'#22c55e');
         tInner=`<div class="hub-weight-delta" style="color:${dCol}">${sign}${d.toFixed(1)}</div>`;
-      }else if(!logged){
-        tInner=`<div class="hub-weight-log" style="--hub-col:${wtCol}">Log</div>`;
       }
       const tCell=(logged
         ?cellVal(w)
-        :`<div class="hub-weight-empty" style="--hub-col:${wtCol}">—</div>`)+footer(tInner);
+        :`<div class="hub-weight-log" style="--hub-col:${wtCol}">Log</div>`)+footer(tInner);
       const wBody=`<div class="hub-weight-grid" style="--hub-col:${wtCol}"><div class="hub-weight-cell"><div class="hub-weight-lab">YESTERDAY</div>${yCell}</div><div class="hub-weight-cell"><div class="hub-weight-lab">TODAY</div>${tCell}</div></div>`;
       cards.push(hubCard({label:'WEIGHT',color:wtCol,tap:`openHubMetricsLog('weight','${dateStr}')`,done:logged,empty:!logged,body:wBody}));
     }
@@ -7380,7 +7426,7 @@ function renderQuickActionsSheet(){
       {id:'back',label:'Back',col:'#818cf8'},
     ];
     return`<div class="modal-overlay" onclick="if(event.target===this)closeQuickActions()" style="z-index:300">
-      <div class="modal qa-sheet" style="max-height:70vh">
+      <div class="modal qa-sheet" style="max-height:min(70dvh,100%)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)">PROGRESS PHOTO</div>
           <button onclick="quickActionsPhotoPick=false;renderApp()" style="background:none;border:none;color:var(--muted2);font-family:'IBM Plex Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:0.5px">Back</button>
@@ -7412,7 +7458,7 @@ function renderQuickActionsSheet(){
         <div style="font-size:8px;color:var(--muted)">Turn off a hub widget to free up its Quick Action</div>
       </div>`;
   return`<div class="modal-overlay" onclick="if(event.target===this)closeQuickActions()" style="z-index:300">
-    <div class="modal qa-sheet" style="max-height:70vh">
+    <div class="modal qa-sheet" style="max-height:min(70dvh,100%)">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:14px">QUICK ACTIONS</div>
       ${body}
     </div>
@@ -7699,18 +7745,9 @@ function ensureFoodCategories(){
   let changed=false;
   mpFoods.forEach(f=>{
     if(!f)return;
-    const cat=inferFoodCategoryFromMeta(f);
-    // Force known powder/pill ids even if a stale row was saved as "food".
-    const id=String(f.id||'');
-    let next=cat;
-    if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')next='powder';
-    else if(id.startsWith('sp_food_'))next='pill';
-    else if(f.category==='food'||f.category==='powder'||f.category==='pill'){
-      // Keep explicit user category except when id proves otherwise above.
-      next=f.category;
-      if(id.startsWith('pd_food_')||id==='protein'||id==='dextrose')next='powder';
-      if(id.startsWith('sp_food_'))next='pill';
-    }
+    // Never overwrite an explicit user category — Food DB edits must stick.
+    if(f.category==='food'||f.category==='powder'||f.category==='pill')return;
+    const next=inferFoodCategoryFromMeta(f);
     if(f.category!==next){f.category=next;changed=true;}
   });
   return changed;
@@ -7772,15 +7809,15 @@ function reconcileMpFoodsWithProfile(){
     }
   }
 
-  // Upsert every profile food by id (preserve stock fields the user set).
+  // Upsert every profile food by id (preserve user edits + stock fields).
   // Profile mealPlannerFoods without category get inferred (protein/dextrose → powder).
   const deletedIds=getMpFoodsDeletedSet();
   profileFoods.forEach(pf=>{
     if(!pf||!pf.id)return;
     if(deletedIds.has(pf.id))return;
     const withCat={...pf,category:pf.category||inferFoodCategoryFromMeta(pf)};
-    // Force powder for known powder product ids from the planner catalog.
-    if(pf.id==='protein'||pf.id==='dextrose')withCat.category='powder';
+    // Default powder for known powder product ids when profile omits category.
+    if(!pf.category&&(pf.id==='protein'||pf.id==='dextrose'))withCat.category='powder';
     const profileCat=withCat.category;
     const idx=mpFoods.findIndex(f=>f&&f.id===pf.id);
     if(idx<0){
@@ -7789,15 +7826,29 @@ function reconcileMpFoodsWithProfile(){
       return;
     }
     const prev=mpFoods[idx];
+    const explicitCat=prev.category==='food'||prev.category==='powder'||prev.category==='pill';
+    // Keep local editable fields (category, serving, macros, name, stock) so Food DB
+    // edits survive ensureFoodsSynced / profile reconcile. Never force category by id.
     const next={
       ...withCat,
+      name:prev.name!=null&&prev.name!==''?prev.name:withCat.name,
+      serving:prev.serving!=null&&prev.serving!==''?prev.serving:withCat.serving,
+      unit:prev.unit!==undefined?prev.unit:withCat.unit,
+      label:prev.label!==undefined?prev.label:withCat.label,
+      unitPer:prev.unitPer!==undefined?prev.unitPer:withCat.unitPer,
+      P:prev.P!=null?prev.P:withCat.P,
+      C:prev.C!=null?prev.C:withCat.C,
+      F:prev.F!=null?prev.F:withCat.F,
+      kcal:prev.kcal!=null?prev.kcal:withCat.kcal,
+      defaultSv:prev.defaultSv!=null?prev.defaultSv:withCat.defaultSv,
+      step:prev.step!=null?prev.step:withCat.step,
       stockQty:prev.stockQty,
       refillQty:prev.refillQty,
       inStock:prev.inStock,
-      category:profileCat,
+      category:explicitCat?prev.category:profileCat,
     };
     if(prev.name!==next.name||prev.P!==next.P||prev.C!==next.C||prev.F!==next.F||prev.kcal!==next.kcal
-      ||prev.unit!==next.unit||prev.label!==next.label||prev.category!==next.category){
+      ||prev.unit!==next.unit||prev.label!==next.label||prev.serving!==next.serving||prev.category!==next.category){
       mpFoods[idx]=next;
       changed=true;
     }
@@ -7971,8 +8022,37 @@ function applyMealPlanToDM(){
     recomputeDmDayTotals(day);
   });
 }
+/** Schedule timeblock title for a meal slot, driven by uiSettings.mealBlockLabelMode. */
+function mealBlockLabel(slot){
+  if(!slot)return'Meal';
+  const mode=(typeof uiSettings!=='undefined'&&uiSettings&&uiSettings.mealBlockLabelMode)||'nameFood';
+  const name=slot.name||slot.id||'Meal';
+  const foodNames=(slot.items||[]).map(it=>it&&it.n).filter(Boolean);
+  if(mode==='name')return name;
+  if(mode==='foods'){
+    if(foodNames.length)return foodNames.slice(0,3).join(' + ');
+    return name;
+  }
+  // nameFood (default): "Meal 1 · Pancakes" or custom name · first food
+  const first=foodNames[0]?(' · '+foodNames[0]):'';
+  return name+first;
+}
 function syncMealPlanToSchedule(){
   if(!mealPlan||!mealPlan.slots)return;
+  // Keep plan slot times in Meal 1 → 2 → 3 order before writing onto blocks.
+  const planSlots=[...mealPlan.slots].filter(s=>s&&/^m\d+$/.test(String(s.id||'')))
+    .sort((a,z)=>mealSlotSortKey({ms:a.id})-mealSlotSortKey({ms:z.id}));
+  let prevSlotMins=null;
+  planSlots.forEach(s=>{
+    let m=parseTimeToMins(s.t);
+    if(m==null)return;
+    if(prevSlotMins!=null&&m<=prevSlotMins){
+      m=prevSlotMins+15;
+      s.t=minsToTime(m);
+      m=parseTimeToMins(s.t);
+    }
+    prevSlotMins=m;
+  });
   const slots=mealPlan.slots;
   const validIds=new Set(slots.map(s=>s.id));
   function syncBlocks(blocks){
@@ -7985,8 +8065,7 @@ function syncMealPlanToSchedule(){
       if(/^m\d+$/.test(b.ms)&&!validIds.has(b.ms))b.hidden=true;
     });
     slots.forEach(slot=>{
-      const first=(slot.items&&slot.items[0]&&slot.items[0].n)?(' · '+slot.items[0].n):'';
-      const label=(slot.name||slot.id)+first;
+      const label=mealBlockLabel(slot);
       const existing=blocks.find(b=>b&&b.type==='meal'&&b.ms===slot.id);
       if(existing){
         existing.t=slot.t||existing.t;
@@ -7996,6 +8075,7 @@ function syncMealPlanToSchedule(){
         blocks.push({t:slot.t||'12:00 PM',l:label,type:'meal',ms:slot.id});
       }
     });
+    normalizeMealBlockTimes(blocks);
     return blocks;
   }
   DAYS.forEach(dk=>{
@@ -9114,7 +9194,7 @@ function _nudgeBlocksPastGymHome(blocks,tl){
   if(outStart==null||homeAt==null)return;
   let target=homeAt+15;
   if(target>=1440)target-=1440;
-  const targetT=minsToTime(target);
+  const toNudge=[];
   blocks.forEach(b=>{
     if(!b||b.hidden||!b.t)return;
     if(b.type!=='meal'&&b.type!=='shake')return;
@@ -9124,8 +9204,20 @@ function _nudgeBlocksPastGymHome(blocks,tl){
     let afterOut=m-outStart;if(afterOut<-720)afterOut+=1440;
     let beforeHome=homeAt-m;if(beforeHome<-720)beforeHome+=1440;
     if(afterOut<=0||beforeHome<=0)return;
-    b.t=targetT;
+    toNudge.push(b);
   });
+  // Stagger by meal slot so Meal 1 stays before Meal 2 before Meal 3.
+  toNudge.sort((a,z)=>{
+    const ma=mealSlotSortKey(a),mz=mealSlotSortKey(z);
+    if(ma!==mz)return ma-mz;
+    return (parseTimeToMins(a.t)||0)-(parseTimeToMins(z.t)||0);
+  });
+  toNudge.forEach((b,i)=>{
+    let t=target+i*15;
+    if(t>=1440)t-=1440;
+    b.t=minsToTime(t);
+  });
+  normalizeMealBlockTimes(blocks);
 }
 function syncGymScheduleToSchedule(){
   if(!dailySchedules||!dailySchedules.gym)return;
@@ -10005,16 +10097,33 @@ let gymDayAdjust=saved?.gymDayAdjust||{};
 (function(){
   if(!supplementTypes||!supplementTypes.length)return;
   if(!mpFoods||!mpFoods.length)mpFoods=(MP_FOODS_DEFAULT||[]).map(f=>({...f}));
+  let changed=false;
   supplementTypes.forEach(s=>{
+    if(!s||!s.id)return;
+    const suppCat=s.category==='powder'?'powder':'pill';
     const linkedId='sp_food_'+s.id;
-    if(mpFoods.some(f=>f.id===linkedId))return;
-    const existing=mpFoods.find(f=>f.name.toLowerCase()===s.name.toLowerCase());
-    if(existing){
-      if(!existing.category)existing.category='pill';
+    const linked=mpFoods.find(f=>f&&f.id===linkedId);
+    if(linked){
+      // Legacy force stuck powder supplements under pills — one-time correct.
+      // Do not flip powder→pill or touch a user-set "food" category.
+      if(linked.category==='pill'&&suppCat==='powder'){
+        linked.category='powder';
+        changed=true;
+      }
       return;
     }
-    mpFoods.push({id:linkedId,name:s.name,serving:'1 serving',P:0,C:0,F:0,kcal:0,category:'pill',defaultSv:1,step:1});
+    const existing=mpFoods.find(f=>f&&f.name&&f.name.toLowerCase()===s.name.toLowerCase());
+    if(existing){
+      if(!existing.category){existing.category=suppCat;changed=true;}
+      else if(existing.category==='pill'&&suppCat==='powder'){existing.category='powder';changed=true;}
+      return;
+    }
+    mpFoods.push({id:linkedId,name:s.name,serving:'1 serving',P:0,C:0,F:0,kcal:0,category:suppCat,defaultSv:1,step:1});
+    changed=true;
   });
+  if(changed){
+    try{localStorage.setItem('mp_foods',JSON.stringify(mpFoods));}catch(e){}
+  }
 })();
 if(ensureFoodCategories()){
   try{localStorage.setItem('mp_foods',JSON.stringify(mpFoods));}catch(e){}
@@ -12067,6 +12176,7 @@ function setupLongPress(el,dk,idx){
       const b=ref.arr[ref.i];
       if(b&&!ref.readonly&&b.t!==dragOverKey){
         b.t=dragOverKey; // display re-sorts; array order untouched
+        if(typeof normalizeMealBlockTimes==='function')normalizeMealBlockTimes(ref.arr);
         if(navigator.vibrate)navigator.vibrate(30);
       }
     }
@@ -13562,6 +13672,7 @@ window.saveBlock=function(){
   _captureBlockDraft();
   _applyDraftFieldsToBlock(b,{assignMealSlot:true});
   delete b.provisional;
+  if(typeof normalizeMealBlockTimes==='function')normalizeMealBlockTimes(_ref.arr);
   const also=_applyRepeatDays();
   modal=null;saveState();render();
   if(also.length){
@@ -13581,13 +13692,14 @@ window.moveBlockInDay=function(direction){
   // then original position as tiebreaker) here so "up" and "down" match
   // what's actually displayed, not just raw array position.
   const raw=getEffectiveBlocks(modal.dk)||[];
-  const ordered=raw.map((blk,i)=>({blk,i})).sort((x,y)=>parseTimeToMins(x.blk.t)-parseTimeToMins(y.blk.t)||x.i-y.i).map(x=>x.blk);
+  const ordered=raw.map((blk,i)=>({blk,i})).sort((x,y)=>compareScheduleEntries({b:x.blk,i:x.i},{b:y.blk,i:y.i})).map(x=>x.blk);
   const pos=ordered.indexOf(b);
   const neighborPos=pos+direction;
   if(pos===-1||neighborPos<0||neighborPos>=ordered.length)return;
   const neighbor=ordered[neighborPos];
   const tmp=b.t;b.t=neighbor.t;neighbor.t=tmp;
   modal.draftT=b.t||modal.draftT;
+  if(typeof normalizeMealBlockTimes==='function')normalizeMealBlockTimes(_ref.arr);
   saveState();render();
 };
 function moveBlockInDay(direction){window.moveBlockInDay(direction);}
@@ -15583,7 +15695,7 @@ function renderModal(){
   if(modal.type==='hubMetrics'){
     const dateStr=modal.dateStr||DATE_INPUT_FMT(new Date());
     const form=renderBodyMetricsLogForm(dateStr,{idPrefix:'hub-inp-'});
-    return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal" style="max-height:85vh;overflow-y:auto">
+    return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal" style="max-height:min(85dvh,100%);overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#38bdf8">BODY METRICS</div>
         <button onclick="closeModal()" aria-label="Close" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:8px;margin:-8px;line-height:1">✕</button>
@@ -22957,7 +23069,7 @@ function renderFoodHubPlanView(){
 
   const planNutritionBlocks=_effBlocksForPlan.map((b,i)=>({b,i}))
     .filter(({b})=>MEAL_T.has(b.type)||b.type==='shake'||POWDER_TYPES.has(b.type))
-    .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+    .sort(compareScheduleEntries);
   const planItemCards=planNutritionBlocks.map(({b,i})=>{
     if(MEAL_T.has(b.type)&&b.ms)return renderMealPlanCard(b,i);
     if(b.type==='shake')return renderShakePlanCard(b,i);
@@ -23044,7 +23156,10 @@ function renderFoodHubDatabaseView(){
 
   function renderFoodRow(f,fi){
     const refId=f.id!=null?`'${f.id}'`:fi;
-    const perUnitDesc=cupFraction(f.unit||'')!=null?`1 unit = ${f.unit}`:(f.unit?`1 unit = 1 ${f.unit}`:(f.serving||''));
+    // Prefer explicit serving text from the edit form; else “1 serving = …” from unit.
+    const perUnitDesc=(f.serving&&String(f.serving).trim())
+      ?String(f.serving).trim()
+      :(cupFraction(f.unit||'')!=null?`1 serving = ${f.unit}`:(f.unit?`1 serving = 1 ${f.unit}`:''));
     const inStock=f.inStock!==false;
     const isTracked=f.stockQty!=null;
     const stockOut=isTracked&&f.stockQty<=0;
@@ -23055,15 +23170,16 @@ function renderFoodHubDatabaseView(){
         :`<span style="width:28px;height:22px;display:inline-block;flex-shrink:0" aria-hidden="true"></span>`)
       :'';
     const badgeSlot=invOn?stockBadge(f,fi):'';
+    const editRef=f.id!=null?`'${f.id}'`:fi;
     return`
     <div style="display:grid;grid-template-columns:minmax(0,1fr)${invOn?' 28px 44px':''} 72px;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid var(--card);opacity:${dim?0.55:1}">
-      <div style="cursor:pointer;min-width:0" onclick="modal={type:'editfood',editFood:{...mpFoods[${fi}]}};renderApp()">
+      <div style="cursor:pointer;min-width:0" onclick="openEditFood(${editRef})">
         <div style="font-size:11px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
         <div style="font-size:8px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${perUnitDesc}${invOn&&isTracked?` · ${Math.round(f.stockQty*10)/10} left`:''}</div>
       </div>
       ${refillSlot}
       ${badgeSlot}
-      <div style="text-align:right;cursor:pointer;min-width:0" onclick="modal={type:'editfood',editFood:{...mpFoods[${fi}]}};renderApp()">
+      <div style="text-align:right;cursor:pointer;min-width:0" onclick="openEditFood(${editRef})">
         <div style="font-size:11px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums">${f.kcal}<span style="font-size:8px;color:var(--muted);font-weight:400"> kcal</span></div>
         <div style="display:flex;gap:5px;margin-top:2px;justify-content:flex-end;font-variant-numeric:tabular-nums">
           <span style="font-size:8px;color:#fb923c">${f.P}P</span>
@@ -23084,7 +23200,15 @@ function renderFoodHubDatabaseView(){
     }
     return true;
   });
-  withIdx=withIdx.slice().sort((a,b)=>(a.f.name||'').localeCompare(b.f.name||''));
+  // In-stock first (A–Z); out-of-stock sinks to the bottom of each list/group.
+  withIdx=withIdx.slice().sort((a,b)=>{
+    if(invOn&&filt!=='oos'){
+      const aOut=!foodIsAvailable(a.f);
+      const bOut=!foodIsAvailable(b.f);
+      if(aOut!==bOut)return aOut?1:-1;
+    }
+    return(a.f.name||'').localeCompare(b.f.name||'');
+  });
 
   // Group by category unless filtering to one category or out-of-stock restock list.
   let body='';
@@ -23137,6 +23261,8 @@ function renderMealPlanEditor(){
       </div>
     </div>
     ${(mp.slots||[]).map((slot,si)=>({slot,si})).sort((a,z)=>{
+      const ma=mealSlotSortKey({ms:a.slot.id}),mz=mealSlotSortKey({ms:z.slot.id});
+      if(ma!==mz&&(ma!==999||mz!==999))return ma-mz;
       const ta=parseTimeToMins(a.slot.t||'12:00 PM'),tz=parseTimeToMins(z.slot.t||'12:00 PM');
       return ta-tz||a.si-z.si;
     }).map(({slot,si})=>{
@@ -23436,7 +23562,7 @@ function render(){
       // timeline AND the day progress total (otherwise you get 19/20 forever).
       &&!(b.type==='caffeine'&&((modules&&modules.caffeine===false)||(uiSettings.hubWidgets||[]).includes('caffeine')))
       &&!(['drivework','work','drivehome','workend'].includes(b.type)&&(!_isJobEnabled())))
-    .sort((a,z)=>parseTimeToMins(a.b.t)-parseTimeToMins(z.b.t)||a.i-z.i);
+    .sort(compareScheduleEntries);
   const dayPartOf=mins=>mins<12*60?'MORNING':mins<17*60?'AFTERNOON':'EVENING';
   const dayPartRank={MORNING:0,AFTERNOON:1,EVENING:2};
   const _trainForPartIdx=_ordered.findIndex(({b})=>b.type==='training');
@@ -25722,23 +25848,50 @@ window.saveFood=function(){
   const refillQty=refillInput!==''&&refillInput!=null?parseFloat(refillInput):null;
   if(!name)return;
   const ef=modal&&modal.editFood;
+  let savedId=ef&&ef.id!=null?ef.id:null;
   if(ef&&ef.id!=null){
     // Editing an existing food — find by id and update in place
     untombstoneFoodId(ef.id);
     const idx=mpFoods.findIndex(f=>f.id===ef.id);
     if(idx>=0){
+      // Prefer serving string for list display; keep unit/label for amount math.
       mpFoods[idx]={...mpFoods[idx],name,serving,P,C:C_,F,kcal,category,stockQty,refillQty};
+      savedId=mpFoods[idx].id;
     }
   } else {
     // Adding a new food
     const newId='custom_'+Date.now();
     untombstoneFoodId(newId);
     mpFoods.push({id:newId,name,serving,P,C:C_,F,kcal,category,stockQty,refillQty,defaultSv:1,step:1});
+    savedId=newId;
+  }
+  // Keep linked supplement checklist in sync when Food DB sets powder/pill.
+  // Category "food" leaves the checklist alone.
+  if(savedId&&String(savedId).startsWith('sp_food_')&&(category==='powder'||category==='pill')){
+    const suppId=String(savedId).slice('sp_food_'.length);
+    const sp=typeof supplementTypes!=='undefined'&&supplementTypes?supplementTypes.find(s=>s&&s.id===suppId):null;
+    if(sp){
+      sp.category=category;
+      if(category==='powder')sp.form='scoop';
+      else if(!SUPP_PILL_FORMS.includes(sp.form))sp.form='capsule';
+      Object.assign(sp,normalizeSupplement(sp));
+    }
   }
   mpSave();
   saveState();modal=null;renderApp();
 };
 function saveFood(){window.saveFood();}
+
+window.openEditFood=function(fiOrId){
+  if(!mpFoods||!mpFoods.length)return;
+  let f=null;
+  if(typeof fiOrId==='number')f=mpFoods[fiOrId];
+  else f=mpFoods.find(x=>x&&x.id===fiOrId);
+  if(!f)return;
+  modal={type:'editfood',editFood:{...f,category:foodCategory(f)}};
+  renderApp();
+};
+function openEditFood(fiOrId){window.openEditFood(fiOrId);}
 
 window.deleteFood=function(idOrIdx){
   if(!mpFoods||!mpFoods.length)return;
@@ -28340,6 +28493,15 @@ window.toggleShowFoodEditTab=function(){
   renderApp();
 };
 function toggleShowFoodEditTab(){window.toggleShowFoodEditTab();}
+window.setMealBlockLabelMode=function(mode){
+  if(!['name','nameFood','foods'].includes(mode))return;
+  uiSettings.mealBlockLabelMode=mode;
+  saveUISettings();
+  syncMealPlanToSchedule();
+  saveState();
+  renderApp();
+};
+function setMealBlockLabelMode(mode){window.setMealBlockLabelMode(mode);}
 window.toggleShowQuickActions=function(){
   uiSettings.showQuickActions=!uiSettings.showQuickActions;
   if(!uiSettings.showQuickActions){quickActionsOpen=false;quickActionsPhotoPick=false;}
@@ -28880,8 +29042,20 @@ function renderSettingsPage(){
   const shakesProfileObj=shakesProfile==='off'?anOff:anAw;
   const plannedMacros=computePlannedMealsShakesMacros(shakesProfileObj);
   const shakesLabel=shakesProfile==='off'?'Off days':'Work nights';
+  const mealLabelMode=uiSettings.mealBlockLabelMode||'nameFood';
+  const mealLabelModeBtn=(mode,lbl)=>`<button type="button" class="toggle-opt" onclick="setMealBlockLabelMode('${mode}')" style="background:${mealLabelMode===mode?'var(--accent-bg)':'transparent'};color:${mealLabelMode===mode?'var(--accent)':'var(--muted)'};border:${mealLabelMode===mode?'1px solid var(--accent-border)':'1px solid transparent'}">${lbl}</button>`;
   const mealsSection=`
     ${renderDailyCascadeNote()}
+    <div class="settings-card">
+      <div class="settings-card-title" style="color:#fb923c">TIMEBLOCK TITLES</div>
+      <div class="settings-hint" style="margin-bottom:10px">What meal names show on the schedule</div>
+      <div class="toggle-pill" style="margin-bottom:8px">
+        ${mealLabelModeBtn('name','Slot name')}
+        ${mealLabelModeBtn('nameFood','Name · food')}
+        ${mealLabelModeBtn('foods','Foods')}
+      </div>
+      <div class="settings-hint" style="margin-bottom:0">Rename slots below (Meal 1, Meal 2… or custom). Foods uses planned item names.</div>
+    </div>
     <div class="settings-card">
       <div class="settings-card-title" style="color:#fb923c">PLANNED MACROS</div>
       <div class="settings-macro-breakdown">

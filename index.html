@@ -853,12 +853,22 @@ html.theme-light .modal.trade-modal{--trd-ink:#e11d48}
    Double-gated: only applies when screens >= 1024px AND html.desktop-mode is active.
    Mobile views and small screens are 100% unaffected. ─────────────────────────── */
 #desktop-sidebar{display:none!important}
+.desk-view-mode-floater{display:none!important}
 .sched-hub-pane{display:block}
 .sched-timeline-pane{display:block}
 .food-plan-grid{display:block}
 .prog-metrics-grid{display:block}
 
 @media (min-width:1024px){
+  html:not(.desktop-mode) #float-tabbar{
+    max-width:520px;
+    left:50%!important;
+    right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  html:not(.desktop-mode) #float-tabbar.collapsed{
+    transform:translateX(-50%) translateY(110%)!important;
+  }
   html.desktop-mode{
     --desktop-sidebar-w:240px;
     --tabbar-clearance:0px;
@@ -1021,6 +1031,106 @@ html.theme-light .modal.trade-modal{--trd-ink:#e11d48}
   .desk-view-toggle-btn:hover{
     color:var(--text2);
     border-color:var(--border3);
+  }
+  .desk-view-mode-floater{
+    display:inline-flex!important;
+    align-items:center;
+    gap:4px;
+    position:fixed;
+    bottom:20px;
+    right:24px;
+    z-index:999;
+    padding:4px 6px;
+    background:color-mix(in srgb,var(--card) 92%,transparent);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--border2);
+    border-radius:24px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.04);
+    font-family:'IBM Plex Mono',monospace;
+    user-select:none;
+    transition:transform 0.2s cubic-bezier(.2,.8,.2,1),opacity 0.2s ease,border-color 0.2s ease;
+  }
+  .desk-view-mode-floater:hover{
+    border-color:var(--border3);
+  }
+  .desk-view-floater-title{
+    font-size:7.5px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:var(--muted);
+    padding:0 3px 0 6px;
+  }
+  .desk-view-floater-opt{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 11px;
+    border-radius:16px;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--text3);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    cursor:pointer;
+    transition:all 0.15s ease;
+    white-space:nowrap;
+  }
+  .desk-view-floater-opt:hover{
+    color:var(--text);
+    background:var(--card2);
+  }
+  .desk-view-floater-opt.is-active{
+    background:var(--accent);
+    color:var(--bg);
+    border-color:var(--accent);
+    font-weight:700;
+    box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 35%,transparent);
+  }
+  .desk-view-floater-icon{
+    font-size:11px;
+    line-height:1;
+  }
+  .desk-sidebar-view-toggle{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:4px;
+    background:var(--card2);
+    padding:3px;
+    border:1px solid var(--border2);
+    border-radius:8px;
+  }
+  .desk-sidebar-view-toggle .desk-view-opt{
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:6px;
+    color:var(--text3);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8px;
+    font-weight:600;
+    padding:6px 4px;
+    cursor:pointer;
+    text-align:center;
+    letter-spacing:0.3px;
+    transition:all 0.15s ease;
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .desk-sidebar-view-toggle .desk-view-opt:hover{
+    color:var(--text);
+    border-color:var(--border3);
+  }
+  .desk-sidebar-view-toggle .desk-view-opt.is-active{
+    background:var(--accent);
+    color:var(--bg);
+    border-color:var(--accent);
+    font-weight:700;
+    box-shadow:0 1px 6px color-mix(in srgb,var(--accent) 30%,transparent);
   }
   html.desktop-mode .app{
     margin-left:var(--desktop-sidebar-w)!important;
@@ -6696,7 +6806,8 @@ var uiSettings=Object.assign({},UI_DEFAULTS,safeParseLS('recomp_ui',{})||{});
   if(!['name','nameFood','foods'].includes(uiSettings.mealBlockLabelMode))uiSettings.mealBlockLabelMode='nameFood';
   if(typeof uiSettings.showQuickActions!=='boolean')uiSettings.showQuickActions=false;
   if(uiSettings.todonView!=='multi')uiSettings.todonView='focus';
-  if(!['auto','mobile'].includes(uiSettings.desktopMode))uiSettings.desktopMode='auto';
+  if(!['auto','desktop','mobile'].includes(uiSettings.desktopMode))uiSettings.desktopMode='auto';
+  if(uiSettings.desktopMode==='desktop')uiSettings.desktopMode='auto';
   // Schedule always first in nav and never hidden
   uiSettings.navOrder=uiSettings.navOrder.filter(id=>id!=='schedule');
   uiSettings.navOrder.unshift('schedule');
@@ -6760,6 +6871,7 @@ window.addEventListener('resize',function(){
 applyUISettings();
 window.setUIOption=function(key,val){uiSettings[key]=val;saveUISettings();applyUISettings();renderApp();};
 window.toggleUIOption=function(key){window.setUIOption(key,!uiSettings[key]);};
+window.setDesktopViewMode=function(mode){const target=(mode==='mobile')?'mobile':'auto';window.setUIOption('desktopMode',target);};
 
 let activePage=(function(){
   const hp=uiSettings.homePage==='meals'?'nutrition':uiSettings.homePage;
@@ -33273,12 +33385,27 @@ function renderDesktopSidebar(){
     </nav>
     <div class="desk-sidebar-footer">
       <div class="desk-sidebar-date">${todayStr}</div>
-      <button type="button" class="desk-view-toggle-btn" onclick="setUIOption('desktopMode','mobile')" title="Switch to Mobile View">📱 Mobile View</button>
+      <div class="desk-sidebar-view-toggle" role="group" aria-label="Desktop layout view toggle">
+        <button type="button" class="desk-view-opt${uiSettings.desktopMode!=='mobile'?' is-active':''}" onclick="setDesktopViewMode('auto')" title="Desktop View (Mac & PC layout)">🖥️ Desktop</button>
+        <button type="button" class="desk-view-opt${uiSettings.desktopMode==='mobile'?' is-active':''}" onclick="setDesktopViewMode('mobile')" title="Switch to Mobile View">📱 Mobile</button>
+      </div>
     </div>
   </aside>`;
 }
 function renderBottomNav(){
   const desktopSidebar=renderDesktopSidebar();
+  const isMobilePref=(uiSettings.desktopMode==='mobile');
+  const floaterSwitcher=`<div id="desk-view-mode-floater" class="desk-view-mode-floater" role="group" aria-label="Device view toggle">
+    <span class="desk-view-floater-title">VIEW:</span>
+    <button type="button" class="desk-view-floater-opt${!isMobilePref?' is-active':''}" onclick="setDesktopViewMode('auto')" title="Switch to Desktop View (Mac & PC layout)">
+      <span class="desk-view-floater-icon">🖥️</span>
+      <span class="desk-view-floater-text">Desktop</span>
+    </button>
+    <button type="button" class="desk-view-floater-opt${isMobilePref?' is-active':''}" onclick="setDesktopViewMode('mobile')" title="Switch to Mobile View">
+      <span class="desk-view-floater-icon">📱</span>
+      <span class="desk-view-floater-text">Mobile</span>
+    </button>
+  </div>`;
   const {bar:navIds,more}=getBottomChromeLayout();
   const left=[],right=[];
   navIds.forEach((id,i)=>{if(i<Math.ceil(navIds.length/2))left.push(id);else right.push(id);});
@@ -33305,7 +33432,7 @@ function renderBottomNav(){
       <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:0.4px;color:${moreColor};font-weight:${moreActive?700:500}">MORE</span>
     </button>`:'';
   const fab=uiSettings.showQuickActions?`<button class="float-fab" onclick="toggleQuickActions()" aria-label="Quick actions">+</button>`:'';
-  return desktopSidebar+`<div id="float-tabbar" class="float-tabbar${tabBarCollapsed?' collapsed':''}">
+  return desktopSidebar+floaterSwitcher+`<div id="float-tabbar" class="float-tabbar${tabBarCollapsed?' collapsed':''}">
     ${left.map(mkTab).join('')}
     ${fab}
     ${right.map(mkTab).join('')}
@@ -33367,6 +33494,13 @@ function renderMenuDrawer(){
         }).join('')}
       </div>
       <div class="menu-foot">
+        <button type="button" onclick="setDesktopViewMode(uiSettings.desktopMode==='mobile'?'auto':'mobile');closeMenu();" style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;width:100%;text-align:left;margin-bottom:7px">
+          <span style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px">${uiSettings.desktopMode==='mobile'?'🖥️':'📱'}</span>
+            <span style="font-size:8px;color:var(--text3);font-weight:600;letter-spacing:0.5px">${uiSettings.desktopMode==='mobile'?'SWITCH TO DESKTOP VIEW':'SWITCH TO MOBILE VIEW'}</span>
+          </span>
+          <span style="font-size:7px;color:var(--muted);letter-spacing:0.5px">${uiSettings.desktopMode==='mobile'?'MAC & PC':'COMPACT'}</span>
+        </button>
         <button onclick="openBulkShift()" style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;width:100%;text-align:left;margin-bottom:7px">
           <span style="font-size:11px">⇄</span>
           <span style="font-size:8px;color:var(--text3);font-weight:600;letter-spacing:0.5px">BULK TIME-SHIFT</span>

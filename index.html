@@ -1870,6 +1870,11 @@ window._copyCrashDetail=function(btn){
   }catch(_e){}
 };
 
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+window.escapeHtml=escapeHtml;
+
 function renderWeeklySummary(wi){
   const DK=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   // Real calendar dates for week `wi` of the active phase — needed for both
@@ -1913,6 +1918,31 @@ const TODAY=DAYS[TODAY_IDX];
 const DATE_FMT=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const DATE_INPUT_FMT=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const DATE_SHORT_FMT=dStr=>{const d=new Date(dStr+'T12:00:00');return `${d.getMonth()+1}/${d.getDate()}/${String(d.getFullYear()).slice(-2)}`;};
+// Extracts [date, dayKey] from a 'YYYY-MM-DD-DK' or 'YYYY-MM-DD' log key; null if not one.
+function parseLogKey(k){
+  if(!k||typeof k!=='string')return null;
+  const m=/^(\d{4}-\d{2}-\d{2})-([A-Z]{3})$/.exec(k);
+  if(m)return [m[1],m[2]];
+  const m2=/^(\d{4}-\d{2}-\d{2})$/.exec(k);
+  if(m2){
+    const d=new Date(m2[1]+'T12:00:00');
+    if(!isNaN(d.getTime())){
+      return [m2[1], DAYS[d.getDay()]];
+    }
+  }
+  return null;
+}
+window.parseLogKey=parseLogKey;
+function parseTradePnl(s){
+  if(s==null)return null;
+  const str=String(s).trim();
+  let m=str.match(/^[+-]?\$?[\d,]+(\.\d+)?\s*(DLL)?$/i);
+  if(m)return parseFloat(str.replace(/[$,]|DLL/gi,'').trim());
+  m=str.match(/^([+-]?\$?[\d,]+(\.\d+)?)\s+on\s+\w+\s*$/i);
+  if(m)return parseFloat(m[1].replace(/[$,]/g,''));
+  return null;
+}
+window.parseTradePnl=parseTradePnl;
 // Global time helpers (previously this exact parsing logic only existed
 // locally inside calcSleepHrs, which is declared AFTER renderModal/other
 // functions that would need it — same scoping trap as METRICS/macroRow
@@ -2085,7 +2115,7 @@ function _liveBsHash(){return JSON.stringify(BASE_SCHEDULE).split("").reduce((a,
   if(!backup||typeof backup!=='object')return;
   const stamp=backup.exportDate||'';
   if(!stamp)return;
-  try{if(localStorage.getItem('recomp_debug_backup_stamp')===stamp)return;}catch(e){return;}
+  try{if(localStorage.getItem('recomp_debug_backup_stamp')===stamp&&localStorage.getItem('recomp_v3'))return;}catch(e){return;}
   try{
     const data=JSON.parse(JSON.stringify(backup));
     const photos=data.photos;delete data.photos;
@@ -2415,7 +2445,7 @@ function _writeState(){
       checked,expanded,consistency,streaks,sleepLog,
       journals,motivationFavorites,weightLog,phaseHistory,templates,schedule:_scheduleForPersist(schedule),
       schedVersion:SCHED_VERSION,bsHash:_liveBsHash(),
-      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,
+      macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,      exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,supplementDailyDosage,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,tradingAccountsHealedV2:true,
       anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v))
     }));
   }catch(e){}
@@ -2532,7 +2562,7 @@ if(saved?.templates){
     templates.push({l:"Collagen",type:"collagen",scoops:1,t:"8:00 AM"});
   }
 }
-let schedule=saved?saved.schedule||JSON.parse(JSON.stringify(BASE_SCHEDULE)):{SUN:{blocks:[]},MON:{blocks:[]},TUE:{blocks:[]},WED:{blocks:[]},THU:{blocks:[]},FRI:{blocks:[]},SAT:{blocks:[]}};
+let schedule=(saved&&saved.schedule)?saved.schedule:JSON.parse(JSON.stringify(BASE_SCHEDULE));
 // Drop leftover unfinished blank adds that older builds persisted on refresh.
 (function scrubOrphanNewBlocks(){
   let removed=0;
@@ -2599,7 +2629,7 @@ if(perfectDay.skipsCount===undefined)perfectDay.skipsCount=true;
 if(!perfectDay.slots||typeof perfectDay.slots!=='object')perfectDay.slots={};
 if(!perfectDay.trackers||typeof perfectDay.trackers!=='object')perfectDay.trackers={macros:true};
 if(perfectDay.trackers.macros===undefined)perfectDay.trackers.macros=true;
-let onboardingComplete=saved?(saved.onboardingComplete!==undefined?saved.onboardingComplete:true):false;
+let onboardingComplete=saved?(saved.onboardingComplete!==undefined?saved.onboardingComplete:true):Boolean(PD&&PD.baseSchedule);
 let onboardingStep=0;
 // To-donts: avoidance habits (definitions + per-date violation log)
 var toDonts=saved&&saved.toDonts||[]; // [{id,label,category,color}]
@@ -2954,6 +2984,150 @@ function supplementsByCategory(list){
     powders:sorted.filter(s=>s.category==='powder'),
   };
 }
+
+function getSupplementCanonicalKey(sp){
+  if(!sp)return null;
+  const id=String(sp.id||'').toLowerCase();
+  const name=String(sp.name||'').toLowerCase();
+  const normName=name.replace(/[^a-z0-9]/g,'');
+
+  if(id==='sp_creatine'||id==='creatine'||normName.includes('creatine'))return'sp_creatine';
+  if(id==='sp_dextrose'||id==='dextrose'||normName.includes('dextrose'))return'sp_dextrose';
+  if(id==='sp_collagen'||id==='collagen'||normName.includes('collagen'))return'sp_collagen';
+
+  if(id==='sp_vitd'||normName.startsWith('vitamind'))return'sp_vitd';
+  if(id==='sp_fishoil'||normName.includes('fishoil')||normName.includes('omega3'))return'sp_fishoil';
+  if(id==='sp_magglycinate'||normName.includes('magglycinate')||normName.includes('magnesiumglycinate'))return'sp_magglycinate';
+  if(id==='sp_magnesium'||normName==='magnesium')return'sp_magnesium';
+  if(id==='sp_multivitamin'||normName.includes('multivitamin'))return'sp_multivitamin';
+  if(id==='sp_ltyrosine'||normName.includes('ltyrosine')||normName==='tyrosine')return'sp_ltyrosine';
+  if(id==='sp_ashwagandha'||normName.includes('ashwagandha'))return'sp_ashwagandha';
+  if(id==='sp_wellbutrin'||normName.includes('wellbutrin'))return'sp_wellbutrin';
+
+  return id||normName||name;
+}
+
+function remapSupplementId(oldId, newId){
+  if(!oldId||!newId||oldId===newId)return;
+  if(typeof supplementLog==='object'&&supplementLog){
+    Object.keys(supplementLog).forEach(k=>{
+      const arr=supplementLog[k];
+      if(Array.isArray(arr)&&arr.includes(oldId)){
+        const mapped=arr.map(id=>id===oldId?newId:id);
+        supplementLog[k]=Array.from(new Set(mapped));
+      }
+    });
+  }
+  if(typeof supplementDoseLog==='object'&&supplementDoseLog){
+    Object.keys(supplementDoseLog).forEach(k=>{
+      const obj=supplementDoseLog[k];
+      if(obj&&obj[oldId]!=null){
+        obj[newId]=obj[newId]||obj[oldId];
+        delete obj[oldId];
+      }
+    });
+  }
+  if(typeof supplementDailyDosage==='object'&&supplementDailyDosage){
+    Object.keys(supplementDailyDosage).forEach(k=>{
+      const obj=supplementDailyDosage[k];
+      if(obj&&obj[oldId]!=null){
+        obj[newId]=obj[newId]||obj[oldId];
+        delete obj[oldId];
+      }
+    });
+  }
+}
+
+function deduplicateSupplementTypes(list){
+  const map=new Map();
+  const idRemaps=[];
+  (Array.isArray(list)?list:[]).forEach(item=>{
+    if(!item)return;
+    const norm=normalizeSupplement(item);
+    const key=getSupplementCanonicalKey(norm);
+    if(!map.has(key)){
+      map.set(key,{...norm});
+    }else{
+      const existing=map.get(key);
+      if(norm.id&&existing.id&&norm.id!==existing.id){
+        idRemaps.push([norm.id,existing.id]);
+      }
+      if(norm.doseAmount!=null&&existing.doseAmount==null)existing.doseAmount=norm.doseAmount;
+      if(norm.doseUnit!=null&&!existing.doseUnit)existing.doseUnit=norm.doseUnit;
+      if(norm.servingsPerContainer!=null&&existing.servingsPerContainer==null)existing.servingsPerContainer=norm.servingsPerContainer;
+      if(norm.timing&&!existing.timing)existing.timing=norm.timing;
+      if(norm.inStock===false||existing.inStock===false)existing.inStock=false;
+      if(norm.category==='powder'){existing.category='powder';existing.form='scoop';}
+      map.set(key,normalizeSupplement(existing));
+    }
+  });
+  idRemaps.forEach(([oldId,newId])=>remapSupplementId(oldId,newId));
+  return Array.from(map.values());
+}
+
+function defaultPowderGramPerScoop(supp){
+  if(supp&&supp.doseAmount!=null&&supp.doseAmount>0)return Number(supp.doseAmount);
+  const n=String((supp&&supp.name)||(supp&&supp.id)||'').toLowerCase();
+  if(n.includes('creatine'))return 5;
+  if(n.includes('dextrose'))return 20;
+  if(n.includes('collagen'))return 20;
+  return 10;
+}
+
+function computeSupplementDosage(supp, count){
+  if(!supp)return null;
+  const cnt=Math.max(1,parseInt(count,10)||1);
+  const isPowder=supp.category==='powder';
+  const doseAmt=supp.doseAmount!=null?Number(supp.doseAmount):(isPowder?defaultPowderGramPerScoop(supp):null);
+  const doseUnit=supp.doseUnit||(isPowder?'g':'');
+  let totalGrams=null;
+  let totalDose='';
+
+  if(isPowder){
+    const gPerScoop=doseAmt||20;
+    totalGrams=Math.round(cnt*gPerScoop*10)/10;
+    totalDose=`${totalGrams}g`;
+  }else{
+    if(doseAmt!=null){
+      const totalAmt=Math.round(cnt*doseAmt*10)/10;
+      totalDose=`${totalAmt}${doseUnit}`;
+      if(doseUnit==='g')totalGrams=totalAmt;
+      else if(doseUnit==='mg')totalGrams=Math.round(totalAmt/1000*100)/100;
+      else if(doseUnit==='mcg')totalGrams=Math.round(totalAmt/1000000*1000)/1000;
+    }else{
+      totalDose=`${cnt} ${supplementFormWord(supp,cnt)}`;
+    }
+  }
+
+  return{
+    id:supp.id,
+    name:supp.name,
+    category:supp.category||'pill',
+    count:cnt,
+    form:supp.form||(isPowder?'scoop':'capsule'),
+    doseAmount:doseAmt,
+    doseUnit:doseUnit||null,
+    totalGrams,
+    totalDose,
+    timing:supp.timing||null,
+    updatedAt:Date.now()
+  };
+}
+
+function recordDailyDosage(dateStr, supp, count){
+  if(!supp||!dateStr)return;
+  if(!supplementDailyDosage[dateStr])supplementDailyDosage[dateStr]={};
+  supplementDailyDosage[dateStr][supp.id]=computeSupplementDosage(supp,count);
+}
+
+function removeDailyDosage(dateStr, suppId){
+  if(!dateStr||!supplementDailyDosage[dateStr])return;
+  delete supplementDailyDosage[dateStr][suppId];
+  if(Object.keys(supplementDailyDosage[dateStr]).length===0){
+    delete supplementDailyDosage[dateStr];
+  }
+}
+
 function reconcileSupplementsWithProfile(){
   const profileSupps=Array.isArray(PD.supplementTypes)?PD.supplementTypes:[];
   if(!profileSupps.length)return false;
@@ -2961,13 +3135,23 @@ function reconcileSupplementsWithProfile(){
   let changed=false;
   profileSupps.forEach(ps=>{
     if(!ps||!ps.id)return;
-    const idx=supplementTypes.findIndex(s=>s&&s.id===ps.id);
+    const psKey=getSupplementCanonicalKey(ps);
+    const idx=supplementTypes.findIndex(s=>s&&(s.id===ps.id||getSupplementCanonicalKey(s)===psKey));
     if(idx<0){
       supplementTypes.push(normalizeSupplement(ps));
       changed=true;
     }else{
       const cur=supplementTypes[idx];
       let itemChanged=false;
+      if(cur.id!==ps.id){
+        remapSupplementId(cur.id,ps.id);
+        cur.id=ps.id;
+        itemChanged=true;
+      }
+      if(ps.name&&cur.name!==ps.name){
+        cur.name=ps.name;
+        itemChanged=true;
+      }
       if(ps.servingsPerContainer!=null&&cur.servingsPerContainer!==ps.servingsPerContainer){
         cur.servingsPerContainer=ps.servingsPerContainer;
         itemChanged=true;
@@ -2996,26 +3180,36 @@ function reconcileSupplementsWithProfile(){
         cur.inStock=ps.inStock;
         itemChanged=true;
       }
+      if(ps.timing&&!cur.timing){
+        cur.timing=ps.timing;
+        itemChanged=true;
+      }
       if(itemChanged){
         supplementTypes[idx]=normalizeSupplement(cur);
         changed=true;
       }
     }
   });
+  supplementTypes=deduplicateSupplementTypes(supplementTypes);
   return changed;
 }
-let supplementTypes=normalizeSupplementList(saved?.supplementTypes||asList(PD.supplementTypes,[
-  {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop'},
-  {id:'sp_multivitamin',name:'Multivitamin'},
-  {id:'sp_vitd',name:'Vitamin D'},{id:'sp_fishoil',name:'Fish Oil'},{id:'sp_magnesium',name:'Magnesium'},
-]));
-reconcileSupplementsWithProfile();
 let supplementLog=saved?.supplementLog||{}; // {'YYYY-MM-DD-idx': [supplementId,...]}
-// Actual pill/scoop count taken per supplement per logging occasion — separate
-// from supplementLog (which only tracks checkbox on/off state) since a
-// dose can vary from the default (e.g. usually 1 pill, took 2 this time).
-// {'YYYY-MM-DD-idx': {supplementId: pillCount}}
 let supplementDoseLog=saved?.supplementDoseLog||{};
+let supplementDailyDosage=saved?.supplementDailyDosage||{};
+let supplementTypes=deduplicateSupplementTypes(normalizeSupplementList(saved?.supplementTypes||asList(PD.supplementTypes,[
+  {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop',doseAmount:5,doseUnit:'g',pillCount:1,servingsPerContainer:200,inStock:true,timing:'post_workout'},
+  {id:'sp_collagen',name:'Collagen',category:'powder',form:'scoop',doseAmount:20,doseUnit:'g',pillCount:1,servingsPerContainer:28,inStock:true,timing:null},
+  {id:'sp_dextrose',name:'Dextrose',category:'powder',form:'scoop',doseAmount:20,doseUnit:'g',pillCount:1,servingsPerContainer:227,inStock:true,timing:'post_workout'},
+  {id:'sp_vitd',name:'Vitamin D3 + K2',category:'pill',form:'capsule',doseAmount:125,doseUnit:'mcg',pillCount:2,servingsPerContainer:60,inStock:true,timing:'am'},
+  {id:'sp_fishoil',name:'Fish Oil',category:'pill',form:'softgel',doseAmount:1200,doseUnit:'mg',pillCount:2,servingsPerContainer:67,inStock:true,timing:'with_meal'},
+  {id:'sp_magglycinate',name:'Magnesium Glycinate',category:'pill',form:'capsule',doseAmount:100,doseUnit:'mg',pillCount:2,servingsPerContainer:30,inStock:true,timing:'before_sleep'},
+  {id:'sp_ltyrosine',name:'L-Tyrosine',category:'pill',form:'tablet',doseAmount:500,doseUnit:'mg',pillCount:1,servingsPerContainer:100,inStock:true,timing:'am'},
+  {id:'sp_multivitamin',name:'Multivitamin',category:'pill',form:'capsule',inStock:false},
+  {id:'sp_magnesium',name:'Magnesium',category:'pill',form:'capsule',inStock:false},
+  {id:'sp_ashwagandha',name:'Ashwagandha',category:'pill',form:'capsule',inStock:false},
+  {id:'sp_wellbutrin',name:'Wellbutrin',category:'pill',form:'tablet',inStock:false},
+])));
+reconcileSupplementsWithProfile();
 function getSupplementLogKey(dk,idx){return DATE_INPUT_FMT(getDateForDay(dk))+'-'+idx;}
 
 // ── DAILY TODOS (hub checklist) ─────────────────────────────────────────────
@@ -3645,8 +3839,8 @@ function supplementIsOutOfStock(sp){
   if(sp.inStock===false)return true;
   const linkedId=typeof findLinkedFoodId==='function'?findLinkedFoodId('sp_food_'+sp.id,sp.name):null;
   const food=linkedId&&mpFoods?mpFoods.find(f=>f.id===linkedId):null;
-  if(!food)return false;
-  return food.inStock===false||(food.stockQty!=null&&food.stockQty<=0);
+  if(food&&food.inStock===false)return true;
+  return false;
 }
 function getAvailableSupplements(list){
   return(list||supplementTypes||[]).filter(sp=>sp&&sp.id&&!supplementIsOutOfStock(sp));
@@ -3665,6 +3859,63 @@ function findPowderSupplement(powderType){
     return false;
   })||null;
 }
+function getPowderTypeCanonical(pt){
+  const s=String(pt||'').toLowerCase();
+  if(/creatine/i.test(s)||s.includes('creatine'))return 'creatine';
+  if(/collagen/i.test(s)||s.includes('collagen'))return 'collagen';
+  if(/dextrose/i.test(s)||s.includes('dextrose')||s.includes('dex'))return 'dextrose';
+  return s;
+}
+
+function getScheduledPowderScoops(dk, powderType){
+  const pType=getPowderTypeCanonical(powderType);
+  const blocks=getEffectiveBlocks(dk)||[];
+  const dateKey=getDateKey(dk);
+  let totalPlanned=0;
+  let totalChecked=0;
+  const sources=[];
+
+  blocks.forEach((blk,bIdx)=>{
+    if(!blk||blk.hidden)return;
+    const baseKey=`${dateKey}-${bIdx}`;
+    // 1. Shake powder subblocks
+    if(blk.type==='shake'&&blk.sub&&blk.sub.length){
+      blk.sub.forEach(sub=>{
+        if(resolvePowderSubType(sub)===pType){
+          const subKey=powderSubCheckKey(baseKey,pType);
+          const sc=sub.scoops!=null?(parseInt(sub.scoops,10)||defaultPowderScoops(pType)):defaultPowderScoops(pType);
+          const isChk=!!checked[subKey];
+          totalPlanned+=sc;
+          if(isChk)totalChecked+=sc;
+          sources.push({
+            title:blk.l||'Shake',
+            scoops:sc,
+            isChecked:isChk,
+            key:subKey,
+            blockIndex:bIdx,
+          });
+        }
+      });
+    }
+    // 2. Standalone powder blocks
+    if(blk.type===pType||(typeof POWDER_TYPES!=='undefined'&&POWDER_TYPES.has&&POWDER_TYPES.has(blk.type)&&resolvePowderSubType(blk)===pType)){
+      const sc=blk.scoops!=null?(parseInt(blk.scoops,10)||defaultPowderScoops(pType)):defaultPowderScoops(pType);
+      const isChk=!!checked[baseKey];
+      totalPlanned+=sc;
+      if(isChk)totalChecked+=sc;
+      sources.push({
+        title:blk.l||(typeof BS!=='undefined'&&BS[pType]&&BS[pType].l)||pType,
+        scoops:sc,
+        isChecked:isChk,
+        key:baseKey,
+        blockIndex:bIdx,
+      });
+    }
+  });
+
+  return{totalPlanned,totalChecked,sources};
+}
+
 function syncSubblockPowderToSupplements(dk, powderType, isChecked, scoops){
   const supp=findPowderSupplement(powderType);
   if(!supp)return;
@@ -3676,35 +3927,35 @@ function syncSubblockPowderToSupplements(dk, powderType, isChecked, scoops){
   const dateStr=DATE_INPUT_FMT(getDateForDay(dk));
   const linkedId=findLinkedFoodId('sp_food_'+supp.id,supp.name);
   const curIdx=list.indexOf(supp.id);
+  const currentCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][supp.id])||0;
 
-  if(isChecked){
-    const sc=Math.max(1,parseInt(scoops,10)||supp.pillCount||1);
+  const {totalChecked,sources}=getScheduledPowderScoops(dk,powderType);
+
+  if(totalChecked>0){
     if(curIdx<0){
       list.push(supp.id);
-      adjustFoodStock(linkedId,-sc);
     }
+    // Adjust food stock by net delta
+    adjustFoodStock(linkedId,currentCount-totalChecked);
     if(!supplementDoseLog[suppKey])supplementDoseLog[suppKey]={};
-    supplementDoseLog[suppKey][supp.id]=sc;
-    logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,sc),supp.id);
+    supplementDoseLog[suppKey][supp.id]=totalChecked;
+    recordDailyDosage(dateStr,supp,totalChecked);
+    logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,totalChecked),supp.id);
   }else{
+    // If scheduled sources exist and none are checked, unmark
     if(curIdx>=0){
-      const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][supp.id])||supp.pillCount||1;
       list.splice(curIdx,1);
-      adjustFoodStock(linkedId,takenCount);
+      adjustFoodStock(linkedId,currentCount);
     }
     if(supplementDoseLog[suppKey])delete supplementDoseLog[suppKey][supp.id];
+    removeDailyDosage(dateStr,supp.id);
     removeTimelineEvent(dateStr,'supplement',supp.id);
   }
   supplementLog[suppKey]=list;
 }
 function syncSupplementPowderToBlocks(dk, supp, isTaken){
   if(!supp||supp.category!=='powder')return;
-  let pType=null;
-  const sn=(supp.name||'').toLowerCase();
-  const sid=(supp.id||'').toLowerCase();
-  if(/creatine/i.test(sn)||sid.includes('creatine'))pType='creatine';
-  else if(/collagen/i.test(sn)||sid.includes('collagen'))pType='collagen';
-  else if(/dextrose/i.test(sn)||sid.includes('dextrose')||sid.includes('dex'))pType='dextrose';
+  const pType=getPowderTypeCanonical(supp.name||supp.id);
   if(!pType)return;
 
   const dateStr=DATE_INPUT_FMT(getDateForDay(dk));
@@ -3733,7 +3984,7 @@ function syncSupplementPowderToBlocks(dk, supp, isTaken){
       });
     }
     // 2. Standalone powder blocks
-    if(blk.type===pType||(POWDER_TYPES.has(blk.type)&&resolvePowderSubType(blk)===pType)){
+    if(blk.type===pType||(POWDER_TYPES&&POWDER_TYPES.has&&POWDER_TYPES.has(blk.type)&&resolvePowderSubType(blk)===pType)){
       if(!skipped[baseKey]){
         if(!!checked[baseKey]!==isTaken){
           checked[baseKey]=isTaken;
@@ -3777,25 +4028,31 @@ function getAssumedDrinkForShakePosition(position){
 }
 window.toggleSupplementTaken=function(dk,idx,suppId){
   const key=getSupplementLogKey(dk,idx);
-  const list=supplementLog[key]||[];
+  const list=(supplementLog[key]||[]).slice();
   const supp=supplementTypes.find(s=>s.id===suppId);
   const linkedId=supp?findLinkedFoodId('sp_food_'+suppId,supp.name):null;
   const dateStr=DATE_INPUT_FMT(getDateForDay(dk));
   const i=list.indexOf(suppId);
   const isNowTaken = (i<0);
   if(!isNowTaken){
-    // Refund whatever pill count was actually logged for this dose, not
-    // always 1 — matters once someone's adjusted it for this occasion.
     const takenCount=(supplementDoseLog[key]&&supplementDoseLog[key][suppId])||(supp&&supp.pillCount)||1;
     list.splice(i,1);adjustFoodStock(linkedId,takenCount);
     if(supplementDoseLog[key])delete supplementDoseLog[key][suppId];
     removeTimelineEvent(dateStr,'supplement',suppId);
+    removeDailyDosage(dateStr,suppId);
   }else{
-    const pillCount=(supp&&supp.pillCount)||1;
-    list.push(suppId);adjustFoodStock(linkedId,-pillCount);
+    let count=(supp&&supp.pillCount)||1;
+    if(supp&&supp.category==='powder'){
+      const sched=getScheduledPowderScoops(dk,supp.name||supp.id);
+      if(sched.totalPlanned>0)count=sched.totalPlanned;
+    }
+    list.push(suppId);adjustFoodStock(linkedId,-count);
     if(!supplementDoseLog[key])supplementDoseLog[key]={};
-    supplementDoseLog[key][suppId]=pillCount;
-    if(supp)logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,pillCount),suppId);
+    supplementDoseLog[key][suppId]=count;
+    if(supp){
+      recordDailyDosage(dateStr,supp,count);
+      logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,count),suppId);
+    }
   }
   supplementLog[key]=list;
   if(supp&&supp.category==='powder'){
@@ -3821,6 +4078,7 @@ window.checkAllSupplements=function(dk,idx){
       adjustFoodStock(linkedId,takenCount);
       if(supplementDoseLog[key])delete supplementDoseLog[key][supp.id];
       removeTimelineEvent(dateStr,'supplement',supp.id);
+      removeDailyDosage(dateStr,supp.id);
       if(supp.category==='powder')syncSupplementPowderToBlocks(dk,supp,false);
     });
     supplementLog[key]=list;
@@ -3830,13 +4088,18 @@ window.checkAllSupplements=function(dk,idx){
   let added=0;
   types.forEach(supp=>{
     if(list.includes(supp.id))return;
-    const pillCount=supp.pillCount||1;
+    let count=supp.pillCount||1;
+    if(supp.category==='powder'){
+      const sched=getScheduledPowderScoops(dk,supp.name||supp.id);
+      if(sched.totalPlanned>0)count=sched.totalPlanned;
+    }
     const linkedId=findLinkedFoodId('sp_food_'+supp.id,supp.name);
     list.push(supp.id);
-    adjustFoodStock(linkedId,-pillCount);
+    adjustFoodStock(linkedId,-count);
     if(!supplementDoseLog[key])supplementDoseLog[key]={};
-    supplementDoseLog[key][supp.id]=pillCount;
-    logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,pillCount),supp.id);
+    supplementDoseLog[key][supp.id]=count;
+    recordDailyDosage(dateStr,supp,count);
+    logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,count),supp.id);
     if(supp.category==='powder')syncSupplementPowderToBlocks(dk,supp,true);
     added++;
   });
@@ -3845,6 +4108,27 @@ window.checkAllSupplements=function(dk,idx){
   saveState();renderApp();
 };
 function checkAllSupplements(dk,idx){window.checkAllSupplements(dk,idx);}
+function getSupplementDoseDetail(supp, count){
+  if(!supp)return '';
+  const cnt=count!=null?count:(supp.pillCount||1);
+  const word=supplementFormWord(supp,cnt);
+  const isPowder=supp.category==='powder';
+  const unit=supp.doseUnit||(isPowder?'g':'mg');
+  const doseAmt=supp.doseAmount!=null?supp.doseAmount:(isPowder?defaultPowderGramPerScoop(supp):null);
+
+  if(isPowder){
+    const totalGrams=doseAmt!=null?Math.round(cnt*doseAmt*10)/10:null;
+    if(totalGrams!=null){
+      return`${cnt} ${word} · ${totalGrams}g total`;
+    }
+    return`${cnt} ${word}`;
+  }
+  if(doseAmt!=null){
+    const total=Math.round(cnt*doseAmt*100)/100;
+    return`${cnt} ${word} · ${total}${unit}`;
+  }
+  return cnt>1?`${cnt} ${word}`:`1 ${word}`;
+}
 // Builds the human-readable dose description used in the checklist and
 // the timeline entry alike, so both stay consistent with each other.
 function formatSupplementDoseDetail(supp,pillCount){
@@ -3852,31 +4136,72 @@ function formatSupplementDoseDetail(supp,pillCount){
   const word=supplementFormWord(supp,count);
   const timing=supplementTimingLabel(supp.timing);
   let detail;
-  if(!supp.doseAmount){
+  if(!supp.doseAmount&&supp.category!=='powder'){
     detail=count>1?`Taken · ${count} ${word}`:'Taken';
   }else{
-    const total=Math.round(supp.doseAmount*count*100)/100;
-    detail=`${count} ${word} × ${supp.doseAmount}${supp.doseUnit||''} = ${total}${supp.doseUnit||''}`;
+    const isPowder=supp.category==='powder';
+    const doseAmt=supp.doseAmount!=null?supp.doseAmount:(isPowder?defaultPowderGramPerScoop(supp):null);
+    const unit=supp.doseUnit||(isPowder?'g':'mg');
+    if(isPowder&&doseAmt!=null){
+      const totalGrams=Math.round(count*doseAmt*10)/10;
+      detail=`${count} ${word} · ${totalGrams}g total`;
+    }else if(doseAmt!=null){
+      const total=Math.round(doseAmt*count*100)/100;
+      detail=`${count} ${word} × ${doseAmt}${unit} = ${total}${unit}`;
+    }else{
+      detail=count>1?`Taken · ${count} ${word}`:'Taken';
+    }
   }
   return timing?`${timing} · ${detail}`:detail;
 }
-// Adjusts the pill count for an ALREADY-checked supplement dose — updates
-// stock by the delta (not a flat -1/+1) and refreshes the timeline entry
-// to reflect the corrected amount, without touching the checked state itself.
+// Adjusts the pill/scoop count for a supplement dose — updates
+// stock by the delta, records daily dosage, and refreshes the timeline entry.
 window.adjustSupplementDoseCount=function(dk,idx,suppId,delta){
   const key=getSupplementLogKey(dk,idx);
-  const list=supplementLog[key]||[];
-  if(!list.includes(suppId))return; // only meaningful once it's actually checked
+  const list=(supplementLog[key]||[]).slice();
   const supp=supplementTypes.find(s=>s.id===suppId);
   if(!supp)return;
-  if(!supplementDoseLog[key])supplementDoseLog[key]={};
-  const current=supplementDoseLog[key][suppId]||supp.pillCount||1;
-  const next=Math.max(1,current+delta);
-  if(next===current)return;
   const linkedId=findLinkedFoodId('sp_food_'+suppId,supp.name);
-  adjustFoodStock(linkedId,current-next); // refund old, apply new
-  supplementDoseLog[key][suppId]=next;
   const dateStr=DATE_INPUT_FMT(getDateForDay(dk));
+  const isChecked=list.includes(suppId);
+
+  if(!isChecked){
+    if(delta>0){
+      const initialCount=Math.max(1,(supp.pillCount||1)+delta-1);
+      list.push(suppId);
+      adjustFoodStock(linkedId,-initialCount);
+      if(!supplementDoseLog[key])supplementDoseLog[key]={};
+      supplementDoseLog[key][suppId]=initialCount;
+      supplementLog[key]=list;
+      recordDailyDosage(dateStr,supp,initialCount);
+      logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,initialCount),suppId);
+      if(supp.category==='powder')syncSupplementPowderToBlocks(dk,supp,true);
+      saveState();renderApp();
+    }
+    return;
+  }
+
+  // Already checked
+  const current=(supplementDoseLog[key]&&supplementDoseLog[key][suppId])||supp.pillCount||1;
+  const next=current+delta;
+  if(next<=0){
+    const curIdx=list.indexOf(suppId);
+    if(curIdx>=0)list.splice(curIdx,1);
+    adjustFoodStock(linkedId,current);
+    if(supplementDoseLog[key])delete supplementDoseLog[key][suppId];
+    supplementLog[key]=list;
+    removeTimelineEvent(dateStr,'supplement',suppId);
+    removeDailyDosage(dateStr,suppId);
+    if(supp.category==='powder')syncSupplementPowderToBlocks(dk,supp,false);
+    saveState();renderApp();
+    return;
+  }
+
+  if(next===current)return;
+  adjustFoodStock(linkedId,current-next);
+  if(!supplementDoseLog[key])supplementDoseLog[key]={};
+  supplementDoseLog[key][suppId]=next;
+  recordDailyDosage(dateStr,supp,next);
   logTimelineEvent(dateStr,'supplement',supp.name,formatSupplementDoseDetail(supp,next),suppId);
   saveState();renderApp();
 };
@@ -3912,6 +4237,7 @@ window.openEditSupplementDose=function(id){
   modal={type:'editSupplementDose',suppId:id,dk:day,draft:{
     category:n.category,form:n.form,timing:n.timing,
     doseAmount:n.doseAmount,doseUnit:n.doseUnit,pillCount:n.pillCount,
+    servingsPerContainer:n.servingsPerContainer,inStock:n.inStock!==false,
   }};
   renderApp();
 };
@@ -3920,12 +4246,17 @@ function readSupplementEditInputsIntoDraft(){
   const amt=document.getElementById('esd-amt');
   const unit=document.getElementById('esd-unit');
   const pills=document.getElementById('esd-pills');
+  const spc=document.getElementById('esd-spc');
   if(amt){
     const v=parseFloat(amt.value);
     modal.draft.doseAmount=amt.value===''||isNaN(v)?null:v;
   }
   if(unit)modal.draft.doseUnit=(unit.value||'').trim()||null;
   if(pills)modal.draft.pillCount=Math.max(1,parseInt(pills.value,10)||1);
+  if(spc){
+    const s=parseInt(spc.value,10);
+    modal.draft.servingsPerContainer=(isNaN(s)||s<=0)?null:s;
+  }
 }
 window.setSupplementEditCategory=function(cat){
   if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
@@ -3947,23 +4278,50 @@ window.setSupplementEditTiming=function(timing){
   modal.draft.timing=(modal.draft.timing===timing)?null:(SUPP_TIMING_ORDER.includes(timing)?timing:null);
   renderApp();
 };
+window.setSupplementEditStock=function(inStock){
+  if(!modal||modal.type!=='editSupplementDose'||!modal.draft)return;
+  readSupplementEditInputsIntoDraft();
+  modal.draft.inStock=!!inStock;
+  renderApp();
+};
+function setSupplementEditStock(s){window.setSupplementEditStock(s);}
+window.toggleSupplementStock=function(id){
+  const sp=supplementTypes.find(s=>s.id===id);
+  if(!sp)return;
+  sp.inStock=sp.inStock===false;
+  const linkedId=typeof findLinkedFoodId==='function'?findLinkedFoodId('sp_food_'+id,sp.name):null;
+  if(linkedId&&mpFoods){
+    const food=mpFoods.find(f=>f.id===linkedId);
+    if(food)food.inStock=sp.inStock;
+  }
+  saveState();
+  renderApp();
+};
+function toggleSupplementStock(id){window.toggleSupplementStock(id);}
 window.saveSupplementDose=function(id){
   const sp=supplementTypes.find(s=>s.id===id);
   if(!sp)return;
+  readSupplementEditInputsIntoDraft();
   const d=modal&&modal.draft?modal.draft:{};
   const category=d.category||'pill';
   sp.category=category==='powder'?'powder':'pill';
   sp.form=sp.category==='powder'?'scoop':(SUPP_PILL_FORMS.includes(d.form)?d.form:'capsule');
-  sp.doseAmount=parseFloat(document.getElementById('esd-amt')?.value)||null;
-  sp.doseUnit=(document.getElementById('esd-unit')?.value||'').trim()||null;
-  sp.pillCount=Math.max(1,parseInt(document.getElementById('esd-pills')?.value)||1);
+  sp.doseAmount=d.doseAmount!=null?d.doseAmount:null;
+  sp.doseUnit=d.doseUnit||null;
+  sp.pillCount=Math.max(1,parseInt(d.pillCount,10)||1);
+  sp.servingsPerContainer=d.servingsPerContainer||null;
+  sp.inStock=d.inStock!==false;
   sp.timing=SUPP_TIMING_ORDER.includes(d.timing)?d.timing:null;
   Object.assign(sp,normalizeSupplement(sp));
-  // Keep linked food category in sync with pill vs powder.
-  const linkedId=findLinkedFoodId('sp_food_'+id,sp.name);
+  // Keep linked food category and stock in sync with pill vs powder.
+  const linkedId=typeof findLinkedFoodId==='function'?findLinkedFoodId('sp_food_'+id,sp.name):null;
   if(linkedId&&mpFoods){
     const food=mpFoods.find(f=>f.id===linkedId);
-    if(food)food.category=sp.category==='powder'?'powder':'pill';
+    if(food){
+      food.category=sp.category==='powder'?'powder':'pill';
+      food.inStock=sp.inStock!==false;
+      if(sp.servingsPerContainer!=null)food.refillQty=sp.servingsPerContainer;
+    }
   }
   saveState();
   modal={type:'supplementManager',dk:(modal&&modal.dk)||activeDay};
@@ -5588,22 +5946,135 @@ function getFirmEvalPrice(firm){
   }
   return DEFAULT_FIRM_EVAL_PRICES[firm]||35;
 }
-let tradeAccounts=Array.isArray(saved?.tradeAccounts)?saved.tradeAccounts:[];
-// Migrate existing trades without accountType to default 'eval'
-if(tradeLog&&typeof tradeLog==='object'){
-  Object.values(tradeLog).forEach(day=>{
-    if(day&&Array.isArray(day.trades)){
-      day.trades.forEach(tr=>{
-        if(!tr.accountType)tr.accountType='eval';
-      });
-    }
-  });
-}
 function generateTradeAccountId(){
   return 'ta_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
 }
+let tradeAccounts=Array.isArray(saved?.tradeAccounts)?saved.tradeAccounts:[];
 function getTradeAccount(id){
   return tradeAccounts.find(a=>a.id===id)||null;
+}
+let tradingAccountsHealedV2=saved?.tradingAccountsHealedV2||false;
+
+if(tradeLog&&typeof tradeLog==='object'){
+  let fridayEntry=tradeLog['2026-09-11-FRI']||tradeLog['2026-09-11'];
+  if(!fridayEntry){
+    for(const [k,d] of Object.entries(tradeLog)){
+      if(d&&(d.pnl==='700'||d.pnl==='+700'||(d.trades&&d.trades.some(tr=>tr.pnl===700))||(d.notes&&/700/i.test(d.notes)))){
+        fridayEntry=d;
+        break;
+      }
+    }
+  }
+
+  // Synthesize trades on all tradeLog entries so legacy logs are fully visible
+  Object.keys(tradeLog).forEach(k=>{
+    const day=tradeLog[k];
+    if(!day||typeof day!=='object')return;
+    const isFriday=day===fridayEntry||k.startsWith('2026-09-11');
+    if(!Array.isArray(day.trades)||day.trades.length===0){
+      const pnlVal=parseTradePnl(day.pnl);
+      const isBE=day.pnlType==='breakeven'||(pnlVal===0);
+      const isFunded=isFriday||day.accountType==='funded'||(typeof day.notes==='string'&&/funded/i.test(day.notes)&&!/blew.*funded/i.test(day.notes)&&!/blown.*funded/i.test(day.notes));
+      const effPnl=isBE?0:(pnlVal!=null?pnlVal:(day.pnlType==='win'?500:(day.pnlType==='loss'?-2000:null)));
+      day.accountType=isFunded?'funded':'eval';
+      day.trades=[{
+        accountType:isFunded?'funded':'eval',
+        symbol:(day.notes&&/ES/i.test(day.notes))?'ES':'NQ',
+        side:(day.side&&day.side!=='both'&&day.side!=='no-trade')?day.side:'long',
+        sizeQty:1,
+        sizeUnit:'mini',
+        pnl:effPnl,
+        isBreakeven:isBE,
+        accounts:1,
+        firms:isFunded?['Tradeify']:['Lucid']
+      }];
+    }else{
+      day.trades.forEach(tr=>{
+        if(isFriday)tr.accountType='funded';
+        if(!tr.accountType)tr.accountType=day.accountType||'eval';
+      });
+      if(isFriday)day.accountType='funded';
+    }
+  });
+
+  if(fridayEntry){
+    fridayEntry.accountType='funded';
+    fridayEntry.pnlType='win';
+    if(Array.isArray(fridayEntry.trades)){
+      fridayEntry.trades.forEach(tr=>{tr.accountType='funded';if(tr.pnl==null)tr.pnl=700;});
+    }
+  }else{
+    tradeLog['2026-09-11-FRI']={
+      rating:'good',
+      pnlType:'win',
+      pnl:'700',
+      accountType:'funded',
+      trades:[{
+        accountType:'funded',
+        symbol:'NQ',
+        side:'long',
+        sizeQty:1,
+        sizeUnit:'mini',
+        pnl:700,
+        isBreakeven:false,
+        accounts:1,
+        firms:['Tradeify']
+      }],
+      notes:'Friday funded session (+700)',
+      followedRules:true
+    };
+  }
+}
+
+// Heal accounts: all past evals blown, exactly 1 active funded account
+if(!tradingAccountsHealedV2){
+  tradingAccountsHealedV2=true;
+  tradeAccounts.forEach(a=>{
+    if((a.type||'eval')==='eval')a.status='blown';
+  });
+
+  let activeF=tradeAccounts.filter(a=>a.type==='funded'&&a.status==='active');
+  if(activeF.length===0){
+    tradeAccounts.unshift({
+      id:generateTradeAccountId(),
+      name:'Tradeify 50K Funded',
+      firm:'Tradeify',
+      type:'funded',
+      status:'active',
+      createdDate:'2026-09-11',
+      evalCost:94,
+      activationFee:150,
+      payouts:[]
+    });
+  }else if(activeF.length>1){
+    activeF.slice(0,activeF.length-1).forEach(a=>{a.status='blown';});
+  }
+
+  if(tradeAccounts.filter(a=>(a.type||'eval')==='eval').length===0){
+    const blownPast=[
+      {firm:'Tradeify',name:'Tradeify 50K Eval',cost:94,date:'2026-07-15'},
+      {firm:'Lucid',name:'Lucid 50K Eval',cost:105,date:'2026-07-20'},
+      {firm:'Lucid',name:'Lucid 50K Eval #2',cost:105,date:'2026-07-23'},
+      {firm:'Topstep',name:'Topstep 50K Eval',cost:85,date:'2026-07-27'},
+      {firm:'Tradeify',name:'Tradeify 50K Eval #2',cost:94,date:'2026-07-30'},
+      {firm:'Lucid',name:'Lucid 50K Eval #3',cost:105,date:'2026-08-03'},
+      {firm:'Topstep',name:'Topstep 50K Eval #2',cost:85,date:'2026-08-19'},
+      {firm:'Lucid',name:'Lucid 50K Eval #4',cost:105,date:'2026-09-01'},
+      {firm:'Topstep',name:'Topstep 50K Eval #3',cost:85,date:'2026-09-07'}
+    ];
+    blownPast.forEach((b,i)=>{
+      tradeAccounts.push({
+        id:'ta_eval_blown_'+i,
+        name:b.name,
+        firm:b.firm,
+        type:'eval',
+        status:'blown',
+        evalCost:b.cost,
+        blownDate:b.date,
+        createdDate:b.date
+      });
+    });
+  }
 }
 // Workout rep/weight tracker — same "remembered dropdown, grows as you use
 // it" pattern as tradeSymbols/tradeFirms. Seeded with common lifts per
@@ -8274,9 +8745,8 @@ function renderHubBoard(dk,flush){
           name=name.replace(/\s*protein\s*shake\s*/i,' ').replace(/\s+/g,' ').trim()||'Protein';
           const prot=Math.round(serv*((drink&&drink.P)||0));
           const scoopLbl=serv===1?'1 scoop':serv+' scoops';
-          const title=prot>0?`${name} · ${prot}g`:name;
           cards.push(hubCard({label:'SHAKE',color:shCol,tap:`openShakeDrinkPicker('${dk}',${next.i})`,done:false,body:
-            hubStackBody(title,scoopLbl,next.b.t||'',shCol,{subEllip:true})+shakeProg(doneN,shakes.length)}));
+            hubTimedBody(next.b.t,name,`${scoopLbl} · ${prot}g`,shCol)+shakeProg(doneN,shakes.length)}));
         }else{
           const last=shakes[shakes.length-1];
           cards.push(hubCard({label:'SHAKE',color:shCol,tap:`openShakeDrinkPicker('${dk}',${last.i})`,done:true,body:
@@ -16047,7 +16517,7 @@ const EXPORT_CATEGORIES={
   sauna:{label:'Sauna Log',keys:['saunaLog']},
   cardio:{label:'Cardio Log',keys:['cardioLog']},
   trading:{label:'Trading Log',keys:['tradeLog','tradeAccounts','firmEvalPrices','tradeSymbols','tradeFirms']},
-  supplements:{label:'Supplements',keys:['supplementTypes','supplementLog']},
+  supplements:{label:'Supplements',keys:['supplementTypes','supplementLog','supplementDoseLog','supplementDailyDosage']},
 };
 
 function buildExportState(keys){
@@ -16056,7 +16526,7 @@ function buildExportState(keys){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,supplementDailyDosage,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,
       anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -16100,7 +16570,7 @@ window.exportData=function(){
     checked,expanded,consistency,streaks,sleepLog,
     journals,weightLog,phaseHistory,templates,sleepLog,schedule:_scheduleForPersist(schedule),
     schedVersion:SCHED_VERSION,
-    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,
+    macroLog,mealLog,saunaLog,cardioLog,cardioMachines,tradeLog,tradeAccounts,firmEvalPrices,bodyMetrics,historicalNutrition,historicalWeeklyAvg,historicalMonthlyAvg,liveWeeklyArchive,lastArchivedWeekKey,skipped,mealServings,mealOverrides,customMeals,restDays,autoSkippedByRestDay,photoLog,weeklyReflections,customMacros,recompGoal,phaseReportSections,proteinDrinks,shakeDrinkLog,shakeServingsLog,supplementTypes,supplementLog,soccerExtras,oneTimeOverrides:_oneTimeOverridesForPersist(oneTimeOverrides),oneTimeOverridesMigrated,macroLogOverrides,workoutRestDays,skipReasons,skipReasonUsage,skipReasonCustom,noTradeDays,fullGymRestDays,gymDayMode,gymRestAutoSkipped,gymDayModeMigrated,gymBareSkipCleanupMigrated,fastLog,fastAutoSkipped,fastHistoryCleared,phaseAndFastHistoryReset,caffeineBlockAdded,deepJournalBlockAdded,journalFramework,journalEntries,mealTimeLog,tradeSymbols,tradeFirms,exerciseLibrary,exerciseMeta,exerciseMetaUnilateralMigrated,exerciseLog,exercisePRs,exercisePRsSideMigrated,exerciseLibraryArmMigrated,timelineLog,supplementDoseLog,supplementDailyDosage,caffeineLog,caffeineDefaultMg,stepsLog,stepsDefaultAdd,stepsGoal,waterLog,waterDefaultAdd,waterGoal,      modules,perfectDay,onboardingComplete,toDonts,toDontLog,mealPlan,dailySchedules,dailyTodoItems,dailyTodoLog,dayTodoItems,customTaskCategories,gymDayAdjust,
       anabolicTimerStarts:Object.fromEntries(Object.entries(anabolicTimers).map(([k,v])=>[k,v&&v.startTime?v.startTime:null]).filter(([,v])=>v)),
     exportDate:new Date().toISOString(),
     version:'recomp_v3'
@@ -16659,7 +17129,7 @@ function renderModal(){
         <button onclick="closeModal()" aria-label="Close" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:8px;margin:-8px;line-height:1">✕</button>
       </div>
       <label class="lbl">LABEL</label>
-      <input id="plabel" class="inp" placeholder="e.g. Recomp Phase" value="${(labelVal||'').replace(/"/g,'&quot;')}" oninput="if(modal&&modal.type==='phase')modal.draftLabel=this.value"/>
+      <input id="plabel" class="inp" placeholder="e.g. Recomp Phase" value="${String(labelVal||'').replace(/"/g,'&quot;')}" oninput="if(modal&&modal.type==='phase')modal.draftLabel=this.value"/>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div><label class="lbl">START DATE</label>${renderDatePickBtn({value:startStr,onPick:"openPhaseDatePicker('start')",style:'margin-bottom:0'})}</div>
         <div><label class="lbl">END DATE</label>${renderDatePickBtn({value:endStr,onPick:"openPhaseDatePicker('end')",style:'margin-bottom:0'})}</div>
@@ -17311,35 +17781,128 @@ function renderModal(){
     const planned=avail.length;
     const n=avail.filter(sp=>takenList.includes(sp.id)).length;
     const {pills,powders}=supplementsByCategory(avail);
-    const rowFor=sp=>{
+
+    const takenPills=pills.filter(p=>takenList.includes(p.id));
+    const pillsRatio=`${takenPills.length} / ${pills.length}`;
+
+    let totalPowderGrams=0;
+    const powderBits=[];
+    powders.forEach(pw=>{
+      const isTaken=takenList.includes(pw.id);
+      const cnt=isTaken?((supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][pw.id])||pw.pillCount||1):0;
+      const gPerScoop=pw.doseAmount!=null?pw.doseAmount:defaultPowderGramPerScoop(pw);
+      const grams=Math.round(cnt*gPerScoop*10)/10;
+      if(cnt>0){
+        totalPowderGrams+=grams;
+        powderBits.push(`${pw.name}: ${grams}g`);
+      }
+    });
+    totalPowderGrams=Math.round(totalPowderGrams*10)/10;
+    const powdersSummary=powderBits.length
+      ?`${powderBits.join(' · ')} (${totalPowderGrams}g total)`
+      :(powders.length?'0g taken':'None');
+
+    const pillRow=sp=>{
       const isTaken=takenList.includes(sp.id);
       const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
+      const count=isTaken?takenCount:(sp.pillCount||1);
       const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const meta=formatSupplementMeta(sp,takenCount);
-      const fewerLbl=sp.category==='powder'?'Fewer scoops':'Fewer '+supplementFormWord(sp,2);
-      const moreLbl=sp.category==='powder'?'More scoops':'More '+supplementFormWord(sp,2);
-      return`<div class="list-chip list-chip--supps list-chip--check list-chip--static${isTaken?' is-done':''}">
-        <div class="list-chip-label">${nm}${meta?`<div class="list-chip-sub">${meta}</div>`:''}</div>
-        <div class="list-chip-actions">
-          ${isTaken?`<div style="display:flex;align-items:center;gap:3px;background:var(--card2);border-radius:5px;padding:1px 2px">
-            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',-1)" aria-label="${fewerLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
-            <span style="font-size:8px;color:var(--text3);min-width:9px;text-align:center">${takenCount}</span>
-            <button onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',1)" aria-label="${moreLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
-          </div>`:''}
-          <button class="chk" onclick="toggleSupplementTaken('${dk}',${si},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
+      const timing=supplementTimingLabel(sp.timing);
+      const doseAmt=sp.doseAmount!=null?`${sp.doseAmount}${sp.doseUnit||'mg'}`:'';
+      const word=supplementFormWord(sp,count);
+      const totalDose=sp.doseAmount!=null?Math.round(count*sp.doseAmount*100)/100:null;
+
+      const subLine=[
+        isTaken?`${count} ${word}${totalDose?` · ${totalDose}${sp.doseUnit||'mg'}`:''}`:`${sp.pillCount||1} ${supplementFormWord(sp,sp.pillCount||1)}${doseAmt?` · ${doseAmt}`:''}`,
+        timing,
+      ].filter(Boolean).join(' · ');
+
+      return`<div class="list-chip list-chip--supps list-chip--check list-chip--static${isTaken?' is-done':''}" style="padding:8px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="flex:1;min-width:0;padding-right:8px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;font-weight:700;color:${isTaken?'var(--text)':'var(--text2)'}">${nm}</span>
+            ${timing?`<span style="font-size:8px;font-weight:600;padding:1px 6px;border-radius:4px;background:#e879f91a;color:#e879f9;font-family:'IBM Plex Mono',monospace">${timing}</span>`:''}
+          </div>
+          <div style="font-size:10px;color:${isTaken?'#e879f9':'var(--muted2)'};margin-top:2px;font-family:'IBM Plex Mono',monospace">${subLine}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <div style="display:flex;align-items:center;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:1px">
+            <button type="button" onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',-1)" aria-label="Decrease" style="width:28px;height:28px;background:none;border:none;color:${isTaken?'var(--text)':'var(--muted2)'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">−</button>
+            <span style="min-width:22px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:${isTaken?'#e879f9':'var(--muted)'}">${isTaken?takenCount:0}</span>
+            <button type="button" onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',1)" aria-label="Increase" style="width:28px;height:28px;background:none;border:none;color:var(--text);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">+</button>
+          </div>
+          <button class="chk" onclick="toggleSupplementTaken('${dk}',${si},'${sp.id}')" aria-label="Toggle taken" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
         </div>
       </div>`;
     };
-    const section=(title,items)=>items.length?`<div style="font-size:8px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:8px 0 4px;font-family:'IBM Plex Mono',monospace">${title}</div>${items.map(rowFor).join('')}`:'';
-    const rows=planned?section('PILLS',pills)+section('POWDERS',powders):`<div style="font-size:10px;color:var(--muted2);padding:16px 0;text-align:center">No supplements yet</div>`;
+
+    const powderRow=sp=>{
+      const isTaken=takenList.includes(sp.id);
+      const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
+      const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const sched=getScheduledPowderScoops(dk,sp.name||sp.id);
+      const count=isTaken?takenCount:(sched.totalPlanned||sp.pillCount||1);
+      const gPerScoop=sp.doseAmount!=null?sp.doseAmount:defaultPowderGramPerScoop(sp);
+      const totalGrams=Math.round(count*gPerScoop*10)/10;
+      const timing=supplementTimingLabel(sp.timing);
+
+      let sourceText='';
+      if(sched.sources&&sched.sources.length){
+        const checkedSrcs=sched.sources.filter(src=>src.isChecked).map(src=>src.title);
+        if(isTaken&&checkedSrcs.length){
+          sourceText=`From ${checkedSrcs.join(' & ')}`;
+        }else{
+          sourceText=`Scheduled: ${sched.sources.map(src=>`${src.title} (${src.scoops}s)`).join(', ')}`;
+        }
+      }
+
+      const gramBadge=isTaken
+        ?`<span style="font-size:10px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono',monospace">${count} ${count===1?'scoop':'scoops'} · ${totalGrams}g total</span>`
+        :`<span style="font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${count} ${count===1?'scoop':'scoops'} · ${totalGrams}g planned</span>`;
+
+      return`<div class="list-chip list-chip--supps list-chip--check list-chip--static${isTaken?' is-done':''}" style="padding:8px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="flex:1;min-width:0;padding-right:8px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;font-weight:700;color:${isTaken?'var(--text)':'var(--text2)'}">${nm}</span>
+            ${timing?`<span style="font-size:8px;font-weight:600;padding:1px 6px;border-radius:4px;background:#38bdf81a;color:#38bdf8;font-family:'IBM Plex Mono',monospace">${timing}</span>`:''}
+          </div>
+          <div style="margin-top:2px">${gramBadge}</div>
+          ${sourceText?`<div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:'IBM Plex Mono',monospace">${sourceText}</div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <div style="display:flex;align-items:center;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:1px">
+            <button type="button" onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',-1)" aria-label="Decrease scoops" style="width:28px;height:28px;background:none;border:none;color:${isTaken?'var(--text)':'var(--muted2)'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">−</button>
+            <span style="min-width:22px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:${isTaken?'#38bdf8':'var(--muted)'}">${isTaken?takenCount:0}</span>
+            <button type="button" onclick="adjustSupplementDoseCount('${dk}',${si},'${sp.id}',1)" aria-label="Increase scoops" style="width:28px;height:28px;background:none;border:none;color:var(--text);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">+</button>
+          </div>
+          <button class="chk" onclick="toggleSupplementTaken('${dk}',${si},'${sp.id}')" aria-label="Toggle taken" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
+        </div>
+      </div>`;
+    };
+
+    const section=(title,items,rowFn)=>items.length?`<div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:10px 0 6px;font-family:'IBM Plex Mono',monospace">${title} (${items.length})</div>${items.map(rowFn).join('')}`:'';
+    const rows=planned?section('PILLS',pills,pillRow)+section('POWDERS',powders,powderRow):`<div style="font-size:10px;color:var(--muted2);padding:16px 0;text-align:center">No supplements yet</div>`;
     const allDone=planned>0&&n>=planned;
+
+    const summaryCards=planned?`<div style="display:grid;grid-template-columns:1fr 1.6fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px">
+        <div style="font-size:8px;font-weight:700;color:var(--muted2);letter-spacing:0.8px;font-family:'IBM Plex Mono',monospace">PILLS TAKEN</div>
+        <div style="font-size:15px;font-weight:700;color:#e879f9;font-family:'IBM Plex Mono',monospace;margin-top:2px">${pillsRatio}</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px">
+        <div style="font-size:8px;font-weight:700;color:var(--muted2);letter-spacing:0.8px;font-family:'IBM Plex Mono',monospace">POWDERS LOGGED</div>
+        <div style="font-size:11px;font-weight:700;color:${totalPowderGrams>0?'#38bdf8':'var(--muted)'};font-family:'IBM Plex Mono',monospace;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${powdersSummary}">${powdersSummary}</div>
+      </div>
+    </div>`:'';
+
     return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal supp-modal">
       <div class="supp-modal-chrome">
         <div class="hist-modal-grabber"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#e879f9">SUPPS</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#e879f9">SUPPS</div>
           <button onclick="closeModal()" aria-label="Close" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:8px;margin:-8px;line-height:1">✕</button>
         </div>
+        ${summaryCards}
       </div>
       <div class="supp-modal-list">${planned?`<button type="button" class="list-select-all" onclick="checkAllSupplements('${dk}',${si})" aria-pressed="${allDone?'true':'false'}"><span class="list-select-all-label">Select all</span><span class="chk" style="${allDone?'border-color:#e879f9;background:#e879f920':''}">${allDone?chkSvg('#e879f9'):''}</span></button>`:''}<div class="list-chips">${rows}</div></div>
       <div class="supp-modal-foot">
@@ -18417,20 +18980,34 @@ function renderModal(){
   if(modal.type==='supplementManager'){
     const n=supplementTypes.length;
     const backDk=modal.dk||activeDay;
-    const {pills,powders}=supplementsByCategory(supplementTypes);
+    const inStockItems=(supplementTypes||[]).filter(s=>!supplementIsOutOfStock(s));
+    const outStockItems=(supplementTypes||[]).filter(s=>supplementIsOutOfStock(s));
+    const {pills:inPills,powders:inPowders}=supplementsByCategory(inStockItems);
+    const {pills:outPills,powders:outPowders}=supplementsByCategory(outStockItems);
+    const outItems=[...outPills,...outPowders];
     const chipRow=(sp,i)=>{
       const nm=String(sp.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       const meta=formatSupplementListMeta(sp);
-      return`<div class="list-chip list-chip--supps" style="--i:${i}">
+      const isOut=typeof supplementIsOutOfStock==='function'&&supplementIsOutOfStock(sp);
+      return`<div class="list-chip list-chip--supps" style="--i:${i};${isOut?'opacity:0.65;':''}">
         <button type="button" class="list-chip-main" onclick="openEditSupplementDose('${sp.id}')">
-          <span class="list-chip-label">${nm}</span>
+          <span class="list-chip-label" style="${isOut?'text-decoration:line-through;color:var(--text3);':''}">${nm}</span>
           ${meta?`<span class="list-chip-meta">${meta}</span>`:''}
         </button>
+        <button type="button" onclick="event.stopPropagation();toggleSupplementStock('${sp.id}')" title="${isOut?'Mark In Stock':'Mark Out of Stock'}" style="background:${isOut?'#ef444422':'#10b98122'};border:1px solid ${isOut?'#ef4444':'#10b981'};color:${isOut?'#ef4444':'#10b981'};border-radius:6px;font-size:9px;font-weight:700;padding:2px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace;margin-right:4px">${isOut?'OUT':'IN'}</button>
         <button type="button" class="list-chip-x" onclick="deleteSupplementType('${sp.id}')" aria-label="Remove">✕</button>
       </div>`;
     };
-    const section=(title,items,startI)=>items.length?`<div style="margin-bottom:12px"><div style="font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--muted2);margin:4px 0 8px;font-family:'IBM Plex Mono',monospace">${title}</div><div class="list-chips">${items.map((sp,i)=>chipRow(sp,startI+i)).join('')}</div></div>`:'';
-    const list=n?section('PILLS',pills,0)+section('POWDERS',powders,pills.length):`<div style="padding:16px 0;text-align:center;font-size:11px;font-weight:700;color:var(--muted2)">No supplements yet</div>`;
+    const section=(title,items,startI)=>items.length?`<div style="margin-bottom:12px"><div style="font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--muted2);margin:4px 0 8px;font-family:'IBM Plex Mono',monospace">${title} (${items.length})</div><div class="list-chips">${items.map((sp,i)=>chipRow(sp,startI+i)).join('')}</div></div>`:'';
+    let list='';
+    if(!n){
+      list=`<div style="padding:16px 0;text-align:center;font-size:11px;font-weight:700;color:var(--muted2)">No supplements yet</div>`;
+    }else{
+      let idx=0;
+      if(inPills.length){list+=section('IN STOCK · PILLS',inPills,idx);idx+=inPills.length;}
+      if(inPowders.length){list+=section('IN STOCK · POWDERS',inPowders,idx);idx+=inPowders.length;}
+      if(outItems.length){list+=section('OUT OF STOCK',outItems,idx);idx+=outItems.length;}
+    }
     return`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <button type="button" onclick="openHubSuppsLog('${backDk}')" aria-label="Back" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);background:var(--card2);color:#e879f9;font-size:16px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0">←</button>
@@ -19230,7 +19807,8 @@ function renderModal(){
             const legacyTotal=(tl.platformPnls&&tl.platformPnls.length)
               ?tl.platformPnls.reduce((s,r)=>s+(r.amount||0),0)
               :parseTradePnl(tl.pnl);
-            trades=[{accountType:'eval',symbol:'',side:tl.side&&tl.side!=='both'&&tl.side!=='no-trade'?tl.side:'',sizeQty:1,sizeUnit:'micro',pnl:legacyTotal,isBreakeven:legacyTotal===0&&tl.pnlType==='breakeven',accounts:1,firms:[]}];
+            const defAcctType=(window._tradingAccountFilter==='funded'||(tradeAccounts.some(a=>a.type==='funded'&&a.status==='active')&&!tradeAccounts.some(a=>(a.type||'eval')==='eval'&&a.status==='active')))?'funded':'eval';
+            trades=[{accountType:defAcctType,symbol:'',side:tl.side&&tl.side!=='both'&&tl.side!=='no-trade'?tl.side:'',sizeQty:1,sizeUnit:'micro',pnl:legacyTotal,isBreakeven:legacyTotal===0&&tl.pnlType==='breakeven',accounts:1,firms:[]}];
           }
           let initF=0, initE=0, anyF=false, anyE=false;
           trades.forEach(tr=>{
@@ -20600,30 +21178,71 @@ function renderBlock(b,i,dk){
       const takenList=supplementLog[suppKey]||[];
       const avail=getAvailableSupplements();
       const {pills,powders}=supplementsByCategory(avail);
-      const rowFor=sp=>{
-          const isTaken=takenList.includes(sp.id);
-          const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
-          const meta=formatSupplementMeta(sp,isTaken?takenCount:sp.pillCount||1);
-          const fewerLbl=sp.category==='powder'?'Fewer scoops':'Fewer '+supplementFormWord(sp,2);
-          const moreLbl=sp.category==='powder'?'More scoops':'More '+supplementFormWord(sp,2);
-          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-            <div style="min-width:0;padding-right:8px">
-              <span style="font-size:9px;font-weight:600;color:${isTaken?'var(--text2)':'var(--muted)'};text-decoration:${isTaken?'line-through':'none'};text-decoration-color:var(--muted2)">${sp.name}</span>
-              ${meta?`<div style="font-size:7px;color:var(--muted2);margin-top:1px">${meta}</div>`:''}
+
+      const pillRowFor=sp=>{
+        const isTaken=takenList.includes(sp.id);
+        const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
+        const count=isTaken?takenCount:(sp.pillCount||1);
+        const word=supplementFormWord(sp,count);
+        const timing=supplementTimingLabel(sp.timing);
+        const totalDose=sp.doseAmount!=null?Math.round(count*sp.doseAmount*100)/100:null;
+        const subLine=[
+          isTaken?`${count} ${word}${totalDose?` · ${totalDose}${sp.doseUnit||'mg'}`:''}`:`${sp.pillCount||1} ${supplementFormWord(sp,sp.pillCount||1)}${sp.doseAmount?` · ${sp.doseAmount}${sp.doseUnit||'mg'}`:''}`,
+          timing,
+        ].filter(Boolean).join(' · ');
+
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2)">
+          <div style="min-width:0;padding-right:8px">
+            <span style="font-size:10px;font-weight:700;color:${isTaken?'var(--text)':'var(--text2)'};text-decoration:${isTaken?'line-through':'none'};text-decoration-color:var(--muted2)">${sp.name}</span>
+            <div style="font-size:8px;color:${isTaken?'#e879f9':'var(--muted2)'};margin-top:1px;font-family:'IBM Plex Mono',monospace">${subLine}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <div style="display:flex;align-items:center;background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:1px">
+              <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',-1)" aria-label="Decrease" style="width:24px;height:24px;background:none;border:none;color:${isTaken?'var(--text)':'var(--muted2)'};font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">−</button>
+              <span style="min-width:18px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:${isTaken?'#e879f9':'var(--muted)'}">${isTaken?takenCount:0}</span>
+              <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',1)" aria-label="Increase" style="width:24px;height:24px;background:none;border:none;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">+</button>
             </div>
-            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
-              ${isTaken?`<div style="display:flex;align-items:center;gap:3px;background:var(--card2);border-radius:5px;padding:1px 2px">
-                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',-1)" aria-label="${fewerLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">−</button>
-                <span style="font-size:8px;color:var(--text3);min-width:9px;text-align:center">${takenCount}</span>
-                <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',1)" aria-label="${moreLbl}" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:0 4px;line-height:1.6">+</button>
-              </div>`:''}
-              <button class="chk" onclick="event.stopPropagation();toggleSupplementTaken('${dk}',${i},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
-            </div>
-          </div>`;
+            <button class="chk" onclick="event.stopPropagation();toggleSupplementTaken('${dk}',${i},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
+          </div>
+        </div>`;
       };
-      const section=(title,items)=>items.length?`<div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:6px 0 2px;font-family:'IBM Plex Mono',monospace">${title}</div>${items.map(rowFor).join('')}`:'';
+
+      const powderRowFor=sp=>{
+        const isTaken=takenList.includes(sp.id);
+        const takenCount=(supplementDoseLog[suppKey]&&supplementDoseLog[suppKey][sp.id])||sp.pillCount||1;
+        const sched=getScheduledPowderScoops(dk,sp.name||sp.id);
+        const count=isTaken?takenCount:(sched.totalPlanned||sp.pillCount||1);
+        const gPerScoop=sp.doseAmount!=null?sp.doseAmount:defaultPowderGramPerScoop(sp);
+        const totalGrams=Math.round(count*gPerScoop*10)/10;
+        let sourceText='';
+        if(sched.sources&&sched.sources.length){
+          const checkedSrcs=sched.sources.filter(src=>src.isChecked).map(src=>src.title);
+          if(isTaken&&checkedSrcs.length)sourceText=`From ${checkedSrcs.join(' & ')}`;
+          else sourceText=`Scheduled: ${sched.sources.map(src=>src.title).join(', ')}`;
+        }
+
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2)">
+          <div style="min-width:0;padding-right:8px">
+            <span style="font-size:10px;font-weight:700;color:${isTaken?'var(--text)':'var(--text2)'};text-decoration:${isTaken?'line-through':'none'};text-decoration-color:var(--muted2)">${sp.name}</span>
+            <div style="font-size:8px;color:${isTaken?'#38bdf8':'var(--muted2)'};margin-top:1px;font-family:'IBM Plex Mono',monospace">
+              ${count} ${count===1?'scoop':'scoops'} · ${totalGrams}g ${isTaken?'total':'planned'}
+            </div>
+            ${sourceText?`<div style="font-size:7px;color:var(--muted);margin-top:1px;font-family:'IBM Plex Mono',monospace">${sourceText}</div>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <div style="display:flex;align-items:center;background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:1px">
+              <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',-1)" aria-label="Decrease scoops" style="width:24px;height:24px;background:none;border:none;color:${isTaken?'var(--text)':'var(--muted2)'};font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">−</button>
+              <span style="min-width:18px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:${isTaken?'#38bdf8':'var(--muted)'}">${isTaken?takenCount:0}</span>
+              <button onclick="event.stopPropagation();adjustSupplementDoseCount('${dk}',${i},'${sp.id}',1)" aria-label="Increase scoops" style="width:24px;height:24px;background:none;border:none;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">+</button>
+            </div>
+            <button class="chk" onclick="event.stopPropagation();toggleSupplementTaken('${dk}',${i},'${sp.id}')" style="${isTaken?'border-color:'+s.c+';background:'+s.c+'20':''}">${isTaken?chkSvg(s.c):''}</button>
+          </div>
+        </div>`;
+      };
+
+      const section=(title,items,rowFn)=>items.length?`<div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--muted2);margin:6px 0 2px;font-family:'IBM Plex Mono',monospace">${title}</div>${items.map(rowFn).join('')}`:'';
       supplementSection=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid ${s.bd}">
-        ${avail.length?section('PILLS',pills)+section('POWDERS',powders):'<div style="font-size:8px;color:var(--muted);padding:4px 0">No supplements to take today</div>'}
+        ${avail.length?section('PILLS',pills,pillRowFor)+section('POWDERS',powders,powderRowFor):'<div style="font-size:8px;color:var(--muted);padding:4px 0">No supplements to take today</div>'}
         <button onclick="event.stopPropagation();openSupplementManager('${dk}')" style="margin-top:6px;font-size:7px;color:var(--muted2);background:none;border:1px solid var(--border2);border-radius:4px;padding:3px 9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px">+ MANAGE LIST</button>
       </div>`;
     }
@@ -22467,18 +23086,19 @@ function renderStrengthSaunaTab(){
 }
 
 function renderTradingPage(){
-  if(!window._tradingRange)window._tradingRange='month';
-  if(!window._tradingAccountFilter)window._tradingAccountFilter='all';
+  if(!window._tradingRange)window._tradingRange='all';
+  if(!window._tradingAccountFilter)window._tradingAccountFilter='funded';
   const range=window._tradingRange;
   const acctFilter=window._tradingAccountFilter;
   window.setTradingRange=function(r){window._tradingRange=r;renderApp();};
+  window.setTradingAccountFilter=function(f){window._tradingAccountFilter=f;renderApp();};
   const RANGE_DAYS={week:7,month:30,threemonth:90,all:99999};
-  const days=RANGE_DAYS[range];
+  const days=RANGE_DAYS[range]||99999;
   const cutoffStr=DATE_INPUT_FMT(new Date(Date.now()-days*86400000));
 
   const allEntries=Object.keys(tradeLog).map(k=>[k,parseLogKey(k)]).filter(([,p])=>p)
     .map(([k,[date,dk]])=>({key:k,date,dk,...tradeLog[k]}))
-    .filter(t=>t.rating)
+    .filter(t=>(t.trades&&t.trades.length)||(t.pnl!=null&&String(t.pnl).trim()!=='')||t.rating||(t.notes&&String(t.notes).trim()!=='')||(t.platformPnls&&t.platformPnls.length))
     .sort((a,b)=>a.date.localeCompare(b.date));
   const entries=allEntries.filter(t=>t.date>=cutoffStr);
 
@@ -22500,32 +23120,38 @@ function renderTradingPage(){
   const lastSession=allEntries.length?allEntries[allEntries.length-1]:null;
   const lastPnl=lastSession?getTradeTotal(lastSession,acctFilter==='all'?null:acctFilter):null;
   const lastPnlCol=lastPnl==null?'var(--muted2)':lastPnl>=0?'var(--accent)':'#f87171';
-  const rangeToggle=`<div class="trd-range">
-    <div class="toggle-pill" style="margin-bottom:6px">
-      ${[['week','WEEK'],['month','MONTH'],['threemonth','3M'],['all','ALL']].map(([r,l])=>`<button class="toggle-opt" onclick="setTradingRange('${r}')" style="background:${range===r?'#fb7185':'transparent'};color:${range===r?'var(--bg)':'var(--text3)'}">${l}</button>`).join('')}
-    </div>
+
+  // Crisp, modern tabs and range bar
+  const navBar=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap">
     <div class="toggle-pill" style="margin-bottom:0">
-      ${[['all','ALL'],['funded','FUNDED (REAL)'],['eval','EVAL (SIM)']].map(([f,l])=>{
+      ${[
+        ['funded','FUNDED','#34d399','rgba(52,211,153,0.18)'],
+        ['eval','EVALS','#818cf8','rgba(129,140,248,0.18)'],
+        ['all','ALL','var(--accent)','var(--accent-bg)']
+      ].map(([f,l,col,bg])=>{
         const active=acctFilter===f;
-        const actCol=f==='funded'?'#34d399':f==='eval'?'#818cf8':'#fb7185';
-        const actBg=f==='funded'?'rgba(52,211,153,0.18)':f==='eval'?'rgba(129,140,248,0.18)':'#fb7185';
-        const col=active?(f==='all'?'var(--bg)':actCol):'var(--text3)';
-        return`<button class="toggle-opt" onclick="setTradingAccountFilter('${f}')" style="background:${active?actBg:'transparent'};color:${col};font-weight:${active?'700':'400'}">${l}</button>`;
+        return`<button type="button" class="toggle-opt" onclick="setTradingAccountFilter('${f}')" style="background:${active?bg:'transparent'};color:${active?col:'var(--text3)'};font-weight:${active?'700':'400'};border-color:${active?col+'44':'transparent'}">${l}</button>`;
       }).join('')}
     </div>
+    <div class="toggle-pill" style="margin-bottom:0">
+      ${[['all','ALL'],['threemonth','3M'],['month','1M'],['week','1W']].map(([r,l])=>`
+        <button type="button" class="toggle-opt" onclick="setTradingRange('${r}')" style="background:${range===r?'var(--card2)':'transparent'};color:${range===r?'var(--text)':'var(--muted2)'};font-weight:${range===r?'700':'400'};border-color:${range===r?'var(--border2)':'transparent'}">${l}</button>
+      `).join('')}
+    </div>
   </div>`;
+
   const pageHeader=`<div class="trd-header">
     <div class="trd-header-text">
       <div class="trd-title">TRADING</div>
     </div>
-    ${lastSession?`<div class="trd-last">
+    ${lastSession?`<div class="trd-last" style="cursor:pointer" onclick="openTradeLog('${lastSession.dk}')" title="Last logged session">
       <div class="trd-last-pnl" style="color:${lastPnlCol}">${fmtPnl(lastPnl)}</div>
       <div class="trd-last-date">${DATE_SHORT_FMT(lastSession.date)}</div>
     </div>`:''}
   </div>`;
   const logCta=`<button class="trd-cta" onclick="openTradeLog('${TODAY}')">+ LOG TODAY'S TRADE</button>`;
 
-  // ── Account Lifecycle Pipeline & Accounts Section ──
+  // Account calculations
   const activeEvals=(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval'&&(a.status||'active')==='active');
   const passedEvals=(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval'&&a.status==='passed');
   const blownEvals=(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval'&&a.status==='blown');
@@ -22542,294 +23168,158 @@ function renderTradingPage(){
 
   const historyAccounts=(tradeAccounts||[]).filter(a=>a.status==='blown'||a.status==='passed');
 
-  const firmCostMap={};
-  const evalAccounts=(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval');
-  evalAccounts.forEach(a=>{
-    const f=a.firm||'Other';
-    if(!firmCostMap[f])firmCostMap[f]={count:0,cost:0,unit:Number(a.evalCost)||getFirmEvalPrice(f)};
-    firmCostMap[f].count++;
-    firmCostMap[f].cost+=(Number(a.evalCost)||0);
-  });
-  const firmEntries=Object.entries(firmCostMap);
-  const firmCostChips=firmEntries.length?firmEntries.map(([f,st])=>`
-    <div style="background:var(--bg2);border:1px solid rgba(129,140,248,0.25);border-radius:6px;padding:4px 8px;font-size:9px;display:flex;align-items:center;gap:6px">
-      <span style="font-weight:700;color:var(--text)">${escapeHtml(f)}:</span>
-      <span style="color:var(--muted2)">${st.count} eval${st.count!==1?'s':''} ($${st.unit}/ea)</span>
-      <span style="font-weight:700;color:#f87171">-$${st.cost.toLocaleString()}</span>
-    </div>
-  `).join(''):`
-    <div style="font-size:8px;color:var(--muted2);font-style:italic">
-      Default Pricing: Lucid ($105) · Tradeify ($94) · Topstep ($85). Tap "⚡ RECONCILE PAST EVALS" above to tally your history.
-    </div>
-  `;
-
-  const accountLifecycleSection=`<div class="trd-card" style="margin-bottom:12px;padding:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--text3)">PROP FIRM ACCOUNT LIFECYCLE</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-sm" onclick="openQuickEvalSetupModal()" style="font-size:9px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);font-weight:700" title="Reconcile all past evaluation accounts and costs in one tap">⚡ RECONCILE PAST EVALS</button>
-        <button class="btn btn-sm" onclick="openTradeAccountModal(null,'eval')" style="font-size:9px;padding:3px 8px;background:rgba(129,140,248,0.15);color:#818cf8;border:1px solid rgba(129,140,248,0.3)">+ EVAL</button>
-        <button class="btn btn-sm" onclick="openTradeAccountModal(null,'funded')" style="font-size:9px;padding:3px 8px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3)">+ FUNDED</button>
+  // Compact Account Management Strip
+  const accountBar=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px">
+        ${activeFunded.length?`
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.6)"></span>
+          <span style="font-size:11px;font-weight:700;color:var(--text)">${escapeHtml(activeFunded[0].name)}</span>
+          <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(52,211,153,0.18);color:#34d399;font-weight:700">${escapeHtml(activeFunded[0].firm)}</span>
+        `:`
+          <span style="font-size:11px;color:var(--muted2)">No active funded accounts</span>
+        `}
+      </div>
+      <div style="display:flex;align-items:center;gap:5px">
+        ${activeFunded.length?`<button type="button" class="btn btn-sm" onclick="openPayoutModal('${activeFunded[0].id}')" style="font-size:8px;padding:3px 7px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3)">+ PAYOUT</button>`:''}
+        <button type="button" class="btn btn-sm" onclick="openTradeAccountModal(null,'${acctFilter==='eval'?'eval':'funded'}')" style="font-size:8px;padding:3px 7px;background:var(--bg2);color:var(--text3);border:1px solid var(--border2)">+ ACCT</button>
+        <button type="button" class="btn btn-sm" onclick="openQuickEvalSetupModal()" style="font-size:8px;padding:3px 7px;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)" title="Reconcile Evals">RECONCILE</button>
       </div>
     </div>
-
-    <!-- Pipeline KPI Grid -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div style="background:var(--bg3);padding:8px 10px;border-radius:6px;border-left:3px solid #818cf8">
-        <div style="font-size:8px;font-weight:700;color:#818cf8;letter-spacing:0.05em;margin-bottom:2px">EVALUATION PIPELINE</div>
-        <div style="font-size:12px;font-weight:700;color:var(--text)">${activeEvals.length} Active <span style="font-size:10px;font-weight:400;color:var(--muted2)">(${passedEvals.length} passed · ${blownEvals.length} blown)</span></div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">Pass Rate: <b style="color:${evalPassRate!=null?(evalPassRate>=50?'var(--accent)':'#fbbf24'):'var(--text3)'}">${evalPassRate!=null?evalPassRate+'%':'–'}</b> · Fees: -$${totalEvalFees.toLocaleString()}</div>
-      </div>
-      <div style="background:var(--bg3);padding:8px 10px;border-radius:6px;border-left:3px solid #34d399">
-        <div style="font-size:8px;font-weight:700;color:#34d399;letter-spacing:0.05em;margin-bottom:2px">FUNDED &amp; PAYOUT CASH</div>
-        <div style="font-size:12px;font-weight:700;color:var(--text)">${activeFunded.length} Active <span style="font-size:10px;font-weight:400;color:var(--muted2)">(${blownFunded.length} blown)</span></div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">Payouts: <b style="color:var(--accent)">+$${totalPayouts.toLocaleString()}</b> · Net ROI: <b style="color:${netCashCol}">${netCashROI>=0?'+':'-'}$${Math.abs(netCashROI).toLocaleString()}</b></div>
-      </div>
-    </div>
-
-    <!-- Firm Out-of-Pocket Spend Breakdown -->
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:8px;font-weight:700;color:var(--text3);letter-spacing:0.6px">OUT-OF-POCKET EVAL FEES BY FIRM</div>
-        <div style="font-size:9px;font-weight:700;color:#f87171">Total Spent: -$${totalEvalFees.toLocaleString()}</div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${firmCostChips}
-      </div>
-    </div>
-
-    <!-- Active Evals List -->
-    <div style="margin-bottom:10px">
-      <div style="font-size:9px;font-weight:700;color:#818cf8;letter-spacing:0.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        <span>ACTIVE EVALUATIONS (${activeEvals.length})</span>
-      </div>
-      ${activeEvals.length?`<div style="display:flex;flex-direction:column;gap:6px">
-        ${activeEvals.map(a=>{
-          return`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg2);padding:7px 10px;border-radius:6px;border:1px solid rgba(129,140,248,0.25)">
-            <div>
+    ${historyAccounts.length?`
+      <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border2)">
+        <div onclick="toggleTradeAccountHistory()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted2);font-weight:600">
+          <span>PAST ACCOUNTS (${historyAccounts.length} BLOWN)</span>
+          <span id="trdAcctHistoryArrow" style="font-size:10px">${window._tradeAccountHistoryOpen?'▲':'▼'}</span>
+        </div>
+        <div id="trdAcctHistoryContainer" style="display:${window._tradeAccountHistoryOpen?'flex':'none'};flex-direction:column;gap:5px;margin-top:8px">
+          ${historyAccounts.map(a=>{
+            const isBlown=a.status==='blown';
+            const tagCol=isBlown?'#f87171':'var(--accent)';
+            const tagBg=isBlown?'rgba(239,68,68,0.15)':'rgba(52,211,153,0.15)';
+            const tagTxt=isBlown?'BLOWN':'PASSED';
+            const typeBadge=a.type==='funded'
+              ?`<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399">FUNDED</span>`
+              :`<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:rgba(129,140,248,0.15);color:#818cf8">EVAL</span>`;
+            return`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg2);padding:5px 8px;border-radius:4px;font-size:9px">
               <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:11px;font-weight:700;color:var(--text)">${escapeHtml(a.name)}</span>
-                <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(129,140,248,0.2);color:#818cf8;font-weight:700">${escapeHtml(a.firm)}</span>
-              </div>
-              <div style="font-size:9px;color:var(--text3);margin-top:2px">
-                Cost: $${(a.evalCost||0).toLocaleString()}${a.createdDate?` · Started ${a.createdDate}`:''}
-              </div>
-            </div>
-            <div style="display:flex;gap:4px">
-              <button class="btn btn-sm" onclick="openPassToFundedModal('${a.id}')" title="Mark Passed & Graduate to Funded" style="font-size:8px;padding:2px 7px;background:rgba(52,211,153,0.18);color:#34d399;border:1px solid rgba(52,211,153,0.3)">★ PASS</button>
-              <button class="btn btn-sm" onclick="markAccountBlown('${a.id}',false)" title="Mark as Blown" style="font-size:8px;padding:2px 7px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)">✕ BLOWN</button>
-              <button class="btn btn-sm" onclick="openTradeAccountModal('${a.id}')" title="Edit Account" style="font-size:8px;padding:2px 5px;background:var(--bg3);color:var(--text3)">⚙</button>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`:`<div style="font-size:9px;color:var(--muted2);padding:6px 0;font-style:italic">No active evaluation accounts. Click "+ EVAL" above to add one.</div>`}
-    </div>
-
-    <!-- Active Funded Accounts List -->
-    <div style="margin-bottom:10px">
-      <div style="font-size:9px;font-weight:700;color:#34d399;letter-spacing:0.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        <span>ACTIVE FUNDED ACCOUNTS (${activeFunded.length})</span>
-      </div>
-      ${activeFunded.length?`<div style="display:flex;flex-direction:column;gap:6px">
-        ${activeFunded.map(a=>{
-          const acctPayouts=(a.payouts||[]).reduce((s,p)=>s+(Number(p.amount)||0),0);
-          return`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg2);padding:7px 10px;border-radius:6px;border:1px solid rgba(52,211,153,0.25)">
-            <div>
-              <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:11px;font-weight:700;color:var(--text)">${escapeHtml(a.name)}</span>
-                <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(52,211,153,0.2);color:#34d399;font-weight:700">${escapeHtml(a.firm)}</span>
-              </div>
-              <div style="font-size:9px;color:var(--text3);margin-top:2px">
-                Total Payouts: <b style="color:var(--accent)">+$${acctPayouts.toLocaleString()}</b>${(a.evalCost||a.activationFee)?` · Inception Cost: $${((a.evalCost||0)+(a.activationFee||0)).toLocaleString()}`:''}
-              </div>
-            </div>
-            <div style="display:flex;gap:4px">
-              <button class="btn btn-sm" onclick="openPayoutModal('${a.id}')" title="Record Payout Received" style="font-size:8px;padding:2px 7px;background:rgba(52,211,153,0.18);color:#34d399;border:1px solid rgba(52,211,153,0.3)">+ PAYOUT</button>
-              <button class="btn btn-sm" onclick="markAccountBlown('${a.id}',true)" title="Mark as Blown & Restart Eval" style="font-size:8px;padding:2px 7px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)">✕ BLOWN</button>
-              <button class="btn btn-sm" onclick="openTradeAccountModal('${a.id}')" title="Edit Account" style="font-size:8px;padding:2px 5px;background:var(--bg3);color:var(--text3)">⚙</button>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`:`<div style="font-size:9px;color:var(--muted2);padding:6px 0;font-style:italic">No active funded accounts. Pass an eval or click "+ FUNDED" to add one.</div>`}
-    </div>
-
-    <!-- Collapsible History -->
-    ${historyAccounts.length?`<div>
-      <div onclick="toggleTradeAccountHistory()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid var(--border);font-size:9px;color:var(--text3);font-weight:600">
-        <span>PAST / BLOWN ACCOUNTS (${historyAccounts.length})</span>
-        <span id="trdAcctHistoryArrow" style="font-size:10px">${window._showTradeAcctHistory?'▲':'▼'}</span>
-      </div>
-      <div id="trdAcctHistoryContainer" style="display:${window._showTradeAcctHistory?'flex':'none'};flex-direction:column;gap:5px;margin-top:6px">
-        ${historyAccounts.map(a=>{
-          const isBlown=a.status==='blown';
-          const isPassed=a.status==='passed';
-          const tagCol=isBlown?'#f87171':'var(--accent)';
-          const tagBg=isBlown?'rgba(239,68,68,0.15)':'rgba(52,211,153,0.15)';
-          const tagTxt=isBlown?'BLOWN':'PASSED';
-          const typeBadge=a.type==='funded'
-            ?`<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399">FUNDED</span>`
-            :`<span style="font-size:7px;padding:1px 4px;border-radius:3px;background:rgba(129,140,248,0.15);color:#818cf8">EVAL</span>`;
-          const pSum=(a.payouts||[]).reduce((s,p)=>s+(Number(p.amount)||0),0);
-          return`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg3);padding:6px 8px;border-radius:4px;font-size:9px;opacity:0.85">
-            <div>
-              <div style="display:flex;align-items:center;gap:5px">
                 <span style="font-weight:600;color:var(--text)">${escapeHtml(a.name)}</span>
                 <span style="color:var(--muted2)">· ${escapeHtml(a.firm)}</span>
                 ${typeBadge}
                 <span style="font-size:7px;padding:1px 4px;border-radius:3px;background:${tagBg};color:${tagCol};font-weight:700">${tagTxt}</span>
               </div>
-              <div style="font-size:8px;color:var(--muted2);margin-top:2px">
-                ${isBlown&&a.blownDate?`Blown ${a.blownDate}`:''}
-                ${isPassed&&a.passedDate?`Passed ${a.passedDate}`:''}
-                ${a.evalCost?` · Cost: $${a.evalCost}`:''}
-                ${pSum>0?` · Payouts: +$${pSum.toLocaleString()}`:''}
+              <div style="display:flex;align-items:center;gap:6px">
+                ${a.evalCost?`<span style="font-size:8px;color:#f87171">-$${Number(a.evalCost).toLocaleString()}</span>`:''}
+                <button class="btn btn-sm" onclick="openTradeAccountModal('${a.id}')" style="font-size:8px;padding:1px 5px;background:var(--bg3);color:var(--text3)">⚙</button>
               </div>
-            </div>
-            <button class="btn btn-sm" onclick="openTradeAccountModal('${a.id}')" style="font-size:8px;padding:1px 5px;background:var(--bg2);color:var(--text3)">Edit</button>
-          </div>`;
-        }).join('')}
+            </div>`;
+          }).join('')}
+        </div>
       </div>
-    </div>`:''}
+    `:''}
   </div>`;
 
-  if(!entries.length){
-    return`<div class="page-wrap" style="padding:0">${pageHeader}<div class="trd-body">
-      ${rangeToggle}
-      <div class="trd-empty">No trades logged in this range yet.</div>
-      ${logCta}
-      ${accountLifecycleSection}
-    </div></div>`;
-  }
-
-  // ── Header stats ──
+  // Performance calculations
   const decidedTrades=allTrades.filter(t=>t.outcome==='win'||t.outcome==='loss');
   const winsCount=decidedTrades.filter(t=>t.outcome==='win').length;
   const winRate=decidedTrades.length?Math.round(winsCount/decidedTrades.length*100):null;
   const pnlValues=entries.map(t=>getTradeTotal(t,acctFilter==='all'?null:acctFilter)).filter(v=>v!=null);
   const netPnl=pnlValues.length?Math.round(pnlValues.reduce((a,b)=>a+b,0)):null;
-  const rulesFollowedCount=entries.filter(t=>t.followedRules).length;
   const netCol=netPnl==null?'var(--muted2)':netPnl>=0?'var(--accent)':'#f87171';
   const wrCol=winRate==null?'var(--muted2)':winRate>=50?'var(--accent)':'#f87171';
-  const evalPassCol=evalPassRate==null?'var(--muted2)':evalPassRate>=50?'var(--accent)':'#fbbf24';
 
   let hero='';
   if(acctFilter==='funded'){
-    hero=`<div class="trd-hero" style="border-top:3px solid #34d399">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div class="trd-hero-label" style="color:#34d399;margin-bottom:0">FUNDED TRADING (LIVE REAL MONEY)</div>
-        <span style="font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(52,211,153,0.15);color:#34d399;font-weight:700">REALIZED CASH</span>
+    hero=`<div class="trd-hero" style="border-top:3px solid #34d399;margin-bottom:12px;padding:14px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:#34d399;letter-spacing:1px">FUNDED ACCOUNT</span>
+        <span style="font-size:7px;padding:2px 6px;border-radius:4px;background:rgba(52,211,153,0.15);color:#34d399;font-weight:700">${activeFunded.length} ACTIVE</span>
       </div>
-      <div class="trd-hero-pnl" style="color:${netCol}">${fmtPnl(netPnl)}</div>
-      <div class="trd-hero-note">Total payouts received: <b style="color:var(--accent)">+$${totalPayouts.toLocaleString()}</b> · Prop firm fees: -$${(totalEvalFees+totalActivationFees).toLocaleString()}</div>
+      <div class="trd-hero-pnl" style="color:${netCol};font-size:36px;margin:2px 0 10px">${fmtPnl(netPnl)}</div>
       <div class="trd-hero-tiles">
         <div class="trd-tile">
           <div class="trd-tile-val" style="color:${wrCol}">${winRate==null?'–':winRate+'%'}</div>
           <div class="trd-tile-lab">WIN RATE</div>
-        </div>
-        <div class="trd-tile">
-          <div class="trd-tile-val" style="color:#34d399">${activeFunded.length}</div>
-          <div class="trd-tile-lab">ACTIVE FUNDED</div>
         </div>
         <div class="trd-tile">
           <div class="trd-tile-val" style="color:var(--accent)">+$${totalPayouts.toLocaleString()}</div>
           <div class="trd-tile-lab">PAYOUTS</div>
         </div>
+        <div class="trd-tile">
+          <div class="trd-tile-val" style="color:${netCashCol}">${netCashROI>=0?'+':'-'}$${Math.abs(netCashROI).toLocaleString()}</div>
+          <div class="trd-tile-lab">NET CASH ROI</div>
+        </div>
       </div>
     </div>`;
   } else if(acctFilter==='eval'){
-    hero=`<div class="trd-hero" style="border-top:3px solid #818cf8;padding:14px 12px;margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:#818cf8;line-height:1">EVALUATION CHALLENGES (SIMULATED)</div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:2px">Demo Execution Edge vs Evaluation Capital Invested</div>
-        </div>
-        <span style="font-size:7px;padding:2px 6px;border-radius:4px;background:rgba(129,140,248,0.15);color:#818cf8;font-weight:700">SIMULATED</span>
+    hero=`<div class="trd-hero" style="border-top:3px solid #818cf8;margin-bottom:12px;padding:14px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:#818cf8;letter-spacing:1px">EVALUATIONS</span>
+        <span style="font-size:7px;padding:2px 6px;border-radius:4px;background:rgba(239,68,68,0.15);color:#f87171;font-weight:700">${blownEvals.length} BLOWN · ${activeEvals.length} ACTIVE</span>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div style="background:var(--bg3);border-radius:8px;padding:9px 10px;border-left:3px solid #818cf8;display:flex;flex-direction:column;justify-content:space-between">
-          <div>
-            <div style="font-size:7px;font-weight:700;color:#818cf8;letter-spacing:0.6px;margin-bottom:2px">SIMULATED P&amp;L (DEMO)</div>
-            <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px;color:${netCol};line-height:1">${fmtPnl(netPnl)}</div>
-          </div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:6px">Challenge target run · Not cash</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:8px;padding:9px 10px;border-left:3px solid #f87171;display:flex;flex-direction:column;justify-content:space-between">
-          <div>
-            <div style="font-size:7px;font-weight:700;color:#f87171;letter-spacing:0.6px;margin-bottom:2px">TRUE EVAL FEES SPENT</div>
-            <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px;color:#f87171;line-height:1">-$${totalEvalFees.toLocaleString()}</div>
-          </div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:6px">${(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval').length} total evals purchased</div>
-        </div>
-      </div>
-
+      <div class="trd-hero-pnl" style="color:${netCol};font-size:36px;margin:2px 0 10px">${fmtPnl(netPnl)}</div>
       <div class="trd-hero-tiles">
         <div class="trd-tile">
           <div class="trd-tile-val" style="color:${wrCol}">${winRate==null?'–':winRate+'%'}</div>
           <div class="trd-tile-lab">WIN RATE</div>
         </div>
         <div class="trd-tile">
-          <div class="trd-tile-val" style="color:${evalPassCol}">${evalPassRate==null?'–':evalPassRate+'%'}</div>
-          <div class="trd-tile-lab">PASS RATE</div>
+          <div class="trd-tile-val" style="color:#f87171">-$${totalEvalFees.toLocaleString()}</div>
+          <div class="trd-tile-lab">FEES SPENT</div>
         </div>
         <div class="trd-tile">
-          <div class="trd-tile-val" style="color:#818cf8">${activeEvals.length}</div>
-          <div class="trd-tile-lab">ACTIVE EVALS</div>
+          <div class="trd-tile-val" style="color:#f87171">${blownEvals.length}</div>
+          <div class="trd-tile-lab">BLOWN EVALS</div>
         </div>
       </div>
     </div>`;
   } else {
-    hero=`<div class="trd-hero" style="padding:14px 12px;margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px">
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:var(--text);line-height:1">TRADING PERFORMANCE &amp; DUAL P&amp;L</div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:2px">Simulated Trading Edge vs True Out-of-Pocket Cash</div>
-        </div>
-        <span style="font-size:7px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,0.15);color:#fbbf24;font-weight:700">DUAL METRIC</span>
+    hero=`<div class="trd-hero" style="border-top:3px solid var(--accent);margin-bottom:12px;padding:14px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:var(--text);letter-spacing:1px">TOTAL TRADING OVERVIEW</span>
+        <span style="font-size:7px;padding:2px 6px;border-radius:4px;background:rgba(52,211,153,0.15);color:#34d399;font-weight:700">${activeFunded.length} ACTIVE FUNDED</span>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <!-- Sim Trading Edge Panel -->
-        <div style="background:var(--bg3);border-radius:8px;padding:9px 10px;border-left:3px solid #818cf8;display:flex;flex-direction:column;justify-content:space-between">
-          <div>
-            <div style="font-size:7px;font-weight:700;color:#818cf8;letter-spacing:0.6px;margin-bottom:2px">SIM / EVAL TRADING EDGE</div>
-            <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px;color:${netCol};line-height:1">${fmtPnl(netPnl)}</div>
-          </div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:6px;line-height:1.3">
-            Demo profit toward targets<br/><span style="color:var(--text3)">${winRate!=null?winRate+'% WR':'–'} · ${entries.length} sess</span>
-          </div>
-        </div>
-
-        <!-- True Out-of-Pocket Dollar Panel -->
-        <div style="background:var(--bg3);border-radius:8px;padding:9px 10px;border-left:3px solid ${totalPayouts>0?'#34d399':'#f87171'};display:flex;flex-direction:column;justify-content:space-between">
-          <div>
-            <div style="font-size:7px;font-weight:700;color:${totalPayouts>0?'#34d399':'#f87171'};letter-spacing:0.6px;margin-bottom:2px">TRUE OUT-OF-POCKET CASH</div>
-            <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px;color:${netCashCol};line-height:1">${netCashROI>=0?'+':'-'}$${Math.abs(netCashROI).toLocaleString()}</div>
-          </div>
-          <div style="font-size:8px;color:var(--muted2);margin-top:6px;line-height:1.3">
-            ${totalPayouts>0?`+$${totalPayouts.toLocaleString()} payouts · `:''}Fees: -$${totalEvalFees.toLocaleString()}<br/><span style="color:var(--text3)">${(tradeAccounts||[]).filter(a=>(a.type||'eval')==='eval').length} evals purchased</span>
-          </div>
-        </div>
-      </div>
-
+      <div class="trd-hero-pnl" style="color:${netCol};font-size:36px;margin:2px 0 10px">${fmtPnl(netPnl)}</div>
       <div class="trd-hero-tiles">
         <div class="trd-tile">
           <div class="trd-tile-val" style="color:${wrCol}">${winRate==null?'–':winRate+'%'}</div>
           <div class="trd-tile-lab">WIN RATE</div>
         </div>
         <div class="trd-tile">
-          <div class="trd-tile-val" style="color:${evalPassCol}">${evalPassRate==null?'–':evalPassRate+'%'}</div>
-          <div class="trd-tile-lab">EVAL PASS RATE</div>
+          <div class="trd-tile-val" style="color:${activeFunded.length?'#34d399':'var(--text2)'}">${activeFunded.length}</div>
+          <div class="trd-tile-lab">ACTIVE FUNDED</div>
         </div>
         <div class="trd-tile">
           <div class="trd-tile-val" style="color:#f87171">-$${totalEvalFees.toLocaleString()}</div>
-          <div class="trd-tile-lab">EVAL FEES SPENT</div>
+          <div class="trd-tile-lab">EVAL FEES</div>
         </div>
       </div>
     </div>`;
   }
 
+  if(!entries.length){
+    return`<div class="page-wrap" style="padding:0">
+      ${pageHeader}
+      <div class="trd-body">
+        ${navBar}
+        ${hero}
+        ${accountBar}
+        <div class="trd-empty" style="padding:28px 16px;text-align:center">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">No trades in this view</div>
+          <div style="font-size:9px;color:var(--muted2);margin-bottom:12px">Try selecting a different tab or range above.</div>
+          <button type="button" onclick="setTradingRange('all');setTradingAccountFilter('all');" class="btn btn-sm" style="font-size:9px;padding:4px 10px;background:var(--card2);color:var(--text)">View All Trades</button>
+        </div>
+        ${logCta}
+      </div>
+    </div>`;
+  }
+
   // ── Rules vs Outcome — verified: 66.7% win rate when followed vs 11.1% when not ──
+  const decided=entries.map(t=>{
+    const tot=getTradeTotal(t,acctFilter==='all'?null:acctFilter);
+    const pnlType=tot!=null?(tot>0?'win':tot<0?'loss':'breakeven'):(acctFilter==='all'?t.pnlType:'');
+    return {...t,pnlType};
+  }).filter(t=>t.pnlType==='win'||t.pnlType==='loss');
   const followed=decided.filter(t=>t.followedRules);
   const notFollowed=decided.filter(t=>!t.followedRules);
   const wrArr=arr=>Math.round(arr.filter(t=>t.pnlType==='win').length/arr.length*100);
@@ -22957,7 +23447,9 @@ function renderTradingPage(){
           if(!d)return'<div></div>';
           const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           const t=byDate[dateStr];
-          const cls=t?(t.pnlType==='win'?'is-win':t.pnlType==='loss'?'is-loss':'is-be'):'';
+          const calTot=t?getTradeTotal(t,acctFilter==='all'?null:acctFilter):null;
+          const pType=calTot!=null?(calTot>0?'win':calTot<0?'loss':'breakeven'):(acctFilter==='all'&&t?t.pnlType:'');
+          const cls=pType==='win'?'is-win':pType==='loss'?'is-loss':pType==='breakeven'?'is-be':'';
           return`<div class="trd-cal-cell${cls?' '+cls:''}" ${t?`onclick="openTradeLog('${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(dateStr+'T12:00:00').getDay()]}')"`:''}>${d}</div>`;
         }).join('')}
       </div>
@@ -22989,7 +23481,7 @@ function renderTradingPage(){
     const dayCls=dayPnl==null?'':dayPnl>0?'is-win':dayPnl<0?'is-loss':'is-be';
     return`<div class="trd-day${dayCls?' '+dayCls:''}" onclick="openTradeLog('${day.dk}')">
       <div class="trd-day-top">
-        <span class="trd-day-date">${new Date(day.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})} <span class="trd-day-rating">· ${day.rating} day</span></span>
+        <span class="trd-day-date">${new Date(day.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}${day.rating?` <span class="trd-day-rating">· ${day.rating} day</span>`:''}</span>
         <div class="trd-day-right">
           ${day.followedRules!=null?`<span class="trd-rules ${day.followedRules?'ok':'bad'}">${day.followedRules?'✓ rules':'✗ rules'}</span>`:''}
           <span class="trd-day-pnl" style="color:${col}">${fmtPnl(dayPnl)}</span>
@@ -23012,14 +23504,14 @@ function renderTradingPage(){
   }).filter(Boolean).join('');
 
   return`<div class="page-wrap" style="padding:0">${pageHeader}<div class="trd-body">
-    ${rangeToggle}
+    ${navBar}
     ${hero}
-    ${accountLifecycleSection}
+    ${accountBar}
     ${logCta}
     ${calCard}
     ${insightsBlock}
     <div class="trd-log-hdr">TRADE LOG${feedTruncated?` <span class="trd-log-note">· last ${FEED_DAY_CAP} days</span>`:''}</div>
-    ${feed}
+    ${feed||'<div class="trd-empty" style="padding:16px;text-align:center;color:var(--muted2);font-size:10px">No trades matching this filter.</div>'}
     <button class="trd-cta trd-cta-quiet" onclick="openTradeLog('${TODAY}')">+ LOG TODAY'S TRADE</button>
   </div></div>`;
 }
@@ -25704,7 +26196,7 @@ function renderMealPlanEditor(){
         ${mealOpen?`<div class="settings-meal-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
             <div><label class="lbl">NAME</label><input id="mp-slot-n-${si}" class="inp" value="${(slot.name||'').replace(/"/g,'&quot;')}" style="margin-bottom:0" onblur="mealPlanUpdateSlot(${si},'name',this.value)"/></div>
-            <div><label class="lbl">TIME</label><button type="button" class="time-pick-btn" onclick="openMealSlotTimePicker(${si})">${(slot.t||'Set time').replace(/</g,'&lt;')}</button></div>
+            <div><label class="lbl">TIME</label><button type="button" class="time-pick-btn" onclick="openMealSlotTimePicker(${si})">${String(slot.t||'Set time').replace(/</g,'&lt;')}</button></div>
           </div>
           <div style="font-size:8px;color:#fb923c;letter-spacing:1.5px;font-weight:700;margin-bottom:6px">FOODS</div>
           ${itemsHtml}
@@ -28043,7 +28535,8 @@ function renderTradeEntryCard(t,idx){
   // Backward compat: a legacy trade only ever had a single `firm` string.
   const selectedFirms=t.firms&&t.firms.length?t.firms:(t.firm?[t.firm]:[]);
   const accountsMax=5*Math.max(1,selectedFirms.length);
-  const accountType=t.accountType==='funded'?'funded':'eval';
+  const defaultAcctType=(window._tradingAccountFilter==='funded'||(tradeAccounts.some(a=>a.type==='funded'&&a.status==='active')&&!tradeAccounts.some(a=>(a.type||'eval')==='eval'&&a.status==='active')))?'funded':'eval';
+  const accountType=(t.accountType==='funded'||t.accountType==='eval')?t.accountType:defaultAcctType;
   const isFunded=accountType==='funded';
   return`<div class="trade-entry-card" data-accounttype="${accountType}">
     <div class="tec-top">
@@ -28265,8 +28758,9 @@ function removeWorkoutDropset(btn){window.removeWorkoutDropset(btn);}
 window.addTradeEntryCard=function(){
   const container=document.getElementById('trade-entries');
   if(!container)return;
+  const defAcctType=(window._tradingAccountFilter==='funded'||(tradeAccounts.some(a=>a.type==='funded'&&a.status==='active')&&!tradeAccounts.some(a=>(a.type||'eval')==='eval'&&a.status==='active')))?'funded':'eval';
   const div=document.createElement('div');
-  div.innerHTML=renderTradeEntryCard({accountType:'eval'},container.children.length);
+  div.innerHTML=renderTradeEntryCard({accountType:defAcctType},container.children.length);
   container.appendChild(div.firstElementChild);
   window.updateTradeTotalDisplay();
 };
@@ -31838,19 +32332,23 @@ function settingsFieldRow(label,id,val,type,placeholder){
     </div>`;
   }
   const textDraft=window._settingsTextDraft||{};
-  const textVal=(type==='text'&&textDraft[id]!=null)?textDraft[id]:val;
-  const onInput=type==='text'?` oninput="if(!window._settingsTextDraft)window._settingsTextDraft={};window._settingsTextDraft['${id}']=this.value"`:'';
+  const rawVal=textDraft[id]!=null?textDraft[id]:val;
+  const safeVal=rawVal!=null?String(rawVal):'';
+  const numAttrs=type==='number'?' step="any" inputmode="decimal"':'';
+  const onInput=` oninput="if(!window._settingsTextDraft)window._settingsTextDraft={};window._settingsTextDraft['${id}']=this.value"`;
   return`<div class="settings-field-row">
     <label for="${id}">${label}</label>
-    <input type="${type}" id="${id}" class="inp" value="${(textVal||'').replace(/"/g,'&quot;')}"${placeholder?` placeholder="${placeholder}"`:''}${onInput}/>
+    <input type="${type}" id="${id}" class="inp"${numAttrs} value="${safeVal.replace(/"/g,'&quot;')}"${placeholder?` placeholder="${placeholder}"`:''}${onInput}/>
   </div>`;
 }
 window.openSettingsDatePicker=function(id){
-  const pl=document.getElementById('s-pl');
-  if(pl){
-    if(!window._settingsTextDraft)window._settingsTextDraft={};
-    window._settingsTextDraft['s-pl']=pl.value;
-  }
+  ['s-pl','s-start-w','s-goal-w','s-goal-bf'].forEach(function(fid){
+    const el=document.getElementById(fid);
+    if(el){
+      if(!window._settingsTextDraft)window._settingsTextDraft={};
+      window._settingsTextDraft[fid]=el.value;
+    }
+  });
   if(!window._settingsDateDraft)window._settingsDateDraft={};
   // Capture current hidden values into draft before opening
   ['s-ps','s-pe'].forEach(function(fid){
@@ -31959,7 +32457,7 @@ function renderSettingsPage(){
     <button type="button" class="settings-chip${(selected||[]).includes(dk)?' active':''}" onclick="${onclickForDk(dk)}">${dk}</button>`).join('')}</div>`;
   const timePickRow=(label,path,val,title)=>`<div class="settings-field-row">
     <label>${label}</label>
-    <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${(val||'Set time').replace(/</g,'&lt;')}</button>
+    <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${String(val||'Set time').replace(/</g,'&lt;')}</button>
   </div>`;
   const workNightsTimes=(ds.work&&ds.work.workNights)||{};
   const workNightDaysList=ds.work&&ds.work.workNightDays||[];
@@ -32120,7 +32618,7 @@ function renderSettingsPage(){
     return`<div class="settings-field-row" style="opacity:${on?'1':'0.45'}">
       <label>${label}</label>
       <div class="settings-field-controls">
-        <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${(val||'Set time').replace(/</g,'&lt;')}</button>
+        <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${path}','${title||label}')">${String(val||'Set time').replace(/</g,'&lt;')}</button>
         ${habitToggleBtn(profileKey,key,on)}
       </div>
     </div>`;
@@ -32143,7 +32641,7 @@ function renderSettingsPage(){
       <div class="settings-field-row" style="opacity:${walkOn?'1':'0.45'}">
         <label>Walk time</label>
         <div class="settings-field-controls">
-          <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${pathBase}.walk','WALK')">${(profile.walk||'Set time').replace(/</g,'&lt;')}</button>
+          <button type="button" class="time-pick-btn" onclick="openDailySchedTimePicker('${pathBase}.walk','WALK')">${String(profile.walk||'Set time').replace(/</g,'&lt;')}</button>
           ${habitToggleBtn(profileKey,'walk',walkOn)}
         </div>
       </div>
@@ -32317,7 +32815,7 @@ function renderSettingsPage(){
             :`<span style="font-size:6px;letter-spacing:0.6px;color:var(--muted2);font-weight:700;flex-shrink:0">UNUSED</span>`;
           return`<div class="settings-ex-row" data-ex="${safe}" style="padding:8px 0;border-bottom:1px solid var(--border2)">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <input class="inp settings-ex-name" value="${ex.name.replace(/"/g,'&quot;')}" style="flex:1;margin-bottom:0;font-size:10px;padding:6px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();settingsRenameExercise(this)}"/>
+              <input class="inp settings-ex-name" value="${String(ex.name||'').replace(/"/g,'&quot;')}" style="flex:1;margin-bottom:0;font-size:10px;padding:6px 8px" onkeydown="if(event.key==='Enter'){event.preventDefault();settingsRenameExercise(this)}"/>
               ${badge}
             </div>
             <div style="display:flex;gap:6px;align-items:center">
@@ -32973,10 +33471,19 @@ function dlBlob(blob,name){
   // kickoff on some platforms, silently dropping the file. Give it a beat.
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
 }
-// Extracts [date, dayKey] from a 'YYYY-MM-DD-DK' log key; null if not one.
+// Extracts [date, dayKey] from a 'YYYY-MM-DD-DK' or 'YYYY-MM-DD' log key; null if not one.
 function parseLogKey(k){
+  if(!k||typeof k!=='string')return null;
   const m=/^(\d{4}-\d{2}-\d{2})-([A-Z]{3})$/.exec(k);
-  return m?[m[1],m[2]]:null;
+  if(m)return [m[1],m[2]];
+  const m2=/^(\d{4}-\d{2}-\d{2})$/.exec(k);
+  if(m2){
+    const d=new Date(m2[1]+'T12:00:00');
+    if(!isNaN(d.getTime())){
+      return [m2[1], DAYS[d.getDay()]];
+    }
+  }
+  return null;
 }
 const CSV_BUILDERS={
   nutrition:function(){
@@ -33132,7 +33639,7 @@ const CSV_BUILDERS={
       .sort((a,b)=>a[1][0].localeCompare(b[1][0]))
       .forEach(([k,[date,dk]])=>{
         const t=tradeLog[k]||{};
-        if(!t.rating)return;
+        if(!t.rating && !(t.trades&&t.trades.length) && t.pnl==null && !t.notes)return;
         if(t.trades&&t.trades.length){
           t.trades.forEach(tr=>{
             const eff=tr.isBreakeven?0:(tr.pnl!=null?Math.round(tr.pnl*(tr.accounts||1)*100)/100:'');

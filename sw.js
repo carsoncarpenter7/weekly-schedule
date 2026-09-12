@@ -5,7 +5,7 @@
 // updated the cache silently "for next time" — which never actually
 // arrived, since next time did the same thing. The cache now exists purely
 // as an offline fallback, not a stale-serving mechanism.
-const CACHE = 'recomp-shell-v122'; // bumped — true eval costs, reconciliation modal & dual-metric trading pnl
+const CACHE = 'recomp-shell-v126'; // bumped — fix trading data visibility, streamline Funded vs Evals UI, heal account state
 const SHELL = [
   './', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './personal/load-personal.js',

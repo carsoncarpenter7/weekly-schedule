@@ -14,8 +14,12 @@
 //   drinkColorFixed       — optional map of drink id → palette index for stable accents
 //   supplementTypes       — checklist: pills + powders
 //                             {id,name,category:'pill'|'powder',form:'capsule'|'tablet'|'softgel'|'scoop',
-//                              doseAmount,doseUnit,pillCount,timing:'am'|'pm'|'with_meal'|'before_sleep'|'pre_workout'|'post_workout'|null}
+//                              doseAmount,doseUnit,pillCount,servingsPerContainer,inStock,timing:'am'|'pm'|'with_meal'|'before_sleep'|'pre_workout'|'post_workout'|null}
 //   exerciseLibrary       — default lifts per muscle group
+//   defaultTodoItems      — recurring daily task definitions
+//                             [{id,label,category:'routine'|'work_trading'|'fitness'|'personal'|'admin',priority:'focus'|'normal'}]
+//   taskCategories        — custom task categories
+//                             [{id,label,color}]
 window.__PERSONAL__ = window.__PERSONAL__ || {};
 window.__PERSONAL__.profile = {
   baseline: null,
@@ -28,7 +32,9 @@ window.__PERSONAL__.profile = {
     {id:'rice', name:'White rice (cooked)', unit:'cup', unitPer:1, label:'cups', P:4, C:45, F:0, kcal:200, category:'food'},
     {id:'oats', name:'Rolled oats (dry)', unit:'cup', unitPer:1, label:'cups', P:10, C:54, F:5, kcal:300, category:'food'},
     {id:'protein', name:'Whey protein', unit:'scoop', unitPer:1, label:'scoops', P:24, C:2, F:1, kcal:120, category:'powder'},
-    {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70, category:'powder'},
+    {id:'dextrose', name:'Dextrose', unit:'scoop', unitPer:1, label:'scoops', P:0, C:18, F:0, kcal:70, category:'powder', refillQty:227, stockQty:227, inStock:true},
+    {id:'creatine', name:'Creatine', unit:'scoop', unitPer:1, label:'scoops', P:0, C:0, F:0, kcal:0, category:'powder', refillQty:200, stockQty:200, inStock:true},
+    {id:'collagen', name:'Collagen', unit:'scoop', unitPer:1, label:'scoops', P:18, C:0, F:0, kcal:70, category:'powder', refillQty:28, stockQty:28, inStock:true},
   ],
   mealPresets: [
     {name:'Post-gym Shake', items:[{id:'protein',sv:1},{id:'dextrose',sv:2}]},
@@ -38,23 +44,38 @@ window.__PERSONAL__.profile = {
   brandStripWords: [],
   postFastProteinFoodId: 'chicken',
   tradeFirms: ['Topstep','Apex'],
+  firmEvalPrices: { 'Lucid': 105, 'Tradeify': 94, 'Topstep': 85, 'Apex': 35 },
   proteinDrinks: [
     {id:'default',name:'Whey protein',P:24,C:2,F:1,kcal:120,defaultServings:1},
   ],
   drinkColorFixed: {},
   supplementTypes: [
-    {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
-    {id:'sp_multivitamin',name:'Multivitamin',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
-    {id:'sp_vitd',name:'Vitamin D',category:'pill',form:'softgel',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
-    {id:'sp_fishoil',name:'Fish Oil',category:'pill',form:'softgel',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
-    {id:'sp_magnesium',name:'Magnesium',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,timing:null},
+    {id:'sp_creatine',name:'Creatine',category:'powder',form:'scoop',doseAmount:5,doseUnit:'g',pillCount:1,servingsPerContainer:200,inStock:true,timing:'post_workout'},
+    {id:'sp_collagen',name:'Collagen',category:'powder',form:'scoop',doseAmount:20,doseUnit:'g',pillCount:1,servingsPerContainer:28,inStock:true,timing:null},
+    {id:'sp_dextrose',name:'Dextrose',category:'powder',form:'scoop',doseAmount:20,doseUnit:'g',pillCount:1,servingsPerContainer:227,inStock:true,timing:'post_workout'},
+    {id:'sp_vitd',name:'Vitamin D3 + K2',category:'pill',form:'capsule',doseAmount:125,doseUnit:'mcg',pillCount:2,servingsPerContainer:60,inStock:true,timing:'am'},
+    {id:'sp_fishoil',name:'Fish Oil',category:'pill',form:'softgel',doseAmount:1200,doseUnit:'mg',pillCount:2,servingsPerContainer:67,inStock:true,timing:'with_meal'},
+    {id:'sp_magglycinate',name:'Magnesium Glycinate',category:'pill',form:'capsule',doseAmount:100,doseUnit:'mg',pillCount:2,servingsPerContainer:30,inStock:true,timing:'before_sleep'},
+    {id:'sp_ltyrosine',name:'L-Tyrosine',category:'pill',form:'tablet',doseAmount:500,doseUnit:'mg',pillCount:1,servingsPerContainer:100,inStock:true,timing:'am'},
+    {id:'sp_multivitamin',name:'Multivitamin',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,servingsPerContainer:null,inStock:false,timing:null},
+    {id:'sp_magnesium',name:'Magnesium',category:'pill',form:'capsule',doseAmount:null,doseUnit:null,pillCount:1,servingsPerContainer:null,inStock:false,timing:null},
   ],
   exerciseLibrary: {
     CHEST:['Bench Press','Incline Dumbbell Press','Cable Fly','Push-Ups'],
     BACK:['Lat Pulldown','Barbell Row','Face Pulls','Pull-Ups'],
     LEGS:['Squat','Leg Press','Leg Curl','Leg Extension'],
     ABS:['Cable Crunch','Hanging Leg Raise','Plank'],
-    ARMS:['Tricep Pushdown','Barbell Curl','Hammer Curl','Lateral Raise'],
-    TRICEPS:[],BICEPS:[],SHOULDERS:[],
+    ARMS:[],
+    TRICEPS:['Tricep Pushdown'],
+    BICEPS:['Barbell Curl','Hammer Curl'],
+    SHOULDERS:['Lateral Raise'],
   },
+  defaultTodoItems: [
+    {id:'td_water',label:'16oz water upon waking',category:'routine',priority:'normal'},
+    {id:'td_supps',label:'Take daily supplements',category:'routine',priority:'normal'},
+    {id:'td_charts',label:'Prep daily charts & market levels',category:'work_trading',priority:'focus'},
+    {id:'td_stretch',label:'10 min mobility & stretching',category:'fitness',priority:'normal'},
+    {id:'td_read',label:'Read 15 min or review journal',category:'personal',priority:'normal'},
+  ],
+  taskCategories: [],
 };

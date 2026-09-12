@@ -5,7 +5,7 @@
 // updated the cache silently "for next time" — which never actually
 // arrived, since next time did the same thing. The cache now exists purely
 // as an offline fallback, not a stale-serving mechanism.
-const CACHE = 'recomp-shell-v118'; // bumped — supplement + fasting timeline detail UI
+const CACHE = 'recomp-shell-v122'; // bumped — true eval costs, reconciliation modal & dual-metric trading pnl
 const SHELL = [
   './', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './personal/load-personal.js',
